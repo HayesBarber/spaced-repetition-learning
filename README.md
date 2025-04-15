@@ -1,4 +1,4 @@
-# 🧠 `spl` — Spaced Repetition Learning CLI
+# 🧠 `srl` — Spaced Repetition Learning CLI
 
 A lightweight command-line tool for mastering LeetCode-style data structures and algorithm problems using **spaced repetition**.
 
@@ -22,8 +22,8 @@ Your progress is saved to:
 
 ```
 
-~/.spl/problems_in_progress.json
-~/.spl/problems_mastered.json
+~/.srl/problems_in_progress.json
+~/.srl/problems_mastered.json
 
 ```
 
@@ -38,7 +38,7 @@ TODO
 ### Add or Update a Problem Attempt
 
 ```bash
-spl add "Two Sum" 3
+srl add "Two Sum" 3
 ```
 
 - Adds a new attempt or updates an existing one.
@@ -49,7 +49,7 @@ spl add "Two Sum" 3
 ### List Problems Due Today
 
 ```bash
-spl list
+srl list
 ```
 
 Lists all problems scheduled for today, sorted by:
@@ -60,7 +60,7 @@ Lists all problems scheduled for today, sorted by:
 You can limit the number of problems shown:
 
 ```bash
-spl list -n 3
+srl list -n 3
 ```
 
 ---
@@ -68,7 +68,7 @@ spl list -n 3
 ### View Mastered Problems
 
 ```bash
-spl mastered
+srl mastered
 ```
 
 Shows all problems you’ve marked as mastered (achieved `5` twice in a row).
@@ -81,13 +81,13 @@ Shows all problems you’ve marked as mastered (achieved `5` twice in a row).
 2. Run:
 
 ```bash
-spl add "Merge Intervals" 2
+srl add "Merge Intervals" 2
 ```
 
 3. The next day, check what to review:
 
 ```bash
-spl list
+srl list
 ```
 
 4. Rinse and repeat until mastery!

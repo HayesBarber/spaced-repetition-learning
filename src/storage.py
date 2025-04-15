@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-DATA_DIR = Path.home() / ".spl"
+DATA_DIR = Path.home() / ".srl"
 PROGRESS_FILE = DATA_DIR / "problems_in_progress.json"
 MASTERED_FILE = DATA_DIR / "problems_mastered.json"
 

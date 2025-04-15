@@ -2,7 +2,7 @@ import argparse
 from problems import add_or_update_problem, get_due_problems, get_mastered_problems
 
 def main():
-    parser = argparse.ArgumentParser(prog="spl")
+    parser = argparse.ArgumentParser(prog="srl")
     subparsers = parser.add_subparsers(dest="command")
 
     add = subparsers.add_parser("add", help="Add or update a problem attempt")

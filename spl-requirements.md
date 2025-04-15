@@ -17,7 +17,7 @@ When you try a leetcode problem, you give it a rating 1-5. A 1 rating means you 
 ## Non-functional requirements
 
 - The tool should be written in python
-- The cli command should be "spl"
+- The cli command should be "srl"
 - The problems in progress should written to a json file
 - When a problem is mastered, it should be moved to a separate json file
 - When listing problems, the tool should prioritize by last attempt, and then rating. For example, if the user rating a problem as a 1 two days ago, and a different problem as a 1 yesterday, the problem from two days ago should be higher in the list

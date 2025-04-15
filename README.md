@@ -31,7 +31,19 @@ These files are created automatically.
 
 ## ⚡ Installation
 
-TODO
+1. Clone the repo:
+
+```bash
+git clone https://github.com/HayesBarber/spaced-repetition-learning.git
+```
+
+2. Create an alias for ease of use:
+
+```bash
+alias spl="python3 /path/to/src/cli.py"
+```
+
+Now you can run `srl` from anywhere.
 
 ## 🧑‍💻 Usage
 

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from .storage import (
+from storage import (
     ensure_data_dir, load_json, save_json,
     PROGRESS_FILE, MASTERED_FILE
 )

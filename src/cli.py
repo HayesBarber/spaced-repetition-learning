@@ -1,5 +1,5 @@
 import argparse
-from .problems import add_or_update_problem, get_due_problems, get_mastered_problems
+from problems import add_or_update_problem, get_due_problems, get_mastered_problems
 
 def main():
     parser = argparse.ArgumentParser(prog="spl")
@@ -34,3 +34,6 @@ def main():
             print(f" - {m}")
     else:
         parser.print_help()
+
+if __name__ == "__main__":
+    main()

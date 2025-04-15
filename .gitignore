@@ -7,12 +7,11 @@ __pycache__/
 venv/
 env/
 
-# IDE or editor-specific files (adjust if you use different tools)
+# IDE or editor-specific files
 .vscode/
 .idea/
 *.sublime-workspace
 *.sublime-project
 
 .DS_Store
-
 .env

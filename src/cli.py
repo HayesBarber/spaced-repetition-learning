@@ -38,7 +38,7 @@ def main():
         in_progress = get_in_progress()
         print("Problems in progress:")
         for p in in_progress:
-            print(f" - {m}")
+            print(f" - {p}")
     else:
         parser.print_help()
 

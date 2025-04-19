@@ -1,5 +1,5 @@
 import argparse
-from problems import add_or_update_problem, get_due_problems, get_mastered_problems
+from problems import add_or_update_problem, get_due_problems, get_mastered_problems, get_in_progress
 
 def main():
     parser = argparse.ArgumentParser(prog="srl")
@@ -13,6 +13,8 @@ def main():
     list_.add_argument("-n", type=int, default=None, help="Max number of problems")
 
     subparsers.add_parser("mastered", help="List mastered problems")
+    
+    subparsers.add_parser("inprogress", help="List problems in progress")
 
     args = parser.parse_args()
 
@@ -31,6 +33,11 @@ def main():
         mastered = get_mastered_problems()
         print("Mastered problems:")
         for m in mastered:
+            print(f" - {m}")
+    elif args.command == "inprogress":
+        in_progress = get_in_progress()
+        print("Problems in progress:")
+        for p in in_progress:
             print(f" - {m}")
     else:
         parser.print_help()

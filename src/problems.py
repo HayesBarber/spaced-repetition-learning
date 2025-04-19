@@ -30,6 +30,16 @@ def add_or_update_problem(name, rating):
 
     save_json(PROGRESS_FILE, data)
 
+def get_in_progress():
+    ensure_data_dir()
+    data = load_json(PROGRESS_FILE)
+    res = []
+
+    for name, _ in data.items():
+        res.append(name)
+
+    return res
+
 def get_due_problems(limit=None):
     ensure_data_dir()
     data = load_json(PROGRESS_FILE)

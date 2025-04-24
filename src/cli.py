@@ -13,7 +13,7 @@ def main():
     list_.add_argument("-n", type=int, default=None, help="Max number of problems")
 
     mastered = subparsers.add_parser("mastered", help="List mastered problems")
-    mastered.add_argument("-c", type=int, default=None, help="Count of mastered problems")
+    mastered.add_argument("-c", action="store_true", help="Show count of mastered problems")
     
     subparsers.add_parser("inprogress", help="List problems in progress")
 

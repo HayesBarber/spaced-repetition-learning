@@ -85,6 +85,12 @@ srl mastered
 
 Shows all problems you’ve marked as mastered (achieved `5` twice in a row).
 
+You can show the count of mastered problems by passing in the `-c` flag.
+
+```bash
+srl mastered -c
+```
+
 ---
 
 ## 💡 Example Workflow

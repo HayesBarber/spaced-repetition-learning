@@ -62,4 +62,14 @@ def get_due_problems(limit=None):
 
 def get_mastered_problems():
     ensure_data_dir()
-    return list(load_json(MASTERED_FILE).keys())
+    data = load_json(MASTERED_FILE)
+    mastered = []
+
+    for name, info in data.items():
+        history = info["history"]
+        if not history:
+            continue
+        attempts = len(history)
+        mastered.append(f"{name} -> {attempts} attempts")
+
+    return mastered

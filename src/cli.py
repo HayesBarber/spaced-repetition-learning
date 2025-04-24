@@ -12,7 +12,8 @@ def main():
     list_ = subparsers.add_parser("list", help="List due problems")
     list_.add_argument("-n", type=int, default=None, help="Max number of problems")
 
-    subparsers.add_parser("mastered", help="List mastered problems")
+    mastered = subparsers.add_parser("mastered", help="List mastered problems")
+    mastered.add_argument("-c", type=int, default=None, help="Count of mastered problems")
     
     subparsers.add_parser("inprogress", help="List problems in progress")
 
@@ -30,10 +31,14 @@ def main():
         else:
             print("No problems due today.")
     elif args.command == "mastered":
-        mastered = get_mastered_problems()
-        print("Mastered problems:")
-        for m in mastered:
-            print(f" - {m}")
+        mastered_problems = get_mastered_problems()
+        if args.c:
+            mastered_count = len(mastered_problems)
+            print(f"Mastered Count: {mastered_count}")
+        else:
+            print("Mastered problems:")
+            for m in mastered_problems:
+                print(f" - {m}")
     elif args.command == "inprogress":
         in_progress = get_in_progress()
         print("Problems in progress:")

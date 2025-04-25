@@ -75,8 +75,15 @@ def get_due_problems(limit=None):
 
     # Sort: older last attempt first, then lower rating
     due.sort(key=lambda x: (x[1], x[2]))
+    due_names = [name for name, _, _ in (due[:limit] if limit else due)]
 
-    return [name for name, _, _ in (due[:limit] if limit else due)]
+    if not due_names:
+        next_up = load_json(NEXT_UP_FILE)
+        fallback = list(next_up.keys())[:limit or 3]
+        return fallback
+
+    return due_names
+
 
 def get_mastered_problems():
     ensure_data_dir()

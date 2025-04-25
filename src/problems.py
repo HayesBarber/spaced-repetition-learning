@@ -1,11 +1,22 @@
 from datetime import datetime, timedelta
 from storage import (
     ensure_data_dir, load_json, save_json,
-    PROGRESS_FILE, MASTERED_FILE
+    PROGRESS_FILE, MASTERED_FILE, NEXT_UP_FILE
 )
 
 def _today():
     return datetime.today().date()
+
+def add_to_next_up(name):
+    ensure_data_dir()
+    data = load_json(NEXT_UP_FILE)
+
+    if name in data:
+        print(f'"{name}" is already in the Next Up queue.')
+        return
+
+    data[name] = {"added": _today().isoformat()}
+    save_json(NEXT_UP_FILE, data)
 
 def add_or_update_problem(name, rating):
     ensure_data_dir()
@@ -29,6 +40,12 @@ def add_or_update_problem(name, rating):
         data[name] = entry
 
     save_json(PROGRESS_FILE, data)
+
+    # Remove from next up if it exists there
+    next_up = load_json(NEXT_UP_FILE)
+    if name in next_up:
+        del next_up[name]
+        save_json(NEXT_UP_FILE, next_up)
 
 def get_in_progress():
     ensure_data_dir()
@@ -57,8 +74,15 @@ def get_due_problems(limit=None):
 
     # Sort: older last attempt first, then lower rating
     due.sort(key=lambda x: (x[1], x[2]))
+    due_names = [name for name, _, _ in (due[:limit] if limit else due)]
 
-    return [name for name, _, _ in (due[:limit] if limit else due)]
+    if not due_names:
+        next_up = load_json(NEXT_UP_FILE)
+        fallback = list(next_up.keys())[:limit or 3]
+        return fallback
+
+    return due_names
+
 
 def get_mastered_problems():
     ensure_data_dir()

@@ -1,5 +1,10 @@
 import argparse
-from problems import add_or_update_problem, get_due_problems, get_mastered_problems, get_in_progress
+from problems import (
+    add_or_update_problem, get_due_problems,
+    get_mastered_problems, get_in_progress,
+    add_to_next_up
+)
+from storage import load_json, NEXT_UP_FILE
 
 def main():
     parser = argparse.ArgumentParser(prog="srl")
@@ -14,8 +19,12 @@ def main():
 
     mastered = subparsers.add_parser("mastered", help="List mastered problems")
     mastered.add_argument("-c", action="store_true", help="Show count of mastered problems")
-    
+
     subparsers.add_parser("inprogress", help="List problems in progress")
+
+    nextup = subparsers.add_parser("nextup", help="Next up problem queue")
+    nextup.add_argument("action", choices=["add", "list"], help="Add or list next-up problems")
+    nextup.add_argument("name", nargs="?", help="Problem name (only needed for 'add')")
 
     args = parser.parse_args()
 
@@ -29,7 +38,7 @@ def main():
             for p in problems:
                 print(f" - {p}")
         else:
-            print("No problems due today.")
+            print("No problems due today or in Next Up.")
     elif args.command == "mastered":
         mastered_problems = get_mastered_problems()
         if args.c:
@@ -44,6 +53,20 @@ def main():
         print("Problems in progress:")
         for p in in_progress:
             print(f" - {p}")
+    elif args.command == "nextup":
+        if args.action == "add":
+            if not args.name:
+                print("Please provide a problem name to add to Next Up.")
+            else:
+                add_to_next_up(args.name)
+        elif args.action == "list":
+            next_up = load_json(NEXT_UP_FILE)
+            if next_up:
+                print("Next Up problems:")
+                for name in next_up:
+                    print(f" - {name}")
+            else:
+                print("Next Up queue is empty.")
     else:
         parser.print_help()
 

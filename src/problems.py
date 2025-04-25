@@ -1,11 +1,23 @@
 from datetime import datetime, timedelta
 from storage import (
     ensure_data_dir, load_json, save_json,
-    PROGRESS_FILE, MASTERED_FILE
+    PROGRESS_FILE, MASTERED_FILE, NEXT_UP_FILE
 )
 
 def _today():
     return datetime.today().date()
+
+def add_to_next_up(name):
+    ensure_data_dir()
+    data = load_json(NEXT_UP_FILE)
+
+    if name in data:
+        print(f'"{name}" is already in the Next Up queue.')
+        return
+
+    data[name] = {"added": _today().isoformat()}
+    save_json(NEXT_UP_FILE, data)
+    print(f'Added "{name}" to the Next Up queue.')
 
 def add_or_update_problem(name, rating):
     ensure_data_dir()

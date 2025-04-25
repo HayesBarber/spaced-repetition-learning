@@ -107,6 +107,8 @@ List problems in the queue:
 srl nextup list
 ```
 
+---
+
 ## 💡 Example Workflow
 
 1. Solve a LeetCode problem.

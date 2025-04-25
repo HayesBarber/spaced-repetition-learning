@@ -59,6 +59,7 @@ def main():
                 print("Please provide a problem name to add to Next Up.")
             else:
                 add_to_next_up(args.name)
+                print(f"Added {args.name} to Next Up Queue")
         elif args.action == "list":
             next_up = load_json(NEXT_UP_FILE)
             if next_up:

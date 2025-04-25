@@ -93,6 +93,20 @@ srl mastered -c
 
 ---
 
+### Manage the Next Up Queue
+
+Add problems to your Next Up queue — problems you'd like to tackle next when nothing is due:
+
+```bash
+srl nextup add "Sliding Window Maximum"
+```
+
+List problems in the queue:
+
+```bash
+srl nextup list
+```
+
 ## 💡 Example Workflow
 
 1. Solve a LeetCode problem.

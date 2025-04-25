@@ -42,6 +42,12 @@ def add_or_update_problem(name, rating):
 
     save_json(PROGRESS_FILE, data)
 
+    # Remove from next up if it exists there
+    next_up = load_json(NEXT_UP_FILE)
+    if name in next_up:
+        del next_up[name]
+        save_json(NEXT_UP_FILE, next_up)
+
 def get_in_progress():
     ensure_data_dir()
     data = load_json(PROGRESS_FILE)

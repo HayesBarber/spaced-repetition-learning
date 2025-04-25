@@ -17,7 +17,6 @@ def add_to_next_up(name):
 
     data[name] = {"added": _today().isoformat()}
     save_json(NEXT_UP_FILE, data)
-    print(f'Added "{name}" to the Next Up queue.')
 
 def add_or_update_problem(name, rating):
     ensure_data_dir()

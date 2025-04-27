@@ -36,6 +36,7 @@ def add_or_update_problem(name, rating):
         save_json(MASTERED_FILE, mastered)
         if name in data:
             del data[name]
+        print(f"{name} moved to mastered!")
     else:
         data[name] = entry
 

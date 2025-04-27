@@ -30,7 +30,6 @@ def main():
 
     if args.command == "add":
         add_or_update_problem(args.name, args.rating)
-        print(f"Added rating {args.rating} for '{args.name}'")
     elif args.command == "list":
         problems = get_due_problems(args.n)
         if problems:

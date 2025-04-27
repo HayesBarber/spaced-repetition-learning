@@ -39,6 +39,7 @@ def add_or_update_problem(name, rating):
         print(f"{name} moved to mastered!")
     else:
         data[name] = entry
+        print(f"Added rating {rating} for '{name}'")
 
     save_json(PROGRESS_FILE, data)
 

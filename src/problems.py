@@ -135,3 +135,4 @@ def audit_fail():
     
     remove_from_mastered(curr)
     add_or_update_problem(curr, 1)
+    save_json(AUDIT_FILE, {})

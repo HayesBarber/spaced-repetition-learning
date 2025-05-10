@@ -4,9 +4,10 @@ from problems import (
     get_mastered_problems, get_in_progress,
     add_to_next_up
 )
-from storage import load_json, NEXT_UP_FILE
+from storage import ensure_data_dir, load_json, NEXT_UP_FILE
 
 def main():
+    ensure_data_dir()
     parser = argparse.ArgumentParser(prog="srl")
     subparsers = parser.add_subparsers(dest="command")
 

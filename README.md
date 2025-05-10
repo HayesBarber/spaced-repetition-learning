@@ -119,6 +119,18 @@ You can also manually trigger an audit:
 srl audit
 ```
 
+If you passed the audit:
+
+```bash
+srl audit --pass
+```
+
+If you failed the audit:
+
+```bash
+srl audit --fail
+```
+
 ---
 
 ## 💡 Example Workflow

@@ -96,25 +96,15 @@ def get_mastered_problems():
 
     return mastered
 
-def remove_from_mastered(problem):
-    data = load_json(MASTERED_FILE)
-
-    for k in list(data):
-        if problem in k:
-            del data[k]
-            break
-    
-    save_json(MASTERED_FILE, data)
-
 def should_audit():
     return random.random() < 0.1
 
 def random_audit():
-    mastered = get_mastered_problems()
+    data = load_json(MASTERED_FILE)
+    mastered = list(data)
     if not mastered:
         return None
     problem: str = random.choice(mastered)
-    problem = problem.split("->")[0].strip()
     data = load_json(AUDIT_FILE)
     data["current_audit"] = problem
     save_json(AUDIT_FILE, data)
@@ -132,7 +122,28 @@ def audit_fail():
     if not curr:
         print("Current audit does not exist")
         return
-    
-    remove_from_mastered(curr)
-    add_or_update_problem(curr, 1)
+
+    mastered = load_json(MASTERED_FILE)
+    progress = load_json(PROGRESS_FILE)
+
+    if curr not in mastered:
+        print(f"{curr} not found in mastered.")
+        return
+
+    entry = mastered[curr]
+    # Append new failed attempt
+    entry["history"].append({
+        "rating": 1,
+        "date": _today().isoformat()
+    })
+
+    # Move to progress
+    progress[curr] = entry
+    save_json(PROGRESS_FILE, progress)
+
+    # Remove from mastered
+    del mastered[curr]
+    save_json(MASTERED_FILE, mastered)
+
+    # Clear audit file
     save_json(AUDIT_FILE, {})

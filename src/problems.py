@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
+import random
 from storage import (
-    load_json, save_json,
+    AUDIT_FILE, load_json, save_json,
     PROGRESS_FILE, MASTERED_FILE, NEXT_UP_FILE
 )
 
@@ -95,5 +96,16 @@ def get_mastered_problems():
 
     return mastered
 
+def should_audit():
+    return random.random() < 0.1
+
 def random_audit():
-    pass
+    mastered = get_mastered_problems()
+    if not mastered:
+        return None
+    problem: str = random.choice(mastered)
+    problem = problem.split("->")[0].strip()
+    data = load_json(AUDIT_FILE)
+    data["current_audit"] = problem
+    save_json(AUDIT_FILE, data)
+    return problem

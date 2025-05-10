@@ -109,3 +109,7 @@ def random_audit():
     data["current_audit"] = problem
     save_json(AUDIT_FILE, data)
     return problem
+
+def get_current_audit():
+    data = load_json(AUDIT_FILE)
+    return data.get("current_audit")

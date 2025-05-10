@@ -94,3 +94,6 @@ def get_mastered_problems():
         mastered.append(f"{name} -> {attempts} attempts")
 
     return mastered
+
+def random_audit():
+    pass

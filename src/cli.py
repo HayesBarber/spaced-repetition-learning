@@ -28,6 +28,13 @@ def main():
     if args.command == "add":
         add_or_update_problem(args.name, args.rating)
     elif args.command == "list":
+        if should_audit() and not get_current_audit():
+            problem = random_audit()
+            if problem:
+                print("You have been randomly audited!")
+                print(f"Audit problem: {problem}")
+                print("Run srl audit --pass or --fail when done")
+                return
         
         problems = get_due_problems(args.n)
         if problems:

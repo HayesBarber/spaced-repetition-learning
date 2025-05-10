@@ -23,6 +23,10 @@ def main():
     nextup.add_argument("action", choices=["add", "list"], help="Add or list next-up problems")
     nextup.add_argument("name", nargs="?", help="Problem name (only needed for 'add')")
 
+    audit = subparsers.add_parser("audit", help="Random audit functionality")
+    audit.add_argument("--pass", dest="audit_pass", action="store_true", help="Pass the audit")
+    audit.add_argument("--fail", dest="audit_fail", action="store_true", help="Fail the audit")
+
     args = parser.parse_args()
 
     if args.command == "add":
@@ -72,6 +76,31 @@ def main():
                     print(f" - {name}")
             else:
                 print("Next Up queue is empty.")
+    elif args.command == "audit":
+        if args.audit_pass:
+            if get_current_audit():
+                audit_pass()
+                print("Audit passed!")
+            else:
+                print("No active audit to pass.")
+        elif args.audit_fail:
+            if get_current_audit():
+                audit_fail()
+                print("Audit failed. Problem moved back to in-progress.")
+            else:
+                print("No active audit to fail.")
+        else:
+            curr = get_current_audit()
+            if curr:
+                print(f"Current audit problem: {curr}")
+                print("Run with --pass or --fail to complete it.")
+            else:
+                problem = random_audit()
+                if problem:
+                    print(f"You are now being audited on: {problem}")
+                    print("Run with --pass or --fail to complete the audit.")
+                else:
+                    print("No mastered problems available for audit.")
     else:
         parser.print_help()
 

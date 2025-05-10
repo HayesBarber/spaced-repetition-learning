@@ -1,12 +1,9 @@
 import argparse
-from problems import (
-    add_or_update_problem, get_due_problems,
-    get_mastered_problems, get_in_progress,
-    add_to_next_up
-)
-from storage import load_json, NEXT_UP_FILE
+from problems import *
+from storage import ensure_data_dir, load_json, NEXT_UP_FILE
 
 def main():
+    ensure_data_dir()
     parser = argparse.ArgumentParser(prog="srl")
     subparsers = parser.add_subparsers(dest="command")
 
@@ -26,11 +23,23 @@ def main():
     nextup.add_argument("action", choices=["add", "list"], help="Add or list next-up problems")
     nextup.add_argument("name", nargs="?", help="Problem name (only needed for 'add')")
 
+    audit = subparsers.add_parser("audit", help="Random audit functionality")
+    audit.add_argument("--pass", dest="audit_pass", action="store_true", help="Pass the audit")
+    audit.add_argument("--fail", dest="audit_fail", action="store_true", help="Fail the audit")
+
     args = parser.parse_args()
 
     if args.command == "add":
         add_or_update_problem(args.name, args.rating)
     elif args.command == "list":
+        if should_audit() and not get_current_audit():
+            problem = random_audit()
+            if problem:
+                print("You have been randomly audited!")
+                print(f"Audit problem: {problem}")
+                print("Run srl audit --pass or --fail when done")
+                return
+        
         problems = get_due_problems(args.n)
         if problems:
             print("Problems to practice today:")
@@ -67,6 +76,31 @@ def main():
                     print(f" - {name}")
             else:
                 print("Next Up queue is empty.")
+    elif args.command == "audit":
+        if args.audit_pass:
+            if get_current_audit():
+                audit_pass()
+                print("Audit passed!")
+            else:
+                print("No active audit to pass.")
+        elif args.audit_fail:
+            if get_current_audit():
+                audit_fail()
+                print("Audit failed. Problem moved back to in-progress.")
+            else:
+                print("No active audit to fail.")
+        else:
+            curr = get_current_audit()
+            if curr:
+                print(f"Current audit problem: {curr}")
+                print("Run with --pass or --fail to complete it.")
+            else:
+                problem = random_audit()
+                if problem:
+                    print(f"You are now being audited on: {problem}")
+                    print("Run with --pass or --fail to complete the audit.")
+                else:
+                    print("No mastered problems available for audit.")
     else:
         parser.print_help()
 

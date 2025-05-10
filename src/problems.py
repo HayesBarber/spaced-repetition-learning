@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
+import random
 from storage import (
-    ensure_data_dir, load_json, save_json,
+    AUDIT_FILE, load_json, save_json,
     PROGRESS_FILE, MASTERED_FILE, NEXT_UP_FILE
 )
 
@@ -8,7 +9,6 @@ def _today():
     return datetime.today().date()
 
 def add_to_next_up(name):
-    ensure_data_dir()
     data = load_json(NEXT_UP_FILE)
 
     if name in data:
@@ -19,7 +19,6 @@ def add_to_next_up(name):
     save_json(NEXT_UP_FILE, data)
 
 def add_or_update_problem(name, rating):
-    ensure_data_dir()
     data = load_json(PROGRESS_FILE)
 
     entry = data.get(name, {"history": []})
@@ -50,7 +49,6 @@ def add_or_update_problem(name, rating):
         save_json(NEXT_UP_FILE, next_up)
 
 def get_in_progress():
-    ensure_data_dir()
     data = load_json(PROGRESS_FILE)
     res = []
 
@@ -60,7 +58,6 @@ def get_in_progress():
     return res
 
 def get_due_problems(limit=None):
-    ensure_data_dir()
     data = load_json(PROGRESS_FILE)
     due = []
 
@@ -87,7 +84,6 @@ def get_due_problems(limit=None):
 
 
 def get_mastered_problems():
-    ensure_data_dir()
     data = load_json(MASTERED_FILE)
     mastered = []
 
@@ -99,3 +95,55 @@ def get_mastered_problems():
         mastered.append(f"{name} -> {attempts} attempts")
 
     return mastered
+
+def should_audit():
+    return random.random() < 0.1
+
+def random_audit():
+    data = load_json(MASTERED_FILE)
+    mastered = list(data)
+    if not mastered:
+        return None
+    problem: str = random.choice(mastered)
+    data = load_json(AUDIT_FILE)
+    data["current_audit"] = problem
+    save_json(AUDIT_FILE, data)
+    return problem
+
+def get_current_audit():
+    data = load_json(AUDIT_FILE)
+    return data.get("current_audit")
+
+def audit_pass():
+    save_json(AUDIT_FILE, {})
+
+def audit_fail():
+    curr = get_current_audit()
+    if not curr:
+        print("Current audit does not exist")
+        return
+
+    mastered = load_json(MASTERED_FILE)
+    progress = load_json(PROGRESS_FILE)
+
+    if curr not in mastered:
+        print(f"{curr} not found in mastered.")
+        return
+
+    entry = mastered[curr]
+    # Append new failed attempt
+    entry["history"].append({
+        "rating": 1,
+        "date": _today().isoformat()
+    })
+
+    # Move to progress
+    progress[curr] = entry
+    save_json(PROGRESS_FILE, progress)
+
+    # Remove from mastered
+    del mastered[curr]
+    save_json(MASTERED_FILE, mastered)
+
+    # Clear audit file
+    save_json(AUDIT_FILE, {})

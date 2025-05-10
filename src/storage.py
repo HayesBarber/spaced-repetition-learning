@@ -5,6 +5,7 @@ DATA_DIR = Path.home() / ".srl"
 PROGRESS_FILE = DATA_DIR / "problems_in_progress.json"
 MASTERED_FILE = DATA_DIR / "problems_mastered.json"
 NEXT_UP_FILE = DATA_DIR / "next_up.json"
+AUDIT_FILE = DATA_DIR / "audit.json"
 
 def ensure_data_dir():
     DATA_DIR.mkdir(parents=True, exist_ok=True)

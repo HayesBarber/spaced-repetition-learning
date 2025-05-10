@@ -96,6 +96,16 @@ def get_mastered_problems():
 
     return mastered
 
+def remove_from_mastered(problem):
+    data = load_json(MASTERED_FILE)
+
+    for k in list(data):
+        if problem in k:
+            del data[k]
+            break
+    
+    save_json(MASTERED_FILE, data)
+
 def should_audit():
     return random.random() < 0.1
 
@@ -116,3 +126,12 @@ def get_current_audit():
 
 def audit_pass():
     save_json(AUDIT_FILE, {})
+
+def audit_fail():
+    curr = get_current_audit()
+    if not curr:
+        print("Current audit does not exist")
+        return
+    
+    remove_from_mastered(curr)
+    add_or_update_problem(curr, 1)

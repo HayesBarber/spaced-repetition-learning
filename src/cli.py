@@ -1,5 +1,5 @@
 import argparse
-import problems
+from problems import *
 from storage import ensure_data_dir, load_json, NEXT_UP_FILE
 
 def main():
@@ -26,9 +26,10 @@ def main():
     args = parser.parse_args()
 
     if args.command == "add":
-        problems.add_or_update_problem(args.name, args.rating)
+        add_or_update_problem(args.name, args.rating)
     elif args.command == "list":
-        problems = problems.get_due_problems(args.n)
+        
+        problems = get_due_problems(args.n)
         if problems:
             print("Problems to practice today:")
             for p in problems:
@@ -36,7 +37,7 @@ def main():
         else:
             print("No problems due today or in Next Up.")
     elif args.command == "mastered":
-        mastered_problems = problems.get_mastered_problems()
+        mastered_problems = get_mastered_problems()
         if args.c:
             mastered_count = len(mastered_problems)
             print(f"Mastered Count: {mastered_count}")
@@ -45,7 +46,7 @@ def main():
             for m in mastered_problems:
                 print(f" - {m}")
     elif args.command == "inprogress":
-        in_progress = problems.get_in_progress()
+        in_progress = get_in_progress()
         print("Problems in progress:")
         for p in in_progress:
             print(f" - {p}")
@@ -54,7 +55,7 @@ def main():
             if not args.name:
                 print("Please provide a problem name to add to Next Up.")
             else:
-                problems.add_to_next_up(args.name)
+                add_to_next_up(args.name)
                 print(f"Added {args.name} to Next Up Queue")
         elif args.action == "list":
             next_up = load_json(NEXT_UP_FILE)

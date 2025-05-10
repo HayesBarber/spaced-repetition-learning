@@ -109,6 +109,30 @@ srl nextup list
 
 ---
 
+### Random Audit
+
+When running `srl list` there is a 10% chance you will be "audited" with a problem from your mastered list.
+
+You can also manually trigger an audit:
+
+```bash
+srl audit
+```
+
+If you passed the audit:
+
+```bash
+srl audit --pass
+```
+
+If you failed the audit:
+
+```bash
+srl audit --fail
+```
+
+---
+
 ## 💡 Example Workflow
 
 1. Solve a LeetCode problem.

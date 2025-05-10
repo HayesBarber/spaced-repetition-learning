@@ -113,3 +113,6 @@ def random_audit():
 def get_current_audit():
     data = load_json(AUDIT_FILE)
     return data.get("current_audit")
+
+def audit_pass():
+    save_json(AUDIT_FILE, {})

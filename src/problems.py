@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import random
 from storage import (
     AUDIT_FILE,
+    CONFIG_FILE,
     load_json,
     save_json,
     PROGRESS_FILE,
@@ -109,7 +110,13 @@ def get_mastered_problems():
 
 
 def should_audit():
-    return random.random() < 0.1
+    config = load_json(CONFIG_FILE)
+    probability = config.get("audit_probability", 0.1)
+    try:
+        probability = float(probability)
+    except (ValueError, TypeError):
+        probability = 0.1
+    return random.random() < probability
 
 
 def random_audit():

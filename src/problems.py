@@ -1,12 +1,18 @@
 from datetime import datetime, timedelta
 import random
 from storage import (
-    AUDIT_FILE, load_json, save_json,
-    PROGRESS_FILE, MASTERED_FILE, NEXT_UP_FILE
+    AUDIT_FILE,
+    load_json,
+    save_json,
+    PROGRESS_FILE,
+    MASTERED_FILE,
+    NEXT_UP_FILE,
 )
+
 
 def _today():
     return datetime.today().date()
+
 
 def add_to_next_up(name):
     data = load_json(NEXT_UP_FILE)
@@ -18,14 +24,12 @@ def add_to_next_up(name):
     data[name] = {"added": _today().isoformat()}
     save_json(NEXT_UP_FILE, data)
 
+
 def add_or_update_problem(name, rating):
     data = load_json(PROGRESS_FILE)
 
     entry = data.get(name, {"history": []})
-    entry["history"].append({
-        "rating": rating,
-        "date": _today().isoformat()
-    })
+    entry["history"].append({"rating": rating, "date": _today().isoformat()})
 
     # Mastery check: last two ratings are 5
     history = entry["history"]
@@ -48,6 +52,7 @@ def add_or_update_problem(name, rating):
         del next_up[name]
         save_json(NEXT_UP_FILE, next_up)
 
+
 def get_in_progress():
     data = load_json(PROGRESS_FILE)
     res = []
@@ -56,6 +61,7 @@ def get_in_progress():
         res.append(name)
 
     return res
+
 
 def get_due_problems(limit=None):
     data = load_json(PROGRESS_FILE)
@@ -77,7 +83,7 @@ def get_due_problems(limit=None):
 
     if not due_names:
         next_up = load_json(NEXT_UP_FILE)
-        fallback = list(next_up.keys())[:limit or 3]
+        fallback = list(next_up.keys())[: limit or 3]
         return fallback
 
     return due_names
@@ -96,8 +102,10 @@ def get_mastered_problems():
 
     return mastered
 
+
 def should_audit():
     return random.random() < 0.1
+
 
 def random_audit():
     data = load_json(MASTERED_FILE)
@@ -110,12 +118,15 @@ def random_audit():
     save_json(AUDIT_FILE, data)
     return problem
 
+
 def get_current_audit():
     data = load_json(AUDIT_FILE)
     return data.get("current_audit")
 
+
 def audit_pass():
     save_json(AUDIT_FILE, {})
+
 
 def audit_fail():
     curr = get_current_audit()
@@ -132,10 +143,12 @@ def audit_fail():
 
     entry = mastered[curr]
     # Append new failed attempt
-    entry["history"].append({
-        "rating": 1,
-        "date": _today().isoformat()
-    })
+    entry["history"].append(
+        {
+            "rating": 1,
+            "date": _today().isoformat(),
+        }
+    )
 
     # Move to progress
     progress[curr] = entry

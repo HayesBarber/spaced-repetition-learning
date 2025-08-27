@@ -1,6 +1,6 @@
 import argparse
 from problems import *
-from storage import ensure_data_dir, load_json, NEXT_UP_FILE, CONFIG_FILE, save_json
+from storage import ensure_data_dir, load_json, NEXT_UP_FILE
 
 
 def main():

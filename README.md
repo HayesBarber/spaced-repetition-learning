@@ -143,6 +143,16 @@ srl audit --fail
 
 ---
 
+### Update Configuration
+
+You can set configuration values such as the audit probability (default is 0.1):
+
+```bash
+srl config --audit-probability 0.2
+```
+
+This updates the probability that a random audit occurs when running `srl list`.
+
 ## Example Workflow
 
 1. Solve a LeetCode problem.

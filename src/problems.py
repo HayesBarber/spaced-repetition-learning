@@ -182,3 +182,10 @@ def remove_problem(name):
         print(f"Removed '{name}' from in-progress.")
     else:
         print(f"Problem '{name}' not found in in-progress.")
+
+
+def set_audit_probability(probability: float):
+    config = load_json(CONFIG_FILE)
+    config["audit_probability"] = probability
+    save_json(CONFIG_FILE, config)
+    print(f"Audit probability set to {probability}")

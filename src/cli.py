@@ -1,6 +1,6 @@
 import argparse
 from problems import *
-from storage import ensure_data_dir, load_json, NEXT_UP_FILE
+from storage import ensure_data_dir, load_json, NEXT_UP_FILE, CONFIG_FILE, save_json
 
 
 def main():
@@ -38,6 +38,11 @@ def main():
 
     remove = subparsers.add_parser("remove", help="Remove a problem from in-progress")
     remove.add_argument("name", type=str, help="Name of the problem to remove")
+
+    config = subparsers.add_parser("config", help="Update configuration values")
+    config.add_argument(
+        "--audit-probability", type=float, help="Set audit probability (0-1)"
+    )
 
     args = parser.parse_args()
 
@@ -115,6 +120,11 @@ def main():
                     print("Run with --pass or --fail to complete the audit.")
                 else:
                     print("No mastered problems available for audit.")
+    elif args.command == "config":
+        if args.audit_probability is not None:
+            set_audit_probability(args.audit_probability)
+        else:
+            print("No configuration option provided.")
     else:
         parser.print_help()
 

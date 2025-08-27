@@ -36,10 +36,15 @@ def main():
         "--fail", dest="audit_fail", action="store_true", help="Fail the audit"
     )
 
+    remove = subparsers.add_parser("remove", help="Remove a problem from in-progress")
+    remove.add_argument("name", type=str, help="Name of the problem to remove")
+
     args = parser.parse_args()
 
     if args.command == "add":
         add_or_update_problem(args.name, args.rating)
+    elif args.command == "remove":
+        remove_problem(args.name)
     elif args.command == "list":
         if should_audit() and not get_current_audit():
             problem = random_audit()

@@ -160,3 +160,13 @@ def audit_fail():
 
     # Clear audit file
     save_json(AUDIT_FILE, {})
+
+
+def remove_problem(name):
+    data = load_json(PROGRESS_FILE)
+    if name in data:
+        del data[name]
+        save_json(PROGRESS_FILE, data)
+        print(f"Removed '{name}' from in-progress.")
+    else:
+        print(f"Problem '{name}' not found in in-progress.")

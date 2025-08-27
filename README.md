@@ -1,8 +1,8 @@
-# 🧠 `srl` — Spaced Repetition Learning CLI
+# `srl` — Spaced Repetition Learning CLI
 
 A lightweight command-line tool for mastering LeetCode-style data structures and algorithm problems using **spaced repetition**.
 
-## 📚 Overview
+## Overview
 
 This tool helps you practice LeetCode problems more effectively using spaced repetition. When you attempt a problem, rate yourself from `1-5`:
 
@@ -16,7 +16,7 @@ This tool helps you practice LeetCode problems more effectively using spaced rep
 
 If you rate a problem `5` two times in a row, it’s considered mastered and moved to the **mastered list**.
 
-## 💾 Data Storage
+## Data Storage
 
 Your progress is saved to:
 
@@ -29,7 +29,7 @@ Your progress is saved to:
 
 These files are created automatically.
 
-## ⚡ Installation
+## Installation
 
 1. Clone the repo:
 
@@ -45,7 +45,7 @@ alias spl="python3 /path/to/src/cli.py"
 
 Now you can run `srl` from anywhere.
 
-## 🧑‍💻 Usage
+## ‍Usage
 
 ### Add or Update a Problem Attempt
 
@@ -55,6 +55,16 @@ srl add "Two Sum" 3
 
 - Adds a new attempt or updates an existing one.
 - Rating must be between `1` and `5`.
+
+---
+
+### Remove a Problem
+
+```bash
+srl remove "Two Sum"
+```
+
+- Removes a problem from your in-progress list.
 
 ---
 
@@ -133,7 +143,7 @@ srl audit --fail
 
 ---
 
-## 💡 Example Workflow
+## Example Workflow
 
 1. Solve a LeetCode problem.
 2. Run:

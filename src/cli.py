@@ -2,6 +2,7 @@ import argparse
 from problems import *
 from storage import ensure_data_dir, load_json, NEXT_UP_FILE
 
+
 def main():
     ensure_data_dir()
     parser = argparse.ArgumentParser(prog="srl")
@@ -15,22 +16,35 @@ def main():
     list_.add_argument("-n", type=int, default=None, help="Max number of problems")
 
     mastered = subparsers.add_parser("mastered", help="List mastered problems")
-    mastered.add_argument("-c", action="store_true", help="Show count of mastered problems")
+    mastered.add_argument(
+        "-c", action="store_true", help="Show count of mastered problems"
+    )
 
     subparsers.add_parser("inprogress", help="List problems in progress")
 
     nextup = subparsers.add_parser("nextup", help="Next up problem queue")
-    nextup.add_argument("action", choices=["add", "list"], help="Add or list next-up problems")
+    nextup.add_argument(
+        "action", choices=["add", "list"], help="Add or list next-up problems"
+    )
     nextup.add_argument("name", nargs="?", help="Problem name (only needed for 'add')")
 
     audit = subparsers.add_parser("audit", help="Random audit functionality")
-    audit.add_argument("--pass", dest="audit_pass", action="store_true", help="Pass the audit")
-    audit.add_argument("--fail", dest="audit_fail", action="store_true", help="Fail the audit")
+    audit.add_argument(
+        "--pass", dest="audit_pass", action="store_true", help="Pass the audit"
+    )
+    audit.add_argument(
+        "--fail", dest="audit_fail", action="store_true", help="Fail the audit"
+    )
+
+    remove = subparsers.add_parser("remove", help="Remove a problem from in-progress")
+    remove.add_argument("name", type=str, help="Name of the problem to remove")
 
     args = parser.parse_args()
 
     if args.command == "add":
         add_or_update_problem(args.name, args.rating)
+    elif args.command == "remove":
+        remove_problem(args.name)
     elif args.command == "list":
         if should_audit() and not get_current_audit():
             problem = random_audit()
@@ -39,7 +53,7 @@ def main():
                 print(f"Audit problem: {problem}")
                 print("Run srl audit --pass or --fail when done")
                 return
-        
+
         problems = get_due_problems(args.n)
         if problems:
             print("Problems to practice today:")
@@ -103,6 +117,7 @@ def main():
                     print("No mastered problems available for audit.")
     else:
         parser.print_help()
+
 
 if __name__ == "__main__":
     main()

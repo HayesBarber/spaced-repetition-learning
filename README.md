@@ -58,6 +58,16 @@ srl add "Two Sum" 3
 
 ---
 
+### Remove a Problem
+
+```bash
+srl remove "Two Sum"
+```
+
+- Removes a problem from your in-progress list.
+
+---
+
 ### List Problems Due Today
 
 ```bash

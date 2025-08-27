@@ -29,7 +29,12 @@ def add_or_update_problem(name, rating):
     data = load_json(PROGRESS_FILE)
 
     entry = data.get(name, {"history": []})
-    entry["history"].append({"rating": rating, "date": _today().isoformat()})
+    entry["history"].append(
+        {
+            "rating": rating,
+            "date": _today().isoformat(),
+        }
+    )
 
     # Mastery check: last two ratings are 5
     history = entry["history"]

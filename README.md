@@ -18,16 +18,7 @@ If you rate a problem `5` two times in a row, it’s considered mastered and mov
 
 ## Data Storage
 
-Your progress is saved to:
-
-```
-
-~/.srl/problems_in_progress.json
-~/.srl/problems_mastered.json
-
-```
-
-These files are created automatically.
+Data is stored in the `~/.srl` directory, which is created automatically.
 
 ## Installation
 
@@ -40,7 +31,7 @@ git clone https://github.com/HayesBarber/spaced-repetition-learning.git
 2. Create an alias for ease of use:
 
 ```bash
-alias spl="python3 /path/to/src/cli.py"
+alias srl="python3 /path/to/src/cli.py"
 ```
 
 Now you can run `srl` from anywhere.

@@ -120,14 +120,14 @@ def should_audit():
 
 
 def random_audit():
-    data = load_json(MASTERED_FILE)
-    mastered = list(data)
+    data_mastered = load_json(MASTERED_FILE)
+    mastered = list(data_mastered)
     if not mastered:
         return None
     problem: str = random.choice(mastered)
-    data = load_json(AUDIT_FILE)
-    data["current_audit"] = problem
-    save_json(AUDIT_FILE, data)
+    audit_data = load_json(AUDIT_FILE)
+    audit_data["current_audit"] = problem
+    save_json(AUDIT_FILE, audit_data)
     return problem
 
 
@@ -137,7 +137,14 @@ def get_current_audit():
 
 
 def audit_pass():
-    save_json(AUDIT_FILE, {})
+    audit_data = load_json(AUDIT_FILE)
+    curr = get_current_audit()
+    if curr:
+        log_audit_attempt(curr, "pass")
+        audit_data.pop("current_audit", None)
+        save_json(AUDIT_FILE, audit_data)
+    else:
+        save_json(AUDIT_FILE, audit_data)
 
 
 def audit_fail():
@@ -170,8 +177,12 @@ def audit_fail():
     del mastered[curr]
     save_json(MASTERED_FILE, mastered)
 
-    # Clear audit file
-    save_json(AUDIT_FILE, {})
+    log_audit_attempt(curr, "fail")
+
+    # Clear current_audit but preserve history
+    audit_data = load_json(AUDIT_FILE)
+    audit_data.pop("current_audit", None)
+    save_json(AUDIT_FILE, audit_data)
 
 
 def remove_problem(name):
@@ -189,3 +200,18 @@ def set_audit_probability(probability: float):
     config["audit_probability"] = probability
     save_json(CONFIG_FILE, config)
     print(f"Audit probability set to {probability}")
+
+
+def log_audit_attempt(problem, result):
+    audit_data = load_json(AUDIT_FILE)
+    if "history" not in audit_data:
+        audit_data["history"] = []
+
+    audit_data["history"].append(
+        {
+            "date": _today().isoformat(),
+            "problem": problem,
+            "result": result,
+        }
+    )
+    save_json(AUDIT_FILE, audit_data)

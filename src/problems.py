@@ -136,20 +136,11 @@ def get_current_audit():
     return data.get("current_audit")
 
 
-def audit_pass():
-    curr = get_current_audit()
-    if curr:
-        log_audit_attempt(curr, "pass")
-    else:
-        print("Current audit does not exist")
+def audit_pass(curr):
+    log_audit_attempt(curr, "pass")
 
 
-def audit_fail():
-    curr = get_current_audit()
-    if not curr:
-        print("Current audit does not exist")
-        return
-
+def audit_fail(curr):
     mastered = load_json(MASTERED_FILE)
     progress = load_json(PROGRESS_FILE)
 

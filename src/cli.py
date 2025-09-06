@@ -97,14 +97,16 @@ def main():
                 print("Next Up queue is empty.")
     elif args.command == "audit":
         if args.audit_pass:
-            if get_current_audit():
-                audit_pass()
+            curr = get_current_audit()
+            if curr:
+                audit_pass(curr)
                 print("Audit passed!")
             else:
                 print("No active audit to pass.")
         elif args.audit_fail:
-            if get_current_audit():
-                audit_fail()
+            curr = get_current_audit()
+            if curr:
+                audit_fail(curr)
                 print("Audit failed. Problem moved back to in-progress.")
             else:
                 print("No active audit to fail.")

@@ -137,14 +137,11 @@ def get_current_audit():
 
 
 def audit_pass():
-    audit_data = load_json(AUDIT_FILE)
     curr = get_current_audit()
     if curr:
         log_audit_attempt(curr, "pass")
-        audit_data.pop("current_audit", None)
-        save_json(AUDIT_FILE, audit_data)
     else:
-        save_json(AUDIT_FILE, audit_data)
+        print("Current audit does not exist")
 
 
 def audit_fail():
@@ -179,11 +176,6 @@ def audit_fail():
 
     log_audit_attempt(curr, "fail")
 
-    # Clear current_audit but preserve history
-    audit_data = load_json(AUDIT_FILE)
-    audit_data.pop("current_audit", None)
-    save_json(AUDIT_FILE, audit_data)
-
 
 def remove_problem(name):
     data = load_json(PROGRESS_FILE)
@@ -214,4 +206,7 @@ def log_audit_attempt(problem, result):
             "result": result,
         }
     )
+
+    audit_data.pop("current_audit", None)
+
     save_json(AUDIT_FILE, audit_data)

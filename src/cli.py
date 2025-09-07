@@ -1,6 +1,8 @@
 import argparse
 from problems import *
 from storage import ensure_data_dir, load_json, NEXT_UP_FILE
+from rich.table import Table
+from rich.console import Console
 
 
 def main():
@@ -45,6 +47,8 @@ def main():
     )
 
     args = parser.parse_args()
+
+    console = Console()
 
     if args.command == "add":
         add_or_update_problem(args.name, args.rating)

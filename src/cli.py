@@ -74,11 +74,19 @@ def main():
         mastered_problems = get_mastered_problems()
         if args.c:
             mastered_count = len(mastered_problems)
-            print(f"Mastered Count: {mastered_count}")
+            console.print(f"[bold green]Mastered Count:[/bold green] {mastered_count}")
         else:
-            print("Mastered problems:")
-            for m in mastered_problems:
-                print(f" - {m}")
+            if not mastered_problems:
+                console.print("[yellow]No mastered problems yet.[/yellow]")
+            else:
+                table = Table(title="Mastered Problems")
+                table.add_column("Problem", style="cyan", no_wrap=True)
+                table.add_column("Attempts", style="magenta")
+
+                for name, attempts in mastered_problems:
+                    table.add_row(name, str(attempts))
+
+                console.print(table)
     elif args.command == "inprogress":
         in_progress = get_in_progress()
         print("Problems in progress:")

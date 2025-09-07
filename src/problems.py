@@ -104,7 +104,7 @@ def get_mastered_problems():
         if not history:
             continue
         attempts = len(history)
-        mastered.append(f"{name} -> {attempts} attempts")
+        mastered.append((name, attempts))
 
     return mastered
 

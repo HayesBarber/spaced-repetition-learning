@@ -3,6 +3,7 @@ from problems import *
 from storage import ensure_data_dir, load_json, NEXT_UP_FILE
 from rich.table import Table
 from rich.console import Console
+from rich.panel import Panel
 
 
 def main():
@@ -101,18 +102,26 @@ def main():
     elif args.command == "nextup":
         if args.action == "add":
             if not args.name:
-                print("Please provide a problem name to add to Next Up.")
+                console.print(
+                    "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
+                )
             else:
                 add_to_next_up(args.name)
-                print(f"Added {args.name} to Next Up Queue")
+                console.print(
+                    f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
+                )
         elif args.action == "list":
             next_up = load_json(NEXT_UP_FILE)
             if next_up:
-                print("Next Up problems:")
-                for name in next_up:
-                    print(f" - {name}")
+                console.print(
+                    Panel.fit(
+                        "\n".join(f"• {name}" for name in next_up),
+                        title="[bold cyan]Next Up Problems[/bold cyan]",
+                        border_style="cyan",
+                    )
+                )
             else:
-                print("Next Up queue is empty.")
+                console.print("[yellow]Next Up queue is empty.[/yellow]")
     elif args.command == "audit":
         if args.audit_pass:
             curr = get_current_audit()

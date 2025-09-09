@@ -69,10 +69,13 @@ def main():
         problems = get_due_problems(args.n)
         if problems:
             console.print(
-                "[bold underline]Problems to Practice Today:[/bold underline]"
+                Panel.fit(
+                    "\n".join(f"• {p}" for p in problems),
+                    title="[bold blue]Problems to Practice Today[/bold blue]",
+                    border_style="blue",
+                    title_align="left",
+                )
             )
-            for p in problems:
-                console.print(f" • [cyan]{p}[/cyan]")
         else:
             console.print(
                 "[bold green]No problems due today or in Next Up.[/bold green]"

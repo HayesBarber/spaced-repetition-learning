@@ -58,18 +58,24 @@ def main():
         if should_audit() and not get_current_audit():
             problem = random_audit()
             if problem:
-                print("You have been randomly audited!")
-                print(f"Audit problem: {problem}")
-                print("Run srl audit --pass or --fail when done")
+                console.print("[bold red]You have been randomly audited![/bold red]")
+                console.print(f"[yellow]Audit problem:[/yellow] [cyan]{problem}[/cyan]")
+                console.print(
+                    "Run [green]srl audit --pass[/green] or [red]--fail[/red] when done"
+                )
                 return
 
         problems = get_due_problems(args.n)
         if problems:
-            print("Problems to practice today:")
+            console.print(
+                "[bold underline]Problems to Practice Today:[/bold underline]"
+            )
             for p in problems:
-                print(f" - {p}")
+                console.print(f" • [cyan]{p}[/cyan]")
         else:
-            print("No problems due today or in Next Up.")
+            console.print(
+                "[bold green]No problems due today or in Next Up.[/bold green]"
+            )
     elif args.command == "mastered":
         mastered_problems = get_mastered_problems()
         if args.c:

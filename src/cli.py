@@ -96,9 +96,17 @@ def main():
                 console.print(table)
     elif args.command == "inprogress":
         in_progress = get_in_progress()
-        console.print("[bold underline]Problems in progress:[/bold underline]")
-        for p in in_progress:
-            console.print(f" • [cyan]{p}[/cyan]")
+        if in_progress:
+            console.print(
+                Panel.fit(
+                    "\n".join(f"• {p}" for p in in_progress),
+                    title="[bold magenta]Problems in Progress[/bold magenta]",
+                    border_style="magenta",
+                    title_align="left",
+                )
+            )
+        else:
+            console.print("[yellow]No problems currently in progress.[/yellow]")
     elif args.command == "nextup":
         if args.action == "add":
             if not args.name:
@@ -118,6 +126,7 @@ def main():
                         "\n".join(f"• {name}" for name in next_up),
                         title="[bold cyan]Next Up Problems[/bold cyan]",
                         border_style="cyan",
+                        title_align="left",
                     )
                 )
             else:

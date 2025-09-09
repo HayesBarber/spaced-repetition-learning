@@ -95,9 +95,9 @@ def main():
                 console.print(table)
     elif args.command == "inprogress":
         in_progress = get_in_progress()
-        print("Problems in progress:")
+        console.print("[bold underline]Problems in progress:[/bold underline]")
         for p in in_progress:
-            print(f" - {p}")
+            console.print(f" • [cyan]{p}[/cyan]")
     elif args.command == "nextup":
         if args.action == "add":
             if not args.name:

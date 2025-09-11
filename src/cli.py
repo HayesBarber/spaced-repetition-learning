@@ -13,9 +13,7 @@ def main():
 
     console = Console()
 
-    if args.command == "remove":
-        remove_problem(args.name)
-    elif args.command == "list":
+    if args.command == "list":
         if should_audit() and not get_current_audit():
             problem = random_audit()
             if problem:

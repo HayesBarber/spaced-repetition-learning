@@ -55,19 +55,6 @@ def main():
                     table.add_row(name, str(attempts))
 
                 console.print(table)
-    elif args.command == "inprogress":
-        in_progress = get_in_progress()
-        if in_progress:
-            console.print(
-                Panel.fit(
-                    "\n".join(f"• {p}" for p in in_progress),
-                    title="[bold magenta]Problems in Progress[/bold magenta]",
-                    border_style="magenta",
-                    title_align="left",
-                )
-            )
-        else:
-            console.print("[yellow]No problems currently in progress.[/yellow]")
     else:
         parser.print_help()
 

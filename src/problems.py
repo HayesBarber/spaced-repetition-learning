@@ -11,16 +11,6 @@ from storage import (
 )
 
 
-def get_in_progress():
-    data = load_json(PROGRESS_FILE)
-    res = []
-
-    for name, _ in data.items():
-        res.append(name)
-
-    return res
-
-
 def get_due_problems(limit=None):
     data = load_json(PROGRESS_FILE)
     due = []

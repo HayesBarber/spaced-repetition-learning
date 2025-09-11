@@ -13,6 +13,10 @@ def handle(args, console: Console):
     if name in data:
         del data[name]
         save_json(PROGRESS_FILE, data)
-        print(f"Removed '{name}' from in-progress.")
+        console.print(
+            f"[green]Removed[/green] '[cyan]{name}[/cyan]' [green]from in-progress.[/green]"
+        )
     else:
-        print(f"Problem '{name}' not found in in-progress.")
+        console.print(
+            f"[red]Problem[/red] '[cyan]{name}[/cyan]' [red]not found in in-progress.[/red]"
+        )

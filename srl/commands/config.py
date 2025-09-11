@@ -10,9 +10,9 @@ def handle(args, console: Console):
     probability: float | None = args.audit_probability
 
     if not probability:
-        print("No configuration option provided.")
+        console.print("[yellow]No configuration option provided.[/yellow]")
 
     config = load_json(CONFIG_FILE)
     config["audit_probability"] = probability
     save_json(CONFIG_FILE, config)
-    print(f"Audit probability set to {probability}")
+    console.print(f"Audit probability set to [cyan]{probability}[/cyan]")

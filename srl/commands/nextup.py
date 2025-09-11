@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.panel import Panel
-from srl.utils import today
+from utils import today
 from storage import (
     load_json,
     save_json,

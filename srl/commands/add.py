@@ -1,5 +1,5 @@
 from rich.console import Console
-from srl.utils import today
+from utils import today
 from storage import (
     load_json,
     save_json,

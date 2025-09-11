@@ -28,13 +28,19 @@ Data is stored in the `~/.srl` directory, which is created automatically.
 git clone https://github.com/HayesBarber/spaced-repetition-learning.git
 ```
 
-2. Create an alias for ease of use:
+2. Install dependencies:
 
 ```bash
-alias srl="python3 /path/to/src/cli.py"
+pip install -r requirements.txt
 ```
 
-Now you can run `srl` from anywhere.
+3. Install the package in editable mode:
+
+```bash
+pip install -e .
+```
+
+This exposes the `srl` command globally.
 
 ## ‍Usage
 

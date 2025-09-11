@@ -37,20 +37,6 @@ def get_due_problems(limit=None):
     return due_names
 
 
-def get_mastered_problems():
-    data = load_json(MASTERED_FILE)
-    mastered = []
-
-    for name, info in data.items():
-        history = info["history"]
-        if not history:
-            continue
-        attempts = len(history)
-        mastered.append((name, attempts))
-
-    return mastered
-
-
 def should_audit():
     config = load_json(CONFIG_FILE)
     probability = config.get("audit_probability", 0.1)

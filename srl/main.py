@@ -1,6 +1,6 @@
-from cli import build_parser
-from commands import DISPATCH
-from storage import ensure_data_dir
+from srl.cli import build_parser
+from srl.commands import DISPATCH
+from srl.storage import ensure_data_dir
 from rich.console import Console
 
 

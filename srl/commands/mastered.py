@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.table import Table
-from storage import (
+from srl.storage import (
     load_json,
     MASTERED_FILE,
 )

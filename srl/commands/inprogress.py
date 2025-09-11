@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.panel import Panel
-from storage import (
+from srl.storage import (
     load_json,
     PROGRESS_FILE,
 )

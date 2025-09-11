@@ -1,5 +1,5 @@
 from rich.console import Console
-from storage import (
+from srl.storage import (
     load_json,
     save_json,
     CONFIG_FILE,

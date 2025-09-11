@@ -1,10 +1,10 @@
 from rich.console import Console
 from rich.panel import Panel
-from utils import today
-from commands.audit import get_current_audit, random_audit
+from srl.utils import today
+from srl.commands.audit import get_current_audit, random_audit
 from datetime import datetime, timedelta
 import random
-from storage import (
+from srl.storage import (
     load_json,
     NEXT_UP_FILE,
     CONFIG_FILE,

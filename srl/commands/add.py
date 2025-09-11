@@ -1,6 +1,6 @@
 from rich.console import Console
-from utils import today
-from storage import (
+from srl.utils import today
+from srl.storage import (
     load_json,
     save_json,
     PROGRESS_FILE,

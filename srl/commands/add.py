@@ -31,10 +31,14 @@ def handle(args, console: Console):
         save_json(MASTERED_FILE, mastered)
         if name in data:
             del data[name]
-        print(f"{name} moved to mastered!")
+        console.print(
+            f"[bold green]{name}[/bold green] moved to [cyan]mastered[/cyan]!"
+        )
     else:
         data[name] = entry
-        print(f"Added rating {rating} for '{name}'")
+        console.print(
+            f"Added rating [yellow]{rating}[/yellow] for '[cyan]{name}[/cyan]'"
+        )
 
     save_json(PROGRESS_FILE, data)
 

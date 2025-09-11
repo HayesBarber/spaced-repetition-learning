@@ -18,28 +18,32 @@ def handle(args, console: Console):
         curr = get_current_audit()
         if curr:
             audit_pass(curr)
-            print("Audit passed!")
+            console.print("[green]Audit passed![/green]")
         else:
-            print("No active audit to pass.")
+            console.print("[yellow]No active audit to pass.[/yellow]")
     elif audit_fail_arg:
         curr = get_current_audit()
         if curr:
-            audit_fail(curr)
-            print("Audit failed. Problem moved back to in-progress.")
+            audit_fail(curr, console)
+            console.print("[red]Audit failed.[/red] Problem moved back to in-progress.")
         else:
-            print("No active audit to fail.")
+            console.print("[yellow]No active audit to fail.[/yellow]")
     else:
         curr = get_current_audit()
         if curr:
-            print(f"Current audit problem: {curr}")
-            print("Run with --pass or --fail to complete it.")
+            console.print(f"Current audit problem: [cyan]{curr}[/cyan]")
+            console.print("[blue]Run with --pass or --fail to complete it.[/blue]")
         else:
             problem = random_audit()
             if problem:
-                print(f"You are now being audited on: {problem}")
-                print("Run with --pass or --fail to complete the audit.")
+                console.print(f"You are now being audited on: [cyan]{problem}[/cyan]")
+                console.print(
+                    "[blue]Run with --pass or --fail to complete the audit.[/blue]"
+                )
             else:
-                print("No mastered problems available for audit.")
+                console.print(
+                    "[yellow]No mastered problems available for audit.[/yellow]"
+                )
 
 
 def get_current_audit():
@@ -69,12 +73,12 @@ def audit_pass(curr):
     log_audit_attempt(curr, "pass")
 
 
-def audit_fail(curr):
+def audit_fail(curr, console: Console):
     mastered = load_json(MASTERED_FILE)
     progress = load_json(PROGRESS_FILE)
 
     if curr not in mastered:
-        print(f"{curr} not found in mastered.")
+        console.print(f"[red]{curr}[/red] not found in mastered.")
         return
 
     entry = mastered[curr]

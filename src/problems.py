@@ -145,13 +145,6 @@ def remove_problem(name):
         print(f"Problem '{name}' not found in in-progress.")
 
 
-def set_audit_probability(probability: float):
-    config = load_json(CONFIG_FILE)
-    config["audit_probability"] = probability
-    save_json(CONFIG_FILE, config)
-    print(f"Audit probability set to {probability}")
-
-
 def log_audit_attempt(problem, result):
     audit_data = load_json(AUDIT_FILE)
     if "history" not in audit_data:

@@ -119,11 +119,6 @@ def main():
                     print("Run with --pass or --fail to complete the audit.")
                 else:
                     print("No mastered problems available for audit.")
-    elif args.command == "config":
-        if args.audit_probability is not None:
-            set_audit_probability(args.audit_probability)
-        else:
-            print("No configuration option provided.")
     else:
         parser.print_help()
 

@@ -86,55 +86,6 @@ def should_audit():
     return random.random() < probability
 
 
-def random_audit():
-    data_mastered = load_json(MASTERED_FILE)
-    mastered = list(data_mastered)
-    if not mastered:
-        return None
-    problem: str = random.choice(mastered)
-    audit_data = load_json(AUDIT_FILE)
-    audit_data["current_audit"] = problem
-    save_json(AUDIT_FILE, audit_data)
-    return problem
-
-
-def get_current_audit():
-    data = load_json(AUDIT_FILE)
-    return data.get("current_audit")
-
-
-def audit_pass(curr):
-    log_audit_attempt(curr, "pass")
-
-
-def audit_fail(curr):
-    mastered = load_json(MASTERED_FILE)
-    progress = load_json(PROGRESS_FILE)
-
-    if curr not in mastered:
-        print(f"{curr} not found in mastered.")
-        return
-
-    entry = mastered[curr]
-    # Append new failed attempt
-    entry["history"].append(
-        {
-            "rating": 1,
-            "date": _today().isoformat(),
-        }
-    )
-
-    # Move to progress
-    progress[curr] = entry
-    save_json(PROGRESS_FILE, progress)
-
-    # Remove from mastered
-    del mastered[curr]
-    save_json(MASTERED_FILE, mastered)
-
-    log_audit_attempt(curr, "fail")
-
-
 def remove_problem(name):
     data = load_json(PROGRESS_FILE)
     if name in data:
@@ -143,21 +94,3 @@ def remove_problem(name):
         print(f"Removed '{name}' from in-progress.")
     else:
         print(f"Problem '{name}' not found in in-progress.")
-
-
-def log_audit_attempt(problem, result):
-    audit_data = load_json(AUDIT_FILE)
-    if "history" not in audit_data:
-        audit_data["history"] = []
-
-    audit_data["history"].append(
-        {
-            "date": _today().isoformat(),
-            "problem": problem,
-            "result": result,
-        }
-    )
-
-    audit_data.pop("current_audit", None)
-
-    save_json(AUDIT_FILE, audit_data)

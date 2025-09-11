@@ -92,33 +92,6 @@ def main():
                 )
             else:
                 console.print("[yellow]Next Up queue is empty.[/yellow]")
-    elif args.command == "audit":
-        if args.audit_pass:
-            curr = get_current_audit()
-            if curr:
-                audit_pass(curr)
-                print("Audit passed!")
-            else:
-                print("No active audit to pass.")
-        elif args.audit_fail:
-            curr = get_current_audit()
-            if curr:
-                audit_fail(curr)
-                print("Audit failed. Problem moved back to in-progress.")
-            else:
-                print("No active audit to fail.")
-        else:
-            curr = get_current_audit()
-            if curr:
-                print(f"Current audit problem: {curr}")
-                print("Run with --pass or --fail to complete it.")
-            else:
-                problem = random_audit()
-                if problem:
-                    print(f"You are now being audited on: {problem}")
-                    print("Run with --pass or --fail to complete the audit.")
-                else:
-                    print("No mastered problems available for audit.")
     else:
         parser.print_help()
 

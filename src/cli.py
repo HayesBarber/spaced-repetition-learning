@@ -68,30 +68,6 @@ def main():
             )
         else:
             console.print("[yellow]No problems currently in progress.[/yellow]")
-    elif args.command == "nextup":
-        if args.action == "add":
-            if not args.name:
-                console.print(
-                    "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
-                )
-            else:
-                add_to_next_up(args.name)
-                console.print(
-                    f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
-                )
-        elif args.action == "list":
-            next_up = load_json(NEXT_UP_FILE)
-            if next_up:
-                console.print(
-                    Panel.fit(
-                        "\n".join(f"• {name}" for name in next_up),
-                        title="[bold cyan]Next Up Problems[/bold cyan]",
-                        border_style="cyan",
-                        title_align="left",
-                    )
-                )
-            else:
-                console.print("[yellow]Next Up queue is empty.[/yellow]")
     else:
         parser.print_help()
 

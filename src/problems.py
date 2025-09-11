@@ -11,21 +11,6 @@ from storage import (
 )
 
 
-def _today():
-    return datetime.today().date()
-
-
-def add_to_next_up(name):
-    data = load_json(NEXT_UP_FILE)
-
-    if name in data:
-        print(f'"{name}" is already in the Next Up queue.')
-        return
-
-    data[name] = {"added": _today().isoformat()}
-    save_json(NEXT_UP_FILE, data)
-
-
 def get_in_progress():
     data = load_json(PROGRESS_FILE)
     res = []

@@ -51,9 +51,7 @@ def main():
 
     console = Console()
 
-    if args.command == "add":
-        add_or_update_problem(args.name, args.rating)
-    elif args.command == "remove":
+    if args.command == "remove":
         remove_problem(args.name)
     elif args.command == "list":
         if should_audit() and not get_current_audit():

@@ -1,17 +1,32 @@
 import pytest
-import srl.storage
+import srl.commands
+from rich.console import Console
+
+
+@pytest.fixture
+def console():
+    return Console(record=True)
 
 
 @pytest.fixture(autouse=True)
 def temp_data_dir(tmp_path, monkeypatch):
-    monkeypatch.setattr(srl.storage, "DATA_DIR", tmp_path)
-    monkeypatch.setattr(
-        srl.storage, "PROGRESS_FILE", tmp_path / "problems_in_progress.json"
-    )
-    monkeypatch.setattr(
-        srl.storage, "MASTERED_FILE", tmp_path / "problems_mastered.json"
-    )
-    monkeypatch.setattr(srl.storage, "NEXT_UP_FILE", tmp_path / "next_up.json")
-    monkeypatch.setattr(srl.storage, "AUDIT_FILE", tmp_path / "audit.json")
-    monkeypatch.setattr(srl.storage, "CONFIG_FILE", tmp_path / "config.json")
-    yield
+    paths = {
+        "PROGRESS_FILE": tmp_path / "problems_in_progress.json",
+        "MASTERED_FILE": tmp_path / "problems_mastered.json",
+        "NEXT_UP_FILE": tmp_path / "next_up.json",
+        "AUDIT_FILE": tmp_path / "audit.json",
+        "CONFIG_FILE": tmp_path / "config.json",
+    }
+
+    for name, path in paths.items():
+        if "NEXT_UP" in name:
+            path.write_text("[]")
+        else:
+            path.write_text("{}")
+
+        for mod in vars(srl.commands).values():
+            if hasattr(mod, name):
+                monkeypatch.setattr(f"{mod.__name__}.{name}", path)
+        monkeypatch.setattr(f"srl.storage.{name}", path)
+
+    yield paths

@@ -9,8 +9,9 @@ from srl.storage import (
 def handle(args, console: Console):
     probability: float | None = args.audit_probability
 
-    if not probability:
-        console.print("[yellow]No configuration option provided.[/yellow]")
+    if probability == None or probability < 0:
+        console.print("[yellow]Invalid configuration option provided.[/yellow]")
+        return
 
     config = load_json(CONFIG_FILE)
     config["audit_probability"] = probability

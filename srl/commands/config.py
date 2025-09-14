@@ -9,7 +9,7 @@ from srl.storage import (
 def handle(args, console: Console):
     probability: float | None = args.audit_probability
 
-    if probability == None or probability < 0:
+    if probability is None or probability < 0:
         console.print("[yellow]Invalid configuration option provided.[/yellow]")
         return
 

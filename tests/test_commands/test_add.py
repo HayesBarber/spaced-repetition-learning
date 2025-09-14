@@ -20,7 +20,7 @@ def test_add_new_problem(mock_data, console):
     assert progress[problem]["history"][0]["rating"] == rating
 
     output = console.export_text()
-    assert f"Added rating {rating} for '{problem}'"
+    assert f"Added rating {rating} for '{problem}'" in output
 
 
 def test_move_problem_to_mastered(mock_data, console):

@@ -33,7 +33,7 @@ def test_move_problem_to_mastered(tmp_path, console):
     )
     mastered_file.write_text(json.dumps({}))
 
-    args = SimpleNamespace(name=problem, rating=5)
+    args = SimpleNamespace(name=problem, rating=rating)
     add.handle(args=args, console=console)
 
     with open(progress_file) as f:
@@ -47,3 +47,23 @@ def test_move_problem_to_mastered(tmp_path, console):
 
     output = console.export_text()
     assert "moved to" in output
+
+
+def test_remove_problem_from_next_up(tmp_path, console):
+    problem = "What is the speed of light?"
+    rating = 4
+    progress_file = tmp_path / "problems_in_progress.json"
+    next_up_file = tmp_path / "next_up.json"
+
+    next_up_file.write_text(json.dumps({problem: {"dummy": True}}))
+    progress_file.write_text(json.dumps({}))
+
+    args = SimpleNamespace(name=problem, rating=rating)
+    add.handle(args=args, console=console)
+
+    with open(next_up_file) as f:
+        next_up = json.load(f)
+    assert problem not in next_up
+
+    output = console.export_text()
+    assert "Added rating" in output

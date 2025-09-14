@@ -28,12 +28,10 @@ def test_move_problem_to_mastered(mock_data, console):
     rating = 5
     progress_file = mock_data.PROGRESS_FILE
     mastered_file = mock_data.MASTERED_FILE
-    progress_file.write_text(
-        json.dumps({problem: {"history": [{"rating": 5, "date": "2024-06-01"}]}})
-    )
-    mastered_file.write_text(json.dumps({}))
 
     args = SimpleNamespace(name=problem, rating=rating)
+    # call twice with rating 5
+    add.handle(args=args, console=console)
     add.handle(args=args, console=console)
 
     with open(progress_file) as f:

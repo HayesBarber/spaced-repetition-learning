@@ -3,7 +3,7 @@ import json
 from types import SimpleNamespace
 
 
-def test_add_new_problem(temp_data_dir, console):
+def test_add_new_problem(mock_data, console):
     problem = "What is 2+2?"
     rating = 3
     args = SimpleNamespace(name=problem, rating=rating)
@@ -13,7 +13,7 @@ def test_add_new_problem(temp_data_dir, console):
         console=console,
     )
 
-    progress_file = temp_data_dir["PROGRESS_FILE"]
+    progress_file = mock_data.PROGRESS_FILE
     with open(progress_file) as f:
         progress = json.load(f)
     assert problem in progress
@@ -23,11 +23,11 @@ def test_add_new_problem(temp_data_dir, console):
     assert f"Added rating {rating} for '{problem}'"
 
 
-def test_move_problem_to_mastered(temp_data_dir, console):
+def test_move_problem_to_mastered(mock_data, console):
     problem = "What is the capital of France?"
     rating = 5
-    progress_file = temp_data_dir["PROGRESS_FILE"]
-    mastered_file = temp_data_dir["MASTERED_FILE"]
+    progress_file = mock_data.PROGRESS_FILE
+    mastered_file = mock_data.MASTERED_FILE
     progress_file.write_text(
         json.dumps({problem: {"history": [{"rating": 5, "date": "2024-06-01"}]}})
     )
@@ -49,11 +49,11 @@ def test_move_problem_to_mastered(temp_data_dir, console):
     assert "moved to" in output
 
 
-def test_remove_problem_from_next_up(temp_data_dir, console):
+def test_remove_problem_from_next_up(mock_data, console):
     problem = "What is the speed of light?"
     rating = 4
-    progress_file = temp_data_dir["PROGRESS_FILE"]
-    next_up_file = temp_data_dir["NEXT_UP_FILE"]
+    progress_file = mock_data.PROGRESS_FILE
+    next_up_file = mock_data.NEXT_UP_FILE
 
     next_up_file.write_text(json.dumps({problem: {"dummy": True}}))
     progress_file.write_text(json.dumps({}))

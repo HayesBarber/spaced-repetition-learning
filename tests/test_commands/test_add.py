@@ -21,3 +21,29 @@ def test_add_new_problem(tmp_path, console):
 
     output = console.export_text()
     assert f"Added rating {rating} for '{problem}'"
+
+
+def test_move_problem_to_mastered(tmp_path, console):
+    problem = "What is the capital of France?"
+    rating = 5
+    progress_file = tmp_path / "problems_in_progress.json"
+    mastered_file = tmp_path / "problems_mastered.json"
+    progress_file.write_text(
+        json.dumps({problem: {"history": [{"rating": 5, "date": "2024-06-01"}]}})
+    )
+    mastered_file.write_text(json.dumps({}))
+
+    args = SimpleNamespace(name=problem, rating=5)
+    add.handle(args=args, console=console)
+
+    with open(progress_file) as f:
+        progress = json.load(f)
+    assert problem not in progress
+
+    with open(mastered_file) as f:
+        mastered = json.load(f)
+    assert problem in mastered
+    assert mastered[problem]["history"][-1]["rating"] == rating
+
+    output = console.export_text()
+    assert "moved to" in output

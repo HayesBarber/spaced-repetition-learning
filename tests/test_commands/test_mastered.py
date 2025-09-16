@@ -22,12 +22,14 @@ def test_mastered_list_with_items(mock_data, console):
     problem_a = "Problem A"
     problem_b = "Problem B"
 
-    # Add Problem A twice so it moves to mastered
     args = SimpleNamespace(name=problem_a, rating=5)
     add.handle(args, console)
     add.handle(args, console)
 
-    # Add Problem B twice as well
+    args = SimpleNamespace(name=problem_b, rating=5)
+    add.handle(args, console)
+    args = SimpleNamespace(name=problem_b, rating=1)
+    add.handle(args, console)
     args = SimpleNamespace(name=problem_b, rating=5)
     add.handle(args, console)
     add.handle(args, console)
@@ -38,9 +40,9 @@ def test_mastered_list_with_items(mock_data, console):
     output = console.export_text()
     assert "Mastered Problems" in output
     assert "Problem A" in output
+    assert "2" in output
     assert "Problem B" in output
-    assert "2" in output
-    assert "2" in output
+    assert "4" in output
 
 
 def test_mastered_list_empty(mock_data, console):

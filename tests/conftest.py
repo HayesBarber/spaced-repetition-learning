@@ -30,7 +30,7 @@ def mock_data(tmp_path, monkeypatch):
     )
 
     for name, path in vars(paths).items():
-        path.write_text("[]" if "NEXT_UP" in name else "{}")
+        path.write_text("{}")
         for mod in vars(srl.commands).values():
             if hasattr(mod, name):
                 monkeypatch.setattr(f"{mod.__name__}.{name}", path)

@@ -17,7 +17,7 @@ def test_remove_existing_problem(mock_data, console):
     assert problem not in data
 
     output = console.export_text()
-    assert f"Removed" in output
+    assert "Removed" in output
     assert problem in output
 
 
@@ -32,5 +32,5 @@ def test_remove_nonexistent_problem(mock_data, console):
     assert problem not in data
 
     output = console.export_text()
-    assert f"not found in in-progress" in output
+    assert "not found in in-progress" in output
     assert problem in output

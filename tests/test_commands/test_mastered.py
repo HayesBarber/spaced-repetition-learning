@@ -56,7 +56,6 @@ def test_mastered_list_empty(mock_data, console):
 def test_get_mastered_problems_filters_empty_history(mock_data, console):
     problem_a = "Problem A"
 
-    # Add Problem A twice so it moves to mastered
     args = SimpleNamespace(name=problem_a, rating=5)
     add.handle(args, console)
     add.handle(args, console)

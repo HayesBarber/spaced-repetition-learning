@@ -50,11 +50,9 @@ def test_move_problem_to_mastered(mock_data, console):
 def test_remove_problem_from_next_up(mock_data, console):
     problem = "What is the speed of light?"
     rating = 4
-    progress_file = mock_data.PROGRESS_FILE
     next_up_file = mock_data.NEXT_UP_FILE
 
     next_up_file.write_text(json.dumps({problem: {"dummy": True}}))
-    progress_file.write_text(json.dumps({}))
 
     args = SimpleNamespace(name=problem, rating=rating)
     add.handle(args=args, console=console)

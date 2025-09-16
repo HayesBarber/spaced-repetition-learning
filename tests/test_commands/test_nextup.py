@@ -14,7 +14,7 @@ def test_add_to_next_up_new_problem(mock_data, console):
     assert problem in data
 
     output = console.export_text()
-    assert f"Added" in output
+    assert "Added" in output
     assert problem in output
 
 

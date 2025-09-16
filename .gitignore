@@ -16,3 +16,4 @@ env/
 .DS_Store
 .env
 *.egg-info/
+.coverage

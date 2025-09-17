@@ -4,7 +4,9 @@ import json
 from datetime import datetime, timedelta
 
 
-def test_list_with_due_problem(mock_data, console):
+def test_list_with_due_problem(mock_data, console, monkeypatch):
+    monkeypatch.setattr(list_, "should_audit", lambda: False)
+
     problem = "Due Problem"
     # Add problem with rating=1, then backdate it so it's due
     args = SimpleNamespace(name=problem, rating=1)
@@ -26,7 +28,9 @@ def test_list_with_due_problem(mock_data, console):
     assert problem in output
 
 
-def test_list_with_next_up_fallback(mock_data, console):
+def test_list_with_next_up_fallback(console, monkeypatch):
+    monkeypatch.setattr(list_, "should_audit", lambda: False)
+
     problem = "Next Up Problem"
     args = SimpleNamespace(action="add", name=problem)
     nextup.handle(args=args, console=console)
@@ -40,7 +44,9 @@ def test_list_with_next_up_fallback(mock_data, console):
     assert "No problems due" not in output
 
 
-def test_list_empty(console):
+def test_list_empty(console, monkeypatch):
+    monkeypatch.setattr(list_, "should_audit", lambda: False)
+
     args = SimpleNamespace(n=None)
     list_.handle(args=args, console=console)
 

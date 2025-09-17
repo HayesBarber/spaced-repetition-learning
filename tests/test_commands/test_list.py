@@ -62,3 +62,20 @@ def test_should_audit_probability(monkeypatch):
     monkeypatch.setattr(list_, "load_json", lambda _: {"audit_probability": 0.0})
     monkeypatch.setattr(list_.random, "random", lambda: 1.0)  # force no audit
     assert list_.should_audit() is False
+
+
+def test_list_triggers_audit(mock_data, console, monkeypatch):
+    problem = "Audit Problem"
+    args = SimpleNamespace(name=problem, rating=5)
+    add.handle(args=args, console=console)
+    add.handle(args=args, console=console)  # move to mastered
+
+    monkeypatch.setattr(list_, "should_audit", lambda: True)
+
+    args = SimpleNamespace(n=None)
+    list_.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "You have been randomly audited!" in output
+    assert f"Audit problem:" in output
+    assert problem in output

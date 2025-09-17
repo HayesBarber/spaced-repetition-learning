@@ -1,10 +1,9 @@
 from srl.commands import list_, add, nextup
 from types import SimpleNamespace
-import json
 from datetime import datetime, timedelta
 
 
-def test_list_with_due_problem(mock_data, console, monkeypatch):
+def test_list_with_due_problem(mock_data, console, monkeypatch, load_json, dump_json):
     monkeypatch.setattr(list_, "should_audit", lambda: False)
 
     problem = "Due Problem"
@@ -12,13 +11,11 @@ def test_list_with_due_problem(mock_data, console, monkeypatch):
     args = SimpleNamespace(name=problem, rating=1)
     add.handle(args=args, console=console)
 
-    with open(mock_data.PROGRESS_FILE) as f:
-        data = json.load(f)
+    data = load_json(mock_data.PROGRESS_FILE)
     data[problem]["history"][-1]["date"] = (
         datetime.now() - timedelta(days=2)
     ).isoformat()
-    with open(mock_data.PROGRESS_FILE, "w") as f:
-        json.dump(data, f)
+    dump_json(mock_data.PROGRESS_FILE, data)
 
     args = SimpleNamespace(n=None)
     list_.handle(args=args, console=console)

@@ -40,7 +40,7 @@ def test_list_with_next_up_fallback(mock_data, console):
     assert "No problems due" not in output
 
 
-def test_list_empty(mock_data, console):
+def test_list_empty(console):
     args = SimpleNamespace(n=None)
     list_.handle(args=args, console=console)
 

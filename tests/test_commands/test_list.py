@@ -74,5 +74,5 @@ def test_list_triggers_audit(mock_data, console, monkeypatch):
 
     output = console.export_text()
     assert "You have been randomly audited!" in output
-    assert f"Audit problem:" in output
+    assert "Audit problem:" in output
     assert problem in output

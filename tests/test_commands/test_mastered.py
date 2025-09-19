@@ -38,7 +38,7 @@ def test_mastered_list_with_items(console):
     mastered.handle(args=args, console=console)
 
     output = console.export_text()
-    assert "Mastered Problems" in output
+    assert "Mastered Problems (2)" in output
     assert "Problem A" in output
     assert "2" in output
     assert "Problem B" in output

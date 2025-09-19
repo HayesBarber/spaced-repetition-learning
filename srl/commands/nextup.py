@@ -25,7 +25,7 @@ def handle(args, console: Console):
             console.print(
                 Panel.fit(
                     "\n".join(f"• {name}" for name in next_up),
-                    title="[bold cyan]Next Up Problems[/bold cyan]",
+                    title=f"[bold cyan]Next Up Problems ({len(next_up)})[/bold cyan]",
                     border_style="cyan",
                     title_align="left",
                 )

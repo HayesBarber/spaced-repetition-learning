@@ -18,7 +18,7 @@ def test_inprogress_with_items(mock_data, console, load_json):
     data = load_json(mock_data.PROGRESS_FILE)
 
     output = console.export_text()
-    assert "Problems in Progress" in output
+    assert "Problems in Progress (2)" in output
     assert problem_a in output
     assert problem_a in data
     assert problem_b in output

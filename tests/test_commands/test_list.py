@@ -21,7 +21,7 @@ def test_list_with_due_problem(mock_data, console, monkeypatch, load_json, dump_
     list_.handle(args=args, console=console)
 
     output = console.export_text()
-    assert "Problems to Practice Today" in output
+    assert "Problems to Practice Today (1)" in output
     assert problem in output
 
 

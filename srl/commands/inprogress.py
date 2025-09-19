@@ -12,7 +12,7 @@ def handle(args, console: Console):
         console.print(
             Panel.fit(
                 "\n".join(f"• {p}" for p in in_progress),
-                title="[bold magenta]Problems in Progress[/bold magenta]",
+                title=f"[bold magenta]Problems in Progress ({len(in_progress)})[/bold magenta]",
                 border_style="magenta",
                 title_align="left",
             )

@@ -49,7 +49,7 @@ def test_list_next_up_with_items(console):
     nextup.handle(args=args_list, console=console)
 
     output = console.export_text()
-    assert "Next Up Problems" in output
+    assert "Next Up Problems (1)" in output
     assert problem in output
 
 

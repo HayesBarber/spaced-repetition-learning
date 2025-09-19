@@ -2,7 +2,7 @@ from srl.commands import mastered, add
 from types import SimpleNamespace
 
 
-def test_mastered_count(mock_data, console):
+def test_mastered_count(console):
     problem = "Counting Test"
     rating = 5
     args = SimpleNamespace(name=problem, rating=rating)
@@ -18,7 +18,7 @@ def test_mastered_count(mock_data, console):
     assert "1" in output
 
 
-def test_mastered_list_with_items(mock_data, console):
+def test_mastered_list_with_items(console):
     problem_a = "Problem A"
     problem_b = "Problem B"
 
@@ -45,7 +45,7 @@ def test_mastered_list_with_items(mock_data, console):
     assert "4" in output
 
 
-def test_mastered_list_empty(mock_data, console):
+def test_mastered_list_empty(console):
     args = SimpleNamespace(c=False)
     mastered.handle(args=args, console=console)
 
@@ -53,7 +53,7 @@ def test_mastered_list_empty(mock_data, console):
     assert "No mastered problems yet" in output
 
 
-def test_get_mastered_problems_filters_empty_history(mock_data, console):
+def test_get_mastered_problems_filters_empty_history(console):
     problem_a = "Problem A"
 
     args = SimpleNamespace(name=problem_a, rating=5)

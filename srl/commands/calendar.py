@@ -1,20 +1,24 @@
 from rich.console import Console
+from pathlib import Path
 from srl.storage import (
     load_json,
     MASTERED_FILE,
+    PROGRESS_FILE,
     AUDIT_FILE,
 )
 
 
 def handle(args, console: Console):
-    pass
+    mastered_dates = gets_dates(MASTERED_FILE)
+    inprogress_dates = gets_dates(PROGRESS_FILE)
+    audit_dates = get_audit_dates()
 
 
-def get_mastered_dates() -> list[str]:
-    mastered_data = load_json(MASTERED_FILE)
+def gets_dates(path: Path) -> list[str]:
+    json_data = load_json(path)
     res = []
 
-    for obj in mastered_data.values():
+    for obj in json_data.values():
         history = obj.get("history", [])
         if not history:
             continue

@@ -52,7 +52,7 @@ def render_activity(
         return d.isoformat()
 
     day = start
-    all_days = []
+    all_days: list[date] = []
     while day <= today:
         all_days.append(day)
         day += timedelta(days=1)

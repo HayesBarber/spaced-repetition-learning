@@ -1,4 +1,5 @@
 from rich.console import Console
+from collections import Counter
 from pathlib import Path
 from srl.storage import (
     load_json,
@@ -9,12 +10,19 @@ from srl.storage import (
 
 
 def handle(args, console: Console):
-    mastered_dates = gets_dates(MASTERED_FILE)
-    inprogress_dates = gets_dates(PROGRESS_FILE)
-    audit_dates = get_audit_dates()
+    pass
 
 
-def gets_dates(path: Path) -> list[str]:
+def get_all_date_counts() -> Counter[str]:
+    counts = Counter()
+    counts.update(get_dates(MASTERED_FILE))
+    counts.update(get_dates(PROGRESS_FILE))
+    counts.update(get_audit_dates())
+
+    return counts
+
+
+def get_dates(path: Path) -> list[str]:
     json_data = load_json(path)
     res = []
 

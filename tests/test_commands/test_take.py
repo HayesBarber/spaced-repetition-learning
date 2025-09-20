@@ -1,5 +1,6 @@
 from srl.commands import take, nextup, add
 from types import SimpleNamespace
+from datetime import datetime, timedelta
 
 
 def test_take_print_problem(console):
@@ -14,12 +15,17 @@ def test_take_print_problem(console):
     assert problem1 in output
 
 
-def test_take_add_problem_from_inprogress(console, load_json, mock_data):
+def test_take_add_problem_from_inprogress(console, load_json, dump_json, mock_data):
     problem = "Problem with rating"
-    rating = 4
-    args = SimpleNamespace(name=problem, rating=rating)
-
+    args = SimpleNamespace(name=problem, rating=4)
     add.handle(args, console)
+
+    # backdate problem so it's due
+    data = load_json(mock_data.PROGRESS_FILE)
+    data[problem]["history"][-1]["date"] = (
+        datetime.now() - timedelta(days=5)
+    ).isoformat()
+    dump_json(mock_data.PROGRESS_FILE, data)
 
     new_rating = 3
     args = SimpleNamespace(index=0, action="add", rating=new_rating)

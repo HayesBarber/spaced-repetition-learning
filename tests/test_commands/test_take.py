@@ -1,4 +1,4 @@
-from srl.commands import take, nextup
+from srl.commands import take, nextup, add
 from types import SimpleNamespace
 
 
@@ -14,7 +14,23 @@ def test_take_print_problem(console):
     assert problem1 in output
 
 
-def test_take_add_problem_with_rating(console, load_json, mock_data):
+def test_take_add_problem_from_inprogress(console, load_json, mock_data):
+    problem = "Problem with rating"
+    rating = 4
+    args = SimpleNamespace(name=problem, rating=rating)
+
+    add.handle(args, console)
+
+    new_rating = 3
+    args = SimpleNamespace(index=0, action="add", rating=new_rating)
+    take.handle(args=args, console=console)
+
+    inprogress_data = load_json(mock_data.PROGRESS_FILE)
+    assert problem in inprogress_data
+    assert inprogress_data[problem]["history"][-1]["rating"] == new_rating
+
+
+def test_take_add_problem_from_nextup(console, load_json, mock_data):
     problem = "Problem with rating"
     nextup.handle(SimpleNamespace(action="add", name=problem), console=console)
 

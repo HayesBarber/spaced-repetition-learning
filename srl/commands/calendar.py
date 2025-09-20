@@ -58,16 +58,12 @@ def render_activity(
         day += timedelta(days=1)
 
     weeks = []
-    week = [None] * 7
+    week = []
     for d in all_days:
-        weekday = d.weekday()  # 0=Monday ... 6=Sunday
-        # Map Monday=0 → index 1, Sunday=6 → index 0
-        col_index = (weekday + 1) % 7
-        week[col_index] = counts.get(key(d), 0)
-
-        if col_index == 6:
+        week.append(counts.get(key(d), 0))
+        if len(week) == 7:
             weeks.append(week)
-            week = [None] * 7
+            week = []
 
     if any(week):
         weeks.append(week)

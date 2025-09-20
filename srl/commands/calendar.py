@@ -22,7 +22,7 @@ def handle(args, console: Console):
 
 def colors_dict() -> dict[int, str]:
     return {
-        0: "#1a1a1a",  # background
+        0: "#1a1a1a",
         1: "#2ca86d",
         2: "#7ed957",
         3: "#b5f5b0",

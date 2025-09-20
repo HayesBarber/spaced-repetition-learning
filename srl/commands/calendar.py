@@ -15,9 +15,18 @@ from srl.storage import (
 
 def handle(args, console: Console):
     counts = get_all_date_counts()
-    colors = ["grey", "green1", "spring_green3", "green3"]
-    for color in colors:
-        console.print(f"[{color}]■[/]")
+    render_activity(console, counts)
+
+
+def style_for(val: int) -> str:
+    if val == 0:
+        return "#151b23"
+    elif val == 1:
+        return "#033a16"
+    elif val == 2:
+        return "#196c2e"
+    else:
+        return "#56d364"
 
 
 def render_activity(console: Console, counts: Counter[str]):
@@ -44,16 +53,6 @@ def render_activity(console: Console, counts: Counter[str]):
     table = Table(show_header=False, show_edge=False, padding=(0, 0))
     for _ in range(len(grid[0])):
         table.add_column()
-
-    def style_for(val: int) -> str:
-        if val == 0:
-            return "grey23"
-        elif val == 1:
-            return "pale_green1"
-        elif val == 2:
-            return "spring_green3"
-        else:
-            return "green3"
 
     for row in grid:
         table.add_row(

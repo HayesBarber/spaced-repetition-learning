@@ -52,20 +52,17 @@ def render_activity(
         return d.isoformat()
 
     day = start
-    all_days: list[date] = []
-    while day <= today:
-        all_days.append(day)
-        day += timedelta(days=1)
-
     weeks = []
     week = []
-    for d in all_days:
-        week.append(counts.get(key(d), 0))
+    while day <= today:
+        week.append(counts.get(key(day), 0))
         if len(week) == 7:
             weeks.append(week)
             week = []
+        day += timedelta(days=1)
 
-    if any(week):
+    if week:
+        week.extend([None] * (7 - len(week)))
         weeks.append(week)
 
     table = Table(

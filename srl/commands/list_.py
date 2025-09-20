@@ -47,7 +47,7 @@ def should_audit():
     return random.random() < probability
 
 
-def get_due_problems(limit=None):
+def get_due_problems(limit=None) -> list[str]:
     data = load_json(PROGRESS_FILE)
     due = []
 

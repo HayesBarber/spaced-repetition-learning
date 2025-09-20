@@ -10,15 +10,14 @@ def handle(args, console: Console):
     if args.get:
         config = load_json(CONFIG_FILE)
         console.print_json(data=config)
-        return
+    else:
+        probability: float | None = args.audit_probability
 
-    probability: float | None = args.audit_probability
+        if probability is None or probability < 0:
+            console.print("[yellow]Invalid configuration option provided.[/yellow]")
+            return
 
-    if probability is None or probability < 0:
-        console.print("[yellow]Invalid configuration option provided.[/yellow]")
-        return
-
-    config = load_json(CONFIG_FILE)
-    config["audit_probability"] = probability
-    save_json(CONFIG_FILE, config)
-    console.print(f"Audit probability set to [cyan]{probability}[/cyan]")
+        config = load_json(CONFIG_FILE)
+        config["audit_probability"] = probability
+        save_json(CONFIG_FILE, config)
+        console.print(f"Audit probability set to [cyan]{probability}[/cyan]")

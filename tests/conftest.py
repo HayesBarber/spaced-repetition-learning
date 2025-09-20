@@ -1,5 +1,6 @@
 import pytest
 import srl.commands
+from srl.utils import today
 from rich.console import Console
 from dataclasses import dataclass
 import pathlib
@@ -18,6 +19,11 @@ class Paths:
 @pytest.fixture
 def console():
     return Console(record=True)
+
+
+@pytest.fixture
+def today_string():
+    return today().isoformat()
 
 
 @pytest.fixture(autouse=True)

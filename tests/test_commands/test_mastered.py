@@ -18,7 +18,7 @@ def test_mastered_count(console):
     assert "1" in output
 
 
-def test_mastered_list_with_items(console):
+def test_mastered_list_with_items(console, today_string):
     problem_a = "Problem A"
     problem_b = "Problem B"
 
@@ -43,6 +43,7 @@ def test_mastered_list_with_items(console):
     assert "2" in output
     assert "Problem B" in output
     assert "4" in output
+    assert today_string in output
 
 
 def test_mastered_list_empty(console):

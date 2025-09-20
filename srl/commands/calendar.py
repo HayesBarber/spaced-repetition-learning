@@ -71,7 +71,11 @@ def render_activity(
     if any(week):
         weeks.append(week)
 
-    table = Table(show_header=False, show_edge=False, padding=(0, 0))
+    table = Table(
+        show_header=False,
+        show_edge=False,
+        padding=(0, 0),
+    )
     for _ in weeks:
         table.add_column()
 

@@ -10,7 +10,9 @@ from srl.storage import (
 
 
 def handle(args, console: Console):
-    pass
+    counts = get_all_date_counts()
+
+    console.print(counts)
 
 
 def get_all_date_counts() -> Counter[str]:

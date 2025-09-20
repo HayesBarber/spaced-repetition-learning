@@ -21,7 +21,7 @@ def handle(args, console: Console):
         console.print("[yellow]No problems currently in progress.[/yellow]")
 
 
-def get_in_progress():
+def get_in_progress() -> list[str]:
     data = load_json(PROGRESS_FILE)
     res = []
 

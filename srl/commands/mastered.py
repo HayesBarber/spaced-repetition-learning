@@ -20,9 +20,10 @@ def handle(args, console: Console):
             )
             table.add_column("Problem", style="cyan", no_wrap=True)
             table.add_column("Attempts", style="magenta")
+            table.add_column("Mastered Date", style="green")
 
-            for name, attempts in mastered_problems:
-                table.add_row(name, str(attempts))
+            for name, attempts, mastered_date in mastered_problems:
+                table.add_row(name, str(attempts), mastered_date)
 
             console.print(table)
 
@@ -36,6 +37,7 @@ def get_mastered_problems():
         if not history:
             continue
         attempts = len(history)
-        mastered.append((name, attempts))
+        mastered_date = history[-1]["date"]
+        mastered.append((name, attempts, mastered_date))
 
     return mastered

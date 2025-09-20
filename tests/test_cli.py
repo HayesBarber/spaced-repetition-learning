@@ -68,3 +68,34 @@ def test_config_get(parser):
     args = parser.parse_args(["config", "--get"])
     assert args.command == "config"
     assert args.get is True
+
+
+def test_take_command_basic(parser):
+    args = parser.parse_args(["take", "1"])
+    assert args.command == "take"
+    assert args.index == 1
+    assert args.action is None
+    assert args.rating is None
+
+
+def test_take_command_add_with_rating(parser):
+    args = parser.parse_args(["take", "2", "add", "5"])
+    assert args.command == "take"
+    assert args.index == 2
+    assert args.action == "add"
+    assert args.rating == 5
+
+
+def test_take_command_invalid_index(parser):
+    with pytest.raises(SystemExit):
+        parser.parse_args(["take", "-1"])
+
+
+def test_take_command_invalid_action(parser):
+    with pytest.raises(SystemExit):
+        parser.parse_args(["take", "0", "invalid"])
+
+
+def test_take_command_add_invalid_rating(parser):
+    with pytest.raises(SystemExit):
+        parser.parse_args(["take", "3", "add", "-3"])

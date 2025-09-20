@@ -18,7 +18,7 @@ def test_mastered_count(console):
     assert "1" in output
 
 
-def test_mastered_list_with_items(console):
+def test_mastered_list_with_items(console, today_string):
     problem_a = "Problem A"
     problem_b = "Problem B"
 
@@ -43,6 +43,7 @@ def test_mastered_list_with_items(console):
     assert "2" in output
     assert "Problem B" in output
     assert "4" in output
+    assert today_string in output
 
 
 def test_mastered_list_empty(console):
@@ -53,7 +54,7 @@ def test_mastered_list_empty(console):
     assert "No mastered problems yet" in output
 
 
-def test_get_mastered_problems_filters_empty_history(console):
+def test_get_mastered_problems_filters_empty_history(console, today_string):
     problem_a = "Problem A"
 
     args = SimpleNamespace(name=problem_a, rating=5)
@@ -62,4 +63,4 @@ def test_get_mastered_problems_filters_empty_history(console):
 
     result = mastered.get_mastered_problems()
     assert len(result) == 1
-    assert (problem_a, 2) in result
+    assert (problem_a, 2, today_string) in result

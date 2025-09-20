@@ -43,34 +43,49 @@ def render_activity(
     today = date.today()
     start = today - timedelta(days=365)
 
+    # Walk backwards until start is a Sunday (weekday() 6)
+    while start.weekday() != 6:
+        start -= timedelta(days=1)
+
     def key(d: date) -> str:
         return d.isoformat()
 
-    weeks = []
     day = start
+    all_days = []
     while day <= today:
-        week = []
-        for _ in range(7):
-            if day > today:
-                week.append(None)
-            else:
-                week.append(counts.get(key(day), 0))
-            day += timedelta(days=1)
+        all_days.append(day)
+        day += timedelta(days=1)
+
+    weeks = []
+    week = [None] * 7
+    for d in all_days:
+        weekday = d.weekday()  # 0=Monday ... 6=Sunday
+        # Map Monday=0 → index 1, Sunday=6 → index 0
+        col_index = (weekday + 1) % 7
+        week[col_index] = counts.get(key(d), 0)
+
+        if col_index == 6:
+            weeks.append(week)
+            week = [None] * 7
+
+    if any(week):
         weeks.append(week)
 
-    grid = list(zip(*weeks))
-
     table = Table(show_header=False, show_edge=False, padding=(0, 0))
-    for _ in range(len(grid[0])):
+    for _ in weeks:
         table.add_column()
 
     default = list(colors.values())[-1]
 
-    for row in grid:
+    for row_idx in range(7):
         table.add_row(
             *[
-                f"[{colors.get(val, default)}]■[/]" if val is not None else " "
-                for val in row
+                (
+                    f"[{colors.get(week[row_idx], default)}]■[/]"
+                    if week[row_idx] is not None
+                    else " "
+                )
+                for week in weeks
             ]
         )
 

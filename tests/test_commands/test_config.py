@@ -36,7 +36,7 @@ def test_set_none_probability(mock_data, console, load_json):
     assert "Invalid configuration option" in output
 
 
-def test_config_get(mock_data, console, load_json):
+def test_config_get(console):
     args = SimpleNamespace(audit_probability=None, get=True)
     config.handle(args, console)
     output = console.export_text()

@@ -25,7 +25,6 @@ def render_activity(console: Console, counts: Counter[str]):
     def key(d: date) -> str:
         return d.isoformat()
 
-    # Build 7 rows (Mon–Sun) × 53 weeks (~365 days)
     weeks = []
     day = start
     while day <= today:

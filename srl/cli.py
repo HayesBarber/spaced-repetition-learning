@@ -19,6 +19,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers.add_parser("inprogress", help="List problems in progress")
 
+    subparsers.add_parser("calendar", help="Graph of srl activity")
+
     nextup = subparsers.add_parser("nextup", help="Next up problem queue")
     nextup.add_argument(
         "action", choices=["add", "list"], help="Add or list next-up problems"

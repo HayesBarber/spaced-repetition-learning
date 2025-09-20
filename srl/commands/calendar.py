@@ -39,29 +39,7 @@ def render_activity(
     counts: Counter[str],
     colors: dict[int, str],
 ):
-    today = date.today()
-    start = today - timedelta(days=365)
-
-    # Walk backwards until start is a Sunday (weekday() 6)
-    while start.weekday() != 6:
-        start -= timedelta(days=1)
-
-    def key(d: date) -> str:
-        return d.isoformat()
-
-    day = start
-    weeks = []
-    week = []
-    while day <= today:
-        week.append(counts.get(key(day), 0))
-        if len(week) == 7:
-            weeks.append(week)
-            week = []
-        day += timedelta(days=1)
-
-    if week:
-        week.extend([None] * (7 - len(week)))
-        weeks.append(week)
+    weeks = build_weeks(counts)
 
     table = Table(
         show_header=False,
@@ -86,6 +64,35 @@ def render_activity(
         )
 
     console.print(table)
+
+
+def build_weeks(counts: Counter[str]) -> list[list[int | None]]:
+    today = date.today()
+    start = today - timedelta(days=365)
+
+    # Walk backwards until start is a Sunday (weekday() 6)
+    while start.weekday() != 6:
+        start -= timedelta(days=1)
+
+    def key(d: date) -> str:
+        return d.isoformat()
+
+    day = start
+    weeks: list[list[int | None]] = []
+    week: list[int | None] = []
+
+    while day <= today:
+        week.append(counts.get(key(day), 0))
+        if len(week) == 7:
+            weeks.append(week)
+            week = []
+        day += timedelta(days=1)
+
+    if week:
+        week.extend([None] * (7 - len(week)))
+        weeks.append(week)
+
+    return weeks
 
 
 def get_all_date_counts() -> Counter[str]:

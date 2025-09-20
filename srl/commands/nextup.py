@@ -20,7 +20,7 @@ def handle(args, console: Console):
                 f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
             )
     elif args.action == "list":
-        next_up = load_json(NEXT_UP_FILE)
+        next_up = get_next_up_problems()
         if next_up:
             console.print(
                 Panel.fit(
@@ -43,3 +43,13 @@ def add_to_next_up(name, console):
 
     data[name] = {"added": today().isoformat()}
     save_json(NEXT_UP_FILE, data)
+
+
+def get_next_up_problems() -> list[str]:
+    data = load_json(NEXT_UP_FILE)
+    res = []
+
+    for name in data.keys():
+        res.append(name)
+
+    return res

@@ -44,4 +44,23 @@ def build_parser() -> argparse.ArgumentParser:
         "--get", action="store_true", help="Display current configuration"
     )
 
+    def positive_int(value):
+        ivalue = int(value)
+        if ivalue < 0:
+            raise argparse.ArgumentTypeError(f"{value} is not a positive integer")
+        return ivalue
+
+    take = subparsers.add_parser("take", help="Output a problem by index")
+    take.add_argument("index", type=positive_int, help="Index of the problem to output")
+    take.add_argument(
+        "action",
+        nargs="?",
+        choices=["add"],
+        default=None,
+        help="Optional action to perform",
+    )
+    take.add_argument(
+        "rating", type=int, choices=range(1, 6), nargs="?", help="Rating from 1-5"
+    )
+
     return parser

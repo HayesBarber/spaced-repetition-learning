@@ -150,6 +150,34 @@ srl config --audit-probability 0.2
 
 This updates the probability that a random audit occurs when running `srl list`.
 
+To view the current config:
+
+```bash
+srl config --get
+```
+
+---
+
+### Take Command
+
+The `take` command streamlines adding problems and can be easily piped into other commands.
+
+- Print the problem at a specific index in your due list:
+
+```bash
+srl take <index>
+```
+
+This prints the problem at the given index (as shown in `srl list`), making it easy to copy or pipe elsewhere.
+
+- Add a problem at a given index with a rating:
+
+```bash
+srl take <index> add <rating>
+```
+
+This adds the problem at that index with your given rating (1-5), just like `srl add`. It's a shortcut to avoid retyping problem names.
+
 ## Example Workflow
 
 1. Solve a LeetCode problem.

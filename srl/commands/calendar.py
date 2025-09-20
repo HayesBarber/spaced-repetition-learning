@@ -46,22 +46,23 @@ def render_activity(
         show_edge=False,
         padding=(0, 0),
     )
-    for _ in weeks:
-        table.add_column()
 
-    default = list(colors.values())[-1]
+    days_of_week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    default_color = list(colors.values())[-1]
 
     for row_idx in range(7):
-        table.add_row(
-            *[
+        row = [days_of_week[row_idx]]
+        row.extend(
+            [
                 (
-                    f"[{colors.get(week[row_idx], default)}]■[/]"
+                    f"[{colors.get(week[row_idx], default_color)}]■[/]"
                     if week[row_idx] is not None
                     else " "
                 )
                 for week in weeks
             ]
         )
+        table.add_row(*row)
 
     console.print(table)
 

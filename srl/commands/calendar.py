@@ -15,8 +15,7 @@ from srl.storage import (
 
 def handle(args, console: Console):
     colors = colors_dict()
-    legend = build_legend(colors)
-    console.print(legend)
+    render_legend(console, colors)
     counts = get_all_date_counts()
     render_activity(console, counts, colors)
 
@@ -30,9 +29,10 @@ def colors_dict() -> dict[int, str]:
     }
 
 
-def build_legend(colors: dict[int, str]) -> str:
+def render_legend(console: Console, colors: dict[int, str]) -> str:
     squares = "|".join(f"[{colors[level]}]■[/]" for level in colors)
-    return f"Less {squares} More"
+    legend = f"Less {squares} More"
+    console.print(legend)
 
 
 def render_activity(

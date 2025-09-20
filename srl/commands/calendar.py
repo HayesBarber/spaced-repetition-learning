@@ -1,9 +1,7 @@
 from rich.console import Console
 from collections import Counter
 from pathlib import Path
-from collections import Counter
 from datetime import date, timedelta
-from rich.console import Console
 from rich.table import Table
 from srl.storage import (
     load_json,

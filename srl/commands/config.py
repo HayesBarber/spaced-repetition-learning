@@ -7,6 +7,11 @@ from srl.storage import (
 
 
 def handle(args, console: Console):
+    if args.get:
+        config = load_json(CONFIG_FILE)
+        console.print_json(data=config)
+        return
+
     probability: float | None = args.audit_probability
 
     if probability is None or probability < 0:

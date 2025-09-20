@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 
 def test_set_valid_audit_probability(mock_data, console, load_json):
-    args = SimpleNamespace(audit_probability=0.75)
+    args = SimpleNamespace(audit_probability=0.75, get=False)
     config.handle(args, console)
 
     data = load_json(mock_data.CONFIG_FILE)
@@ -15,7 +15,7 @@ def test_set_valid_audit_probability(mock_data, console, load_json):
 
 
 def test_set_invalid_negative_probability(mock_data, console, load_json):
-    args = SimpleNamespace(audit_probability=-0.5)
+    args = SimpleNamespace(audit_probability=-0.5, get=False)
     config.handle(args, console)
 
     data = load_json(mock_data.CONFIG_FILE)
@@ -26,7 +26,7 @@ def test_set_invalid_negative_probability(mock_data, console, load_json):
 
 
 def test_set_none_probability(mock_data, console, load_json):
-    args = SimpleNamespace(audit_probability=None)
+    args = SimpleNamespace(audit_probability=None, get=False)
     config.handle(args, console)
 
     data = load_json(mock_data.CONFIG_FILE)
@@ -34,3 +34,11 @@ def test_set_none_probability(mock_data, console, load_json):
 
     output = console.export_text()
     assert "Invalid configuration option" in output
+
+
+def test_config_get(console):
+    args = SimpleNamespace(audit_probability=None, get=True)
+    config.handle(args, console)
+    output = console.export_text()
+    # Should contain a JSON object, e.g. starts with '{' or contains "audit_probability"
+    assert "{" in output or "audit_probability" in output

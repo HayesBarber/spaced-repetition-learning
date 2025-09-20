@@ -40,5 +40,8 @@ def build_parser() -> argparse.ArgumentParser:
     config.add_argument(
         "--audit-probability", type=float, help="Set audit probability (0-1)"
     )
+    config.add_argument(
+        "--get", action="store_true", help="Display current configuration"
+    )
 
     return parser

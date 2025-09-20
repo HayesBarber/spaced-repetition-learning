@@ -15,7 +15,9 @@ from srl.storage import (
 
 def handle(args, console: Console):
     counts = get_all_date_counts()
-    render_activity(console, counts)
+    colors = ["grey", "green1", "spring_green3", "green3"]
+    for color in colors:
+        console.print(f"[{color}]■[/]")
 
 
 def render_activity(console: Console, counts: Counter[str]):
@@ -50,10 +52,8 @@ def render_activity(console: Console, counts: Counter[str]):
             return "pale_green1"
         elif val == 2:
             return "spring_green3"
-        elif val == 3:
-            return "green3"
         else:
-            return "green4"
+            return "green3"
 
     for row in grid:
         table.add_row(

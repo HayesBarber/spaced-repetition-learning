@@ -15,9 +15,10 @@ from srl.storage import (
 
 def handle(args, console: Console):
     colors = colors_dict()
-    render_legend(console, colors)
     counts = get_all_date_counts()
     render_activity(console, counts, colors)
+    console.print("-" * 5)
+    render_legend(console, colors)
 
 
 def colors_dict() -> dict[int, str]:

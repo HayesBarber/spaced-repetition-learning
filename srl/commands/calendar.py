@@ -2,6 +2,7 @@ from rich.console import Console
 from srl.storage import (
     load_json,
     MASTERED_FILE,
+    AUDIT_FILE,
 )
 
 
@@ -23,3 +24,7 @@ def get_mastered_dates() -> list[str]:
                 res.append(date)
 
     return res
+
+
+def get_audit_dates() -> list[str]:
+    audit_data = load_json(AUDIT_FILE)

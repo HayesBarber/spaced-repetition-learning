@@ -5,6 +5,7 @@ from rich.console import Console
 from dataclasses import dataclass
 import pathlib
 import json
+from datetime import datetime, timedelta
 
 
 @dataclass
@@ -57,9 +58,26 @@ def dump_json():
 
 @pytest.fixture
 def load_json():
+
     def _load(path):
         with open(path) as f:
             data = json.load(f)
         return data
 
     return _load
+
+
+@pytest.fixture
+def backdate_problem(load_json, dump_json, mock_data):
+
+    def _backdate(problem, days):
+        progress_path = mock_data.PROGRESS_FILE
+        data = load_json(progress_path)
+        if problem in data and data[problem].get("history"):
+            last_entry = data[problem]["history"][-1]
+            old_date = datetime.fromisoformat(last_entry["date"])
+            new_date = (old_date - timedelta(days=days)).isoformat()
+            last_entry["date"] = new_date
+            dump_json(progress_path, data)
+
+    return _backdate

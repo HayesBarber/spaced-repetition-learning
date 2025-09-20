@@ -1,21 +1,15 @@
 from srl.commands import list_, add, nextup
 from types import SimpleNamespace
-from datetime import datetime, timedelta
 
 
-def test_list_with_due_problem(mock_data, console, monkeypatch, load_json, dump_json):
+def test_list_with_due_problem(console, monkeypatch, backdate_problem):
     monkeypatch.setattr(list_, "should_audit", lambda: False)
 
     problem = "Due Problem"
     # Add problem with rating=1, then backdate it so it's due
     args = SimpleNamespace(name=problem, rating=1)
     add.handle(args=args, console=console)
-
-    data = load_json(mock_data.PROGRESS_FILE)
-    data[problem]["history"][-1]["date"] = (
-        datetime.now() - timedelta(days=2)
-    ).isoformat()
-    dump_json(mock_data.PROGRESS_FILE, data)
+    backdate_problem(problem, 2)
 
     args = SimpleNamespace(n=None)
     list_.handle(args=args, console=console)

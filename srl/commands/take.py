@@ -1,5 +1,6 @@
+from types import SimpleNamespace
 from rich.console import Console
-from srl.commands import inprogress, nextup
+from srl.commands import inprogress, nextup, add
 
 
 def handle(args, console: Console):
@@ -17,4 +18,12 @@ def handle(args, console: Console):
     if not problem:
         return
 
-    console.print(problem)
+    if args.action == "add":
+        if args.rating is None:
+            console.print(
+                "[red]Error: rating must be provided when action is 'add'[/red]"
+            )
+            return
+        add.handle(SimpleNamespace(name=problem, rating=args.rating), console)
+    else:
+        console.print(problem)

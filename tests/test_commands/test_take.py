@@ -54,6 +54,7 @@ def test_take_add_missing_rating(console):
 
     args = SimpleNamespace(index=0, action="add", rating=None)
     take.handle(args=args, console=console)
+
     output = console.export_text()
     assert "Error: rating must be provided" in output
 
@@ -61,5 +62,22 @@ def test_take_add_missing_rating(console):
 def test_take_index_out_of_bounds(console):
     args = SimpleNamespace(index=5, action=None, rating=None)
     take.handle(args=args, console=console)
+
     output = console.export_text()
     assert output == ""
+
+
+def test_take_add_no_problems_due(console, load_json, mock_data):
+    problem = "Problem with rating"
+    original_rating = 4
+    args = SimpleNamespace(name=problem, rating=original_rating)
+    add.handle(args, console)
+
+    # the problem ^ just added is not due, so "take" should do nothing
+    new_rating = 3
+    args = SimpleNamespace(index=0, action="add", rating=new_rating)
+    take.handle(args=args, console=console)
+
+    inprogress_data = load_json(mock_data.PROGRESS_FILE)
+    assert problem in inprogress_data
+    assert inprogress_data[problem]["history"][-1]["rating"] == original_rating

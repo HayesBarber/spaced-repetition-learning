@@ -30,7 +30,7 @@ def colors_dict() -> dict[int, str]:
 
 
 def render_legend(console: Console, colors: dict[int, str]) -> str:
-    squares = "|".join(f"[{colors[level]}]■[/]" for level in colors)
+    squares = " ".join(f"[{colors[level]}]■[/]" for level in colors)
     legend = f"Less {squares} More"
     console.print(legend)
 

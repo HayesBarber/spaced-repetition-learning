@@ -62,3 +62,9 @@ def test_config_audit_probability(parser):
     args = parser.parse_args(["config", "--audit-probability", "0.3"])
     assert args.command == "config"
     assert args.audit_probability == 0.3
+
+
+def test_config_get(parser):
+    args = parser.parse_args(["config", "--get"])
+    assert args.command == "config"
+    assert args.get is True

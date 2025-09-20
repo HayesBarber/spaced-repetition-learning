@@ -51,17 +51,14 @@ def render_activity(
     default_color = list(colors.values())[-1]
 
     for row_idx in range(7):
-        row = [days_of_week[row_idx]]
-        row.extend(
-            [
-                (
-                    f"[{colors.get(week[row_idx], default_color)}]■[/]"
-                    if week[row_idx] is not None
-                    else " "
-                )
-                for week in weeks
-            ]
-        )
+        row = [days_of_week[row_idx]] + [
+            (
+                f"[{colors.get(week[row_idx], default_color)}]■[/]"
+                if week[row_idx] is not None
+                else " "
+            )
+            for week in weeks
+        ]
         table.add_row(*row)
 
     console.print(table)

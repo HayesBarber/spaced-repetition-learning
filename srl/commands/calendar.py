@@ -14,22 +14,32 @@ from srl.storage import (
 
 
 def handle(args, console: Console):
+    colors = colors_dict()
+    legend = build_legend(colors)
+    console.print(legend)
     counts = get_all_date_counts()
-    render_activity(console, counts)
+    render_activity(console, counts, colors)
 
 
-def style_for(val: int) -> str:
-    if val == 0:
-        return "#151b23"
-    elif val == 1:
-        return "#033a16"
-    elif val == 2:
-        return "#196c2e"
-    else:
-        return "#56d364"
+def colors_dict() -> dict[int, str]:
+    return {
+        0: "#151b23",
+        1: "#033a16",
+        2: "#196c2e",
+        3: "#56d364",
+    }
 
 
-def render_activity(console: Console, counts: Counter[str]):
+def build_legend(colors: dict[int, str]) -> str:
+    squares = "|".join(f"[{colors[level]}]■[/]" for level in colors)
+    return f"Less {squares} More"
+
+
+def render_activity(
+    console: Console,
+    counts: Counter[str],
+    colors: dict[int, str],
+):
     today = date.today()
     start = today - timedelta(days=365)
 
@@ -54,9 +64,14 @@ def render_activity(console: Console, counts: Counter[str]):
     for _ in range(len(grid[0])):
         table.add_column()
 
+    default = list(colors.values())[-1]
+
     for row in grid:
         table.add_row(
-            *[f"[{style_for(val)}]■[/]" if val is not None else " " for val in row]
+            *[
+                f"[{colors.get(val, default)}]■[/]" if val is not None else " "
+                for val in row
+            ]
         )
 
     console.print(table)

@@ -1,5 +1,7 @@
 from srl.commands import calendar
 import pytest
+from collections import Counter
+from datetime import date
 
 
 @pytest.fixture
@@ -80,3 +82,32 @@ def test_get_all_date_counts(
     assert result["2024-06-06"] == 1  # audit pass
     assert result["2024-06-08"] == 1  # audit pass
     assert "2024-06-07" not in result  # audit fail, should not be included
+
+
+def test_build_weeks_with_start_and_today():
+    start = date(2019, 6, 2)
+    today = date(2019, 6, 8)
+
+    counts = Counter(
+        {
+            "2019-06-02": 1,  # Sunday
+            "2019-06-04": 3,  # Tuesday
+            "2019-06-07": 2,  # Friday
+        }
+    )
+
+    weeks = calendar.build_weeks(counts, start=start, today=today)
+
+    assert len(weeks) == 1
+    week = weeks[0]
+    assert len(week) == 7
+
+    assert week[0] == 1
+    assert week[1] == 0
+    assert week[2] == 3
+    assert week[3] == 0
+    assert week[4] == 0
+    assert week[5] == 2
+    assert week[6] == 0
+
+    assert all(day is not None for day in week)

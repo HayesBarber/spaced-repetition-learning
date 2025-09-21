@@ -1,8 +1,15 @@
 from srl.commands import calendar
 
 
-def test_get_audit_dates(dump_mock_audit_data):
-    dump_mock_audit_data()
+def test_get_audit_dates(mock_data, dump_json):
+    mock_audit_data = {
+        "history": [
+            {"date": "2024-06-06", "problem": "problem3", "result": "pass"},
+            {"date": "2024-06-07", "problem": "problem3", "result": "fail"},
+            {"date": "2024-06-08", "problem": "problem3", "result": "pass"},
+        ]
+    }
+    dump_json(mock_data.AUDIT_FILE, mock_audit_data)
 
     result = calendar.get_audit_dates()
 

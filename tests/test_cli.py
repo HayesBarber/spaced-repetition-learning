@@ -99,3 +99,8 @@ def test_take_command_invalid_action(parser):
 def test_take_command_add_invalid_rating(parser):
     with pytest.raises(SystemExit):
         parser.parse_args(["take", "3", "add", "-3"])
+
+
+def test_calendar_command(parser):
+    args = parser.parse_args(["calendar"])
+    assert args.command == "calendar"

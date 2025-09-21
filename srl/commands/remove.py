@@ -6,6 +6,13 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    parser = subparsers.add_parser("remove", help="Remove a problem from in-progress")
+    parser.add_argument("name", type=str, help="Name of the problem to remove")
+    parser.set_defaults(handler=handle)
+    return parser
+
+
 def handle(args, console: Console):
     name: str = args.name
 

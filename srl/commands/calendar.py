@@ -11,6 +11,12 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    parser = subparsers.add_parser("calendar", help="Graph of SRL activity")
+    parser.set_defaults(handler=handle)
+    return parser
+
+
 def handle(args, console: Console):
     colors = colors_dict()
     counts = get_all_date_counts()

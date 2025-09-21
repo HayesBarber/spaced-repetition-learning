@@ -3,7 +3,7 @@ import argparse
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="srl")
-    subparsers = parser.add_subparsers(dest="command")
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
     add = subparsers.add_parser("add", help="Add or update a problem attempt")
     add.add_argument("name", type=str, help="Name of the LeetCode problem")

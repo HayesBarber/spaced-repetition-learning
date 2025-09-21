@@ -8,6 +8,16 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    parser = subparsers.add_parser("nextup", help="Next up problem queue")
+    parser.add_argument(
+        "action", choices=["add", "list"], help="Add or list next-up problems"
+    )
+    parser.add_argument("name", nargs="?", help="Problem name (only needed for 'add')")
+    parser.set_defaults(handler=handle)
+    return parser
+
+
 def handle(args, console: Console):
     if args.action == "add":
         if not args.name:

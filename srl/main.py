@@ -1,5 +1,4 @@
 from srl.cli import build_parser
-from srl.commands import DISPATCH
 from srl.storage import ensure_data_dir
 from rich.console import Console
 
@@ -10,8 +9,7 @@ def main():
     args = parser.parse_args()
     console = Console()
 
-    handler = DISPATCH.get(args.command)
-    if handler:
-        handler(args, console)
+    if hasattr(args, "handler"):
+        args.handler(args, console)
     else:
         parser.print_help()

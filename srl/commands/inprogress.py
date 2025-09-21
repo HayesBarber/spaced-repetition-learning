@@ -6,6 +6,12 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    parser = subparsers.add_parser("inprogress", help="List problems in progress")
+    parser.set_defaults(handler=handle)
+    return parser
+
+
 def handle(args, console: Console):
     in_progress = get_in_progress()
     if in_progress:

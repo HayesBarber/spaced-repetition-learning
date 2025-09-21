@@ -18,7 +18,7 @@ def test_add_to_next_up_new_problem(mock_data, console):
     assert problem in output
 
 
-def test_add_to_next_up_duplicate(mock_data, console):
+def test_add_to_next_up_duplicate(console):
     problem = "Duplicate Problem"
     args = SimpleNamespace(action="add", name=problem)
 
@@ -31,7 +31,7 @@ def test_add_to_next_up_duplicate(mock_data, console):
     assert f'"{problem}" is already in the Next Up queue.' in output
 
 
-def test_add_to_next_up_without_name(mock_data, console):
+def test_add_to_next_up_without_name(console):
     args = SimpleNamespace(action="add", name=None)
 
     nextup.handle(args=args, console=console)

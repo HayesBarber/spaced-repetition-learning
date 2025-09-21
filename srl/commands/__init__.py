@@ -1,4 +1,15 @@
-from . import add, audit, config, inprogress, list_, mastered, nextup, remove, take
+from . import (
+    add,
+    audit,
+    config,
+    inprogress,
+    list_,
+    mastered,
+    nextup,
+    remove,
+    take,
+    calendar,
+)
 
 DISPATCH = {
     "add": add.handle,
@@ -10,4 +21,5 @@ DISPATCH = {
     "audit": audit.handle,
     "config": config.handle,
     "take": take.handle,
+    "calendar": calendar.handle,
 }

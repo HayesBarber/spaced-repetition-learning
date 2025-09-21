@@ -178,6 +178,20 @@ srl take <index> add <rating>
 
 This adds the problem at that index with your given rating (1-5), just like `srl add`. It's a shortcut to avoid retyping problem names.
 
+---
+
+### Calendar Command
+
+The `calendar` command displays a contribution-style heatmap of your problem-solving activity over the past year.
+
+```bash
+srl calendar
+```
+
+This shows counts of your attempts per day with colors representing the intensity of activity. It helps you visualize your consistency and progress in practicing problems over time.
+
+---
+
 ## Example Workflow
 
 1. Solve a LeetCode problem.

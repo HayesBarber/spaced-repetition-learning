@@ -13,7 +13,7 @@ def ensure_data_dir():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def load_json(file_path):
+def load_json(file_path: Path):
     if not file_path.exists():
         return {}
     with open(file_path, "r") as f:

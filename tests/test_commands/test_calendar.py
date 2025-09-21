@@ -85,7 +85,7 @@ def test_get_all_date_counts(
 
 
 def test_build_weeks_with_start_and_today():
-    start = date(2019, 6, 2)
+    start = date(2019, 6, 3)  # Monday
     today = date(2019, 6, 8)
 
     counts = Counter(

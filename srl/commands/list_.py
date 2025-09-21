@@ -12,6 +12,13 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    parser = subparsers.add_parser("list", help="List due problems")
+    parser.add_argument("-n", type=int, default=None, help="Max number of problems")
+    parser.set_defaults(handler=handle)
+    return parser
+
+
 def handle(args, console: Console):
     if should_audit() and not get_current_audit():
         problem = random_audit()

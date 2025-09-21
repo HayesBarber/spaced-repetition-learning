@@ -6,6 +6,15 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    parser = subparsers.add_parser("mastered", help="List mastered problems")
+    parser.add_argument(
+        "-c", action="store_true", help="Show count of mastered problems"
+    )
+    parser.set_defaults(handler=handle)
+    return parser
+
+
 def handle(args, console: Console):
     mastered_problems = get_mastered_problems()
     mastered_count = len(mastered_problems)

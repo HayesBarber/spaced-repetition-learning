@@ -81,3 +81,18 @@ def backdate_problem(load_json, dump_json, mock_data):
             dump_json(progress_path, data)
 
     return _backdate
+
+
+@pytest.fixture
+def dump_mock_audit_data(mock_data, dump_json):
+    def _dump_mock_audit_data():
+        mock_audit_data = {
+            "history": [
+                {"date": "2024-06-06", "problem": "problem3", "result": "pass"},
+                {"date": "2024-06-07", "problem": "problem3", "result": "fail"},
+                {"date": "2024-06-08", "problem": "problem3", "result": "pass"},
+            ]
+        }
+        dump_json(mock_data.AUDIT_FILE, mock_audit_data)
+
+    return _dump_mock_audit_data

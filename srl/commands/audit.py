@@ -10,6 +10,18 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    parser = subparsers.add_parser("audit", help="Random audit functionality")
+    parser.add_argument(
+        "--pass", dest="audit_pass", action="store_true", help="Pass the audit"
+    )
+    parser.add_argument(
+        "--fail", dest="audit_fail", action="store_true", help="Fail the audit"
+    )
+    parser.set_defaults(handler=handle)
+    return parser
+
+
 def handle(args, console: Console):
     audit_pass_arg = args.audit_pass
     audit_fail_arg = args.audit_fail

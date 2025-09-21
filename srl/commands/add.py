@@ -9,6 +9,14 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    add = subparsers.add_parser("add", help="Add or update a problem attempt")
+    add.add_argument("name", type=str, help="Name of the LeetCode problem")
+    add.add_argument("rating", type=int, choices=range(1, 6), help="Rating from 1-5")
+    add.set_defaults(handler=handle)
+    return add
+
+
 def handle(args, console: Console):
     name: str = args.name
     rating: int = args.rating

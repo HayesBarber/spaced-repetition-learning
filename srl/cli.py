@@ -1,13 +1,12 @@
 import argparse
+from srl.commands import add
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="srl")
     subparsers = parser.add_subparsers(dest="command")
 
-    add = subparsers.add_parser("add", help="Add or update a problem attempt")
-    add.add_argument("name", type=str, help="Name of the LeetCode problem")
-    add.add_argument("rating", type=int, choices=range(1, 6), help="Rating from 1-5")
+    add.add_subparser(subparsers)
 
     list_ = subparsers.add_parser("list", help="List due problems")
     list_.add_argument("-n", type=int, default=None, help="Max number of problems")

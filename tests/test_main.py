@@ -1,6 +1,7 @@
 import sys
 import pytest
 from srl import main
+import argparse
 
 
 def test_main_dispatches_to_handler(monkeypatch):
@@ -9,7 +10,16 @@ def test_main_dispatches_to_handler(monkeypatch):
     def fake_handler(args, console):
         called["ok"] = (args, console)
 
-    monkeypatch.setattr(main, "DISPATCH", {"add": fake_handler})
+    class FakeParser:
+        def parse_args(self):
+            ns = argparse.Namespace(command="add", name="Two Sum", rating=3)
+            ns.handler = fake_handler
+            return ns
+
+        def print_help(self):
+            pass
+
+    monkeypatch.setattr(main, "build_parser", lambda: FakeParser())
     monkeypatch.setattr(sys, "argv", ["prog", "add", "Two Sum", "3"])
 
     main.main()
@@ -37,7 +47,6 @@ def test_main_raises_when_unknown_command(monkeypatch):
 
 def test_main_calls_ensure_data_dir(monkeypatch):
     called = {}
-    monkeypatch.setattr(main, "DISPATCH", {})
     monkeypatch.setattr(sys, "argv", ["prog"])
     monkeypatch.setattr(
         main, "ensure_data_dir", lambda: called.setdefault("called", True)

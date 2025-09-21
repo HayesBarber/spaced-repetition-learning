@@ -39,7 +39,9 @@ def render_activity(
     counts: Counter[str],
     colors: dict[int, str],
 ):
-    weeks = build_weeks(counts)
+    today = date.today()
+    start = today - timedelta(days=365)
+    weeks = build_weeks(counts, start, today)
 
     table = Table(
         show_header=False,
@@ -64,10 +66,11 @@ def render_activity(
     console.print(table)
 
 
-def build_weeks(counts: Counter[str]) -> list[list[int | None]]:
-    today = date.today()
-    start = today - timedelta(days=365)
-
+def build_weeks(
+    counts: Counter[str],
+    start: date,
+    today: date,
+) -> list[list[int | None]]:
     # Walk backwards until start is a Sunday (weekday() 6)
     while start.weekday() != 6:
         start -= timedelta(days=1)

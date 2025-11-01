@@ -208,4 +208,4 @@ def remove_empty_columns(grid):
 
 def print_grid(grid):
     for row in grid:
-        print(" ".join(str(cell) if cell is not None else "." for cell in row))
+        print(" ".join(str(cell) if cell is not None else " " for cell in row))

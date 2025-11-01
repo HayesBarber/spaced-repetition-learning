@@ -148,8 +148,8 @@ def get_audit_dates() -> list[str]:
 def build_month(
     month_start: date,
     counts: Counter[str],
-):
-    grid = [[None for _ in range(8)] for _ in range(7)]
+) -> list[list[int | None]]:
+    grid: list[list[int | None]] = [[None for _ in range(8)] for _ in range(7)]
 
     current_month = month_start.month
     day = month_start
@@ -164,6 +164,7 @@ def build_month(
 
     grid = remove_empty_columns(grid)
     print_grid(grid)
+    return grid
 
 
 def remove_empty_columns(grid):

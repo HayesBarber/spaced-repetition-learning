@@ -56,7 +56,7 @@ def render_activity(
             month = 12
             year -= 1
 
-    grids = []
+    grids: list[list[list[int | str]]] = []
     for y, m in reversed(months):
         month_start = date(y, m, 1)
         grid = build_month(month_start, counts, today)
@@ -65,9 +65,9 @@ def render_activity(
     days_of_week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     default_color = list(colors.values())[-1]
 
-    combined_grid: list[list[int | str | None]] = []
+    combined_grid: list[list[int | str]] = []
     for row_idx in range(7):
-        combined_row = [days_of_week[row_idx], None]
+        combined_row = [days_of_week[row_idx], " "]
         for grid in grids:
             combined_row.extend(grid[row_idx])
         combined_grid.append(combined_row)
@@ -139,8 +139,8 @@ def build_month(
     month_start: date,
     counts: Counter[str],
     today: date,
-) -> list[list[int | None]]:
-    grid: list[list[int | None]] = [[None for _ in range(8)] for _ in range(7)]
+) -> list[list[int | str]]:
+    grid: list[list[int | str]] = [[" " for _ in range(8)] for _ in range(7)]
 
     current_month = month_start.month
     day = month_start
@@ -157,11 +157,11 @@ def build_month(
     return grid
 
 
-def remove_empty_columns(grid):
+def remove_empty_columns(grid) -> list[list[int | str]]:
     non_empty_cols = []
     num_cols = len(grid[0]) if grid else 0
     for col_idx in range(num_cols):
-        if any(row[col_idx] is not None for row in grid):
+        if any(row[col_idx] != " " for row in grid):
             non_empty_cols.append(col_idx)
 
     new_grid = []

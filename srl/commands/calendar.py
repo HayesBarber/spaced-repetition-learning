@@ -67,7 +67,7 @@ def render_activity(
 
     combined_grid: list[list[int | str | None]] = []
     for row_idx in range(7):
-        combined_row = [days_of_week[row_idx]]
+        combined_row = [days_of_week[row_idx], None]
         for grid in grids:
             combined_row.extend(grid[row_idx])
         combined_grid.append(combined_row)

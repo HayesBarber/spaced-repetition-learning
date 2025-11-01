@@ -177,7 +177,6 @@ def build_month(
             col += 1
 
     grid = remove_empty_columns(grid)
-    print_grid(grid)
     return grid
 
 

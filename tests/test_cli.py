@@ -104,3 +104,15 @@ def test_take_command_add_invalid_rating(parser):
 def test_calendar_command(parser):
     args = parser.parse_args(["calendar"])
     assert args.command == "calendar"
+
+
+def test_calendar_with_months_long(parser):
+    args = parser.parse_args(["calendar", "--months", "6"])
+    assert args.command == "calendar"
+    assert args.months == 6
+
+
+def test_calendar_with_months_short(parser):
+    args = parser.parse_args(["calendar", "-m", "3"])
+    assert args.command == "calendar"
+    assert args.months == 3

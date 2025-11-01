@@ -62,14 +62,34 @@ def render_activity(
         grid = build_month(month_start, counts)
         grids.append(grid)
 
-    combined_grid = []
+    days_of_week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    default_color = list(colors.values())[-1]
+
+    combined_grid: list[list[int | str | None]] = []
     for row_idx in range(7):
-        combined_row = []
+        combined_row = [days_of_week[row_idx]]
         for grid in grids:
             combined_row.extend(grid[row_idx])
         combined_grid.append(combined_row)
 
-    print_grid(combined_grid)
+    table = Table(
+        show_header=False,
+        show_edge=False,
+        box=None,
+        padding=(0, 0),
+    )
+
+    for row_idx in range(7):
+        row = []
+        for item in combined_grid[row_idx]:
+            row.append(
+                f" [{colors.get(item, default_color)}]■[/]"
+                if isinstance(item, int)
+                else item if isinstance(item, str) else " "
+            )
+        table.add_row(*row)
+
+    console.print(table)
 
 
 def key(d: date) -> str:
@@ -149,8 +169,3 @@ def remove_empty_columns(grid):
         new_grid.append(new_row)
 
     return new_grid
-
-
-def print_grid(grid):
-    for row in grid:
-        print(" ".join(str(cell) if cell is not None else " " for cell in row))

@@ -85,7 +85,7 @@ def render_activity(
             row.append(
                 f" [{colors.get(item, default_color)}]■[/]"
                 if isinstance(item, int)
-                else item if isinstance(item, str) else " "
+                else item
             )
         table.add_row(*row)
 

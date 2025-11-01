@@ -23,6 +23,8 @@ def handle(args, console: Console):
     render_activity(console, counts, colors)
     console.print("-" * 5)
     render_legend(console, colors)
+    console.print("-" * 5)
+    build_month(date(2025, 10, 1))
 
 
 def colors_dict() -> dict[int, str]:
@@ -141,3 +143,41 @@ def get_audit_dates() -> list[str]:
             res.append(date)
 
     return res
+
+
+def build_month(month_start: date):
+    grid = [[None for _ in range(8)] for _ in range(7)]
+
+    current_month = month_start.month
+    day = month_start
+
+    col = 0
+    while day.month == current_month:
+        row = (day.weekday() + 1) % 7
+        grid[row][col] = 1
+        day += timedelta(days=1)
+        if row == 6:
+            col += 1
+
+    grid = remove_empty_columns(grid)
+    print_grid(grid)
+
+
+def remove_empty_columns(grid):
+    non_empty_cols = []
+    num_cols = len(grid[0]) if grid else 0
+    for col_idx in range(num_cols):
+        if any(row[col_idx] is not None for row in grid):
+            non_empty_cols.append(col_idx)
+
+    new_grid = []
+    for row in grid:
+        new_row = [row[col_idx] for col_idx in non_empty_cols]
+        new_grid.append(new_row)
+
+    return new_grid
+
+
+def print_grid(grid):
+    for row in grid:
+        print(" ".join(str(cell) if cell is not None else "." for cell in row))

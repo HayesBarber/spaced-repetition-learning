@@ -24,7 +24,21 @@ def handle(args, console: Console):
     console.print("-" * 5)
     render_legend(console, colors)
     console.print("-" * 5)
-    build_month(date(2025, 10, 1), counts)
+
+    today = date.today()
+    months = []
+    year = today.year
+    month = today.month
+    for _ in range(12):
+        months.append((year, month))
+        month -= 1
+        if month == 0:
+            month = 12
+            year -= 1
+
+    for y, m in reversed(months):
+        month_start = date(y, m, 1)
+        build_month(month_start, counts)
 
 
 def colors_dict() -> dict[int, str]:

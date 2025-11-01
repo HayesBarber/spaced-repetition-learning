@@ -190,6 +190,18 @@ srl calendar
 
 This shows counts of your attempts per day with colors representing the intensity of activity. It helps you visualize your consistency and progress in practicing problems over time.
 
+You can also control how many months to display using the `--months` or `-m` flag (default is 12):
+
+```bash
+srl calendar --months 6
+```
+
+or using the shorthand:
+
+```bash
+srl calendar -m 3
+```
+
 ---
 
 ## Example Workflow

@@ -46,60 +46,50 @@ def render_activity(
     colors: dict[int, str],
 ):
     today = date.today()
-    start = today - timedelta(days=365)
-    weeks = build_weeks(counts, start, today)
+    months = []
+    year = today.year
+    month = today.month
+    for _ in range(12):
+        months.append((year, month))
+        month -= 1
+        if month == 0:
+            month = 12
+            year -= 1
 
-    table = Table(
-        show_header=False,
-        show_edge=False,
-        padding=(0, 0),
-    )
+    grids: list[list[list[int | str]]] = []
+    for y, m in reversed(months):
+        month_start = date(y, m, 1)
+        grid = build_month(month_start, counts, today)
+        grids.append(grid)
 
     days_of_week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     default_color = list(colors.values())[-1]
+    table = Table(
+        show_header=False,
+        show_edge=False,
+        box=None,
+        padding=(0, 0),
+    )
 
     for row_idx in range(7):
-        row = [days_of_week[row_idx]] + [
-            (
-                f"[{colors.get(week[row_idx], default_color)}]■[/]"
-                if week[row_idx] is not None
-                else " "
+        combined_row = [days_of_week[row_idx], " "]
+        for grid in grids:
+            combined_row.extend(grid[row_idx])
+
+        rendered_row = []
+        for item in combined_row:
+            rendered_row.append(
+                f" [{colors.get(item, default_color)}]■[/]"
+                if isinstance(item, int)
+                else item
             )
-            for week in weeks
-        ]
-        table.add_row(*row)
+        table.add_row(*rendered_row)
 
     console.print(table)
 
 
-def build_weeks(
-    counts: Counter[str],
-    start: date,
-    today: date,
-) -> list[list[int | None]]:
-    # Walk backwards until start is a Sunday (weekday() 6)
-    while start.weekday() != 6:
-        start -= timedelta(days=1)
-
-    def key(d: date) -> str:
-        return d.isoformat()
-
-    day = start
-    weeks: list[list[int | None]] = []
-    week: list[int | None] = []
-
-    while day <= today:
-        week.append(counts.get(key(day), 0))
-        if len(week) == 7:
-            weeks.append(week)
-            week = []
-        day += timedelta(days=1)
-
-    if week:
-        week.extend([None] * (7 - len(week)))
-        weeks.append(week)
-
-    return weeks
+def key(d: date) -> str:
+    return d.isoformat()
 
 
 def get_all_date_counts() -> Counter[str]:
@@ -139,3 +129,40 @@ def get_audit_dates() -> list[str]:
             res.append(date)
 
     return res
+
+
+def build_month(
+    month_start: date,
+    counts: Counter[str],
+    today: date,
+) -> list[list[int | str]]:
+    grid: list[list[int | str]] = [[" " for _ in range(8)] for _ in range(7)]
+
+    current_month = month_start.month
+    day = month_start
+
+    col = 0
+    while day.month == current_month and day <= today:
+        row = (day.weekday() + 1) % 7
+        grid[row][col] = counts.get(key(day), 0)
+        day += timedelta(days=1)
+        if row == 6:
+            col += 1
+
+    grid = remove_empty_columns(grid)
+    return grid
+
+
+def remove_empty_columns(grid) -> list[list[int | str]]:
+    non_empty_cols = []
+    num_cols = len(grid[0]) if grid else 0
+    for col_idx in range(num_cols):
+        if any(row[col_idx] != " " for row in grid):
+            non_empty_cols.append(col_idx)
+
+    new_grid = []
+    for row in grid:
+        new_row = [row[col_idx] for col_idx in non_empty_cols] + [" "]
+        new_grid.append(new_row)
+
+    return new_grid

@@ -73,6 +73,10 @@ def render_activity(
     console.print(table)
 
 
+def key(d: date) -> str:
+    return d.isoformat()
+
+
 def build_weeks(
     counts: Counter[str],
     start: date,
@@ -81,9 +85,6 @@ def build_weeks(
     # Walk backwards until start is a Sunday (weekday() 6)
     while start.weekday() != 6:
         start -= timedelta(days=1)
-
-    def key(d: date) -> str:
-        return d.isoformat()
 
     day = start
     weeks: list[list[int | None]] = []

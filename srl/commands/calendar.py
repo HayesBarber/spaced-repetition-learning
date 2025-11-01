@@ -36,9 +36,20 @@ def handle(args, console: Console):
             month = 12
             year -= 1
 
+    grids = []
     for y, m in reversed(months):
         month_start = date(y, m, 1)
-        build_month(month_start, counts)
+        grid = build_month(month_start, counts)
+        grids.append(grid)
+
+    combined_grid = []
+    for row_idx in range(7):
+        combined_row = []
+        for grid in grids:
+            combined_row.extend(grid[row_idx])
+        combined_grid.append(combined_row)
+
+    print_grid(combined_grid)
 
 
 def colors_dict() -> dict[int, str]:

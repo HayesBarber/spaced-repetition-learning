@@ -59,7 +59,7 @@ def render_activity(
     grids = []
     for y, m in reversed(months):
         month_start = date(y, m, 1)
-        grid = build_month(month_start, counts)
+        grid = build_month(month_start, counts, today)
         grids.append(grid)
 
     days_of_week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -138,6 +138,7 @@ def get_audit_dates() -> list[str]:
 def build_month(
     month_start: date,
     counts: Counter[str],
+    today: date,
 ) -> list[list[int | None]]:
     grid: list[list[int | None]] = [[None for _ in range(8)] for _ in range(7)]
 
@@ -145,7 +146,7 @@ def build_month(
     day = month_start
 
     col = 0
-    while day.month == current_month:
+    while day.month == current_month and day <= today:
         row = (day.weekday() + 1) % 7
         grid[row][col] = counts.get(key(day), 0)
         day += timedelta(days=1)

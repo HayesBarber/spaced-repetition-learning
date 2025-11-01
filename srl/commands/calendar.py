@@ -24,7 +24,7 @@ def handle(args, console: Console):
     console.print("-" * 5)
     render_legend(console, colors)
     console.print("-" * 5)
-    build_month(date(2025, 10, 1))
+    build_month(date(2025, 10, 1), counts)
 
 
 def colors_dict() -> dict[int, str]:
@@ -145,7 +145,10 @@ def get_audit_dates() -> list[str]:
     return res
 
 
-def build_month(month_start: date):
+def build_month(
+    month_start: date,
+    counts: Counter[str],
+):
     grid = [[None for _ in range(8)] for _ in range(7)]
 
     current_month = month_start.month
@@ -154,7 +157,7 @@ def build_month(month_start: date):
     col = 0
     while day.month == current_month:
         row = (day.weekday() + 1) % 7
-        grid[row][col] = 1
+        grid[row][col] = counts.get(key(day), 0)
         day += timedelta(days=1)
         if row == 6:
             col += 1

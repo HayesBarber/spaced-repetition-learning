@@ -104,6 +104,7 @@ def test_take_command_add_invalid_rating(parser):
 def test_calendar_command(parser):
     args = parser.parse_args(["calendar"])
     assert args.command == "calendar"
+    assert args.months == 12
 
 
 def test_calendar_with_months_long(parser):

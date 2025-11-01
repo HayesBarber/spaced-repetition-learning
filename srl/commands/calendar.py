@@ -200,7 +200,7 @@ def remove_empty_columns(grid):
 
     new_grid = []
     for row in grid:
-        new_row = [row[col_idx] for col_idx in non_empty_cols]
+        new_row = [row[col_idx] for col_idx in non_empty_cols] + [None]
         new_grid.append(new_row)
 
     return new_grid

@@ -14,6 +14,7 @@ from srl.storage import (
 def add_subparser(subparsers):
     parser = subparsers.add_parser("calendar", help="Graph of SRL activity")
     parser.add_argument(
+        "-m",
         "--months",
         type=int,
         default=12,

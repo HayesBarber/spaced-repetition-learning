@@ -64,14 +64,6 @@ def render_activity(
 
     days_of_week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     default_color = list(colors.values())[-1]
-
-    combined_grid: list[list[int | str]] = []
-    for row_idx in range(7):
-        combined_row = [days_of_week[row_idx], " "]
-        for grid in grids:
-            combined_row.extend(grid[row_idx])
-        combined_grid.append(combined_row)
-
     table = Table(
         show_header=False,
         show_edge=False,
@@ -80,14 +72,18 @@ def render_activity(
     )
 
     for row_idx in range(7):
-        row = []
-        for item in combined_grid[row_idx]:
-            row.append(
+        combined_row = [days_of_week[row_idx], " "]
+        for grid in grids:
+            combined_row.extend(grid[row_idx])
+
+        rendered_row = []
+        for item in combined_row:
+            rendered_row.append(
                 f" [{colors.get(item, default_color)}]■[/]"
                 if isinstance(item, int)
                 else item
             )
-        table.add_row(*row)
+        table.add_row(*rendered_row)
 
     console.print(table)
 

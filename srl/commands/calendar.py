@@ -52,6 +52,7 @@ def render_activity(
     table = Table(
         show_header=False,
         show_edge=False,
+        box=None,
         padding=(0, 0),
     )
 
@@ -61,7 +62,7 @@ def render_activity(
     for row_idx in range(7):
         row = [days_of_week[row_idx]] + [
             (
-                f"[{colors.get(week[row_idx], default_color)}]■[/]"
+                f" [{colors.get(week[row_idx], default_color)}]■[/]"
                 if week[row_idx] is not None
                 else " "
             )

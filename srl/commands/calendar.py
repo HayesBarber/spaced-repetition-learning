@@ -13,6 +13,12 @@ from srl.storage import (
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser("calendar", help="Graph of SRL activity")
+    parser.add_argument(
+        "--months",
+        type=int,
+        default=12,
+        help="Number of months to display (default: 12)",
+    )
     parser.set_defaults(handler=handle)
     return parser
 
@@ -20,7 +26,7 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     colors = colors_dict()
     counts = get_all_date_counts()
-    render_activity(console, counts, colors)
+    render_activity(console, counts, colors, args.months)
     console.print("-" * 5)
     render_legend(console, colors)
 
@@ -44,20 +50,21 @@ def render_activity(
     console: Console,
     counts: Counter[str],
     colors: dict[int, str],
+    months: int,
 ):
     today = date.today()
-    months = []
+    months_list = []
     year = today.year
     month = today.month
-    for _ in range(12):
-        months.append((year, month))
+    for _ in range(months):
+        months_list.append((year, month))
         month -= 1
         if month == 0:
             month = 12
             year -= 1
 
     grids: list[list[list[int | str]]] = []
-    for y, m in reversed(months):
+    for y, m in reversed(months_list):
         month_start = date(y, m, 1)
         grid = build_month(month_start, counts, today)
         grids.append(grid)

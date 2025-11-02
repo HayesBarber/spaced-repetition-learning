@@ -204,6 +204,12 @@ srl calendar -m 3
 
 ---
 
+### Server command
+
+todo
+
+---
+
 ## Example Workflow
 
 1. Solve a LeetCode problem.

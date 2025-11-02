@@ -10,6 +10,7 @@ from srl.commands import (
     remove,
     config,
     take,
+    server,
 )
 
 
@@ -27,5 +28,6 @@ def build_parser() -> argparse.ArgumentParser:
     remove.add_subparser(subparsers)
     config.add_subparser(subparsers)
     take.add_subparser(subparsers)
+    server.add_subparser(subparsers)
 
     return parser

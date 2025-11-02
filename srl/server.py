@@ -59,7 +59,7 @@ async def run(req: RunRequest):
                 return JSONResponse(
                     status_code=500,
                     content={
-                        "output": "Error executing handler",
+                        "error": "Error executing handler",
                     },
                 )
         else:

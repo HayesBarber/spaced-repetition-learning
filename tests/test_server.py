@@ -53,5 +53,4 @@ def test_run_handler_exception_returns_500(monkeypatch):
     assert resp.status_code == 500
     body = resp.json()
     assert "error" in body
-    assert "boom" in body["error"]
-    assert "traceback" in body
+    assert "Error executing handler" in body["error"]

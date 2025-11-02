@@ -38,7 +38,7 @@ async def run(req: RunRequest):
 
         try:
             args = parser.parse_args(argv)
-        except SystemExit as se:
+        except SystemExit:
             buf = io.StringIO()
             parser.print_help(file=buf)
             return JSONResponse(
@@ -55,7 +55,7 @@ async def run(req: RunRequest):
                 result = args.handler(args, console)
                 if hasattr(result, "__await__"):
                     await result
-            except Exception as e:
+            except Exception:
                 return JSONResponse(
                     status_code=500,
                     content={
@@ -72,7 +72,7 @@ async def run(req: RunRequest):
         return {
             "output": console.export_text(),
         }
-    except Exception as e:
+    except Exception:
         return JSONResponse(
             status_code=500,
             content={

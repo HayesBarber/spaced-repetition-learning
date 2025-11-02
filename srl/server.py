@@ -21,10 +21,6 @@ class RunRequest(BaseModel):
 
 @router.post("/run")
 async def run(req: RunRequest):
-    global parser
-    if parser is None:
-        parser = build_parser()
-
     argv = req.argv
     if req.cmd and not argv:
         argv = shlex.split(req.cmd)
@@ -36,6 +32,11 @@ async def run(req: RunRequest):
 
     try:
         ensure_data_dir()
+
+        global parser
+        if parser is None:
+            parser = build_parser()
+
         try:
             args = parser.parse_args(argv)
         except SystemExit as se:

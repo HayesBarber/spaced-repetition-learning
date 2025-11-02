@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import shlex
@@ -10,8 +10,8 @@ from srl.storage import ensure_data_dir
 import uvicorn
 from typing import Optional, List
 
-app = FastAPI(title="srl CLI HTTP API")
-parser = build_parser()
+router = APIRouter()
+parser = None
 
 
 class RunRequest(BaseModel):
@@ -19,8 +19,12 @@ class RunRequest(BaseModel):
     cmd: Optional[str] = None
 
 
-@app.post("/run")
+@router.post("/run")
 async def run(req: RunRequest):
+    global parser
+    if parser is None:
+        parser = build_parser()
+
     argv = req.argv
     if req.cmd and not argv:
         argv = shlex.split(req.cmd)
@@ -69,5 +73,12 @@ async def run(req: RunRequest):
         return JSONResponse(status_code=500, content={"error": str(e), "traceback": tb})
 
 
+def create_app() -> FastAPI:
+    app = FastAPI(title="srl CLI HTTP API")
+    app.include_router(router)
+    return app
+
+
 def run_server(host: str = "127.0.0.1", port: int = 8080, reload: bool = False):
-    uvicorn.run("srl.server:app", host=host, port=port, reload=reload)
+    app = create_app()
+    uvicorn.run(app, host=host, port=port, reload=reload)

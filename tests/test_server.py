@@ -1,7 +1,5 @@
 from types import SimpleNamespace
-import shlex
 from fastapi.testclient import TestClient
-import json
 
 from srl import server as server_mod
 from srl.server import create_app

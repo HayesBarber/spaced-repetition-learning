@@ -1,7 +1,5 @@
 from srl.commands import calendar
 import pytest
-from collections import Counter
-from datetime import date
 
 
 @pytest.fixture

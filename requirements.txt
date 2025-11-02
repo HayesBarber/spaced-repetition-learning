@@ -1,1 +1,4 @@
 rich
+fastapi
+uvicorn
+pydantic

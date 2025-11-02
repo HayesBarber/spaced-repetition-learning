@@ -3,7 +3,6 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import shlex
 import io
-import traceback
 from rich.console import Console
 from srl.cli import build_parser
 from srl.storage import ensure_data_dir
@@ -43,7 +42,10 @@ async def run(req: RunRequest):
             buf = io.StringIO()
             parser.print_help(file=buf)
             return JSONResponse(
-                status_code=400, content={"output": buf.getvalue(), "exit": se.code}
+                status_code=400,
+                content={
+                    "output": buf.getvalue(),
+                },
             )
 
         console = Console(record=True)
@@ -54,24 +56,29 @@ async def run(req: RunRequest):
                 if hasattr(result, "__await__"):
                     await result
             except Exception as e:
-                tb = traceback.format_exc()
                 return JSONResponse(
                     status_code=500,
                     content={
-                        "output": console.export_text(),
-                        "error": str(e),
-                        "traceback": tb,
+                        "output": "Error executing handler",
                     },
                 )
         else:
             buf = io.StringIO()
             parser.print_help(file=buf)
-            return {"output": buf.getvalue(), "exit": 0}
+            return {
+                "output": buf.getvalue(),
+            }
 
-        return {"output": console.export_text(), "exit": 0}
+        return {
+            "output": console.export_text(),
+        }
     except Exception as e:
-        tb = traceback.format_exc()
-        return JSONResponse(status_code=500, content={"error": str(e), "traceback": tb})
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "Internal server error",
+            },
+        )
 
 
 def create_app() -> FastAPI:

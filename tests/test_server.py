@@ -6,9 +6,6 @@ from srl.server import create_app
 
 
 def test_run_add_command_success(monkeypatch):
-    monkeypatch.setattr(server_mod, "ensure_data_dir", lambda: None)
-    server_mod.parser = None
-
     client = TestClient(create_app())
     cmd = 'add "HTTP Test Problem" 3'
     resp = client.post("/run", json={"cmd": cmd})
@@ -19,9 +16,6 @@ def test_run_add_command_success(monkeypatch):
 
 
 def test_run_add_command_invalid_rating_returns_help(monkeypatch):
-    monkeypatch.setattr(server_mod, "ensure_data_dir", lambda: None)
-    server_mod.parser = None
-
     client = TestClient(create_app())
     cmd = 'add "Bad Rating" 7'
     resp = client.post("/run", json={"cmd": cmd})
@@ -32,9 +26,6 @@ def test_run_add_command_invalid_rating_returns_help(monkeypatch):
 
 
 def test_run_no_command_returns_help(monkeypatch):
-    monkeypatch.setattr(server_mod, "ensure_data_dir", lambda: None)
-    server_mod.parser = None
-
     client = TestClient(create_app())
     resp = client.post("/run", json={"argv": []})
     assert resp.status_code == 200
@@ -44,8 +35,6 @@ def test_run_no_command_returns_help(monkeypatch):
 
 
 def test_run_handler_exception_returns_500(monkeypatch):
-    monkeypatch.setattr(server_mod, "ensure_data_dir", lambda: None)
-
     class FakeParser:
         def parse_args(self, argv):
             def handler(args, console):

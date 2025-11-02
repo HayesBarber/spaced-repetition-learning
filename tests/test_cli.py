@@ -117,3 +117,30 @@ def test_calendar_with_months_short(parser):
     args = parser.parse_args(["calendar", "-m", "3"])
     assert args.command == "calendar"
     assert args.months == 3
+
+
+def test_server_defaults(parser):
+    args = parser.parse_args(["server"])
+    assert args.command == "server"
+    assert args.host == "127.0.0.1"
+    assert args.port == 8080
+    assert args.reload is False
+    assert args.public is False
+
+
+def test_server_public_flag(parser):
+    args = parser.parse_args(["server", "--public"])
+    assert args.command == "server"
+    assert args.public is True
+    # host remains the default in parsed args; server handler may translate this to 0.0.0.0
+    assert args.host == "127.0.0.1"
+
+
+def test_server_custom_host_port_reload(parser):
+    args = parser.parse_args(
+        ["server", "--host", "0.0.0.0", "--port", "9000", "--reload"]
+    )
+    assert args.command == "server"
+    assert args.host == "0.0.0.0"
+    assert args.port == 9000
+    assert args.reload is True

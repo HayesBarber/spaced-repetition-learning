@@ -204,6 +204,46 @@ srl calendar -m 3
 
 ---
 
+### Server Command
+
+Run an HTTP server that exposes the srl CLI via a simple JSON API.
+
+Usage:
+
+```bash
+srl server [--host HOST] [--port PORT] [--reload] [--public]
+```
+
+Options:
+
+- --host: Host to bind to (default: 127.0.0.1)
+- --port: Port to listen on (default: 8080)
+- --reload: Enable auto-reload for development
+- --public: Alias to bind to 0.0.0.0
+
+Examples:
+
+- Start a local server on the default port:
+
+  ```bash
+  srl server
+  ```
+
+- Bind publicly on port 80:
+  ```bash
+  srl server --public --port 80
+  ```
+
+What it exposes:
+
+- POST /run — Execute CLI commands. Send JSON with either:
+  - { "cmd": "add \"Two Sum\" 3" } (single string command)
+  - { "argv": ["add", "Two Sum", "3"] } (argv-style array)
+
+Responses include "output" on success (captured console text) or "error" / help text on failure or invalid input.
+
+---
+
 ## Example Workflow
 
 1. Solve a LeetCode problem.

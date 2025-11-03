@@ -3,7 +3,7 @@ from rich.text import Text
 
 
 def banner(console: Console):
-    txt = f"""
+    txt = """
     ███████╗██████╗ ██╗     
     ██╔════╝██╔══██╗██║     
     ███████╗██████╔╝██║     

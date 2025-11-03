@@ -13,14 +13,11 @@ def add_subparser(subparsers):
     return parser
 
 
-def handle(args, console: Console | None = None):
+def handle(args, console: Console):
     from srl.server import run_server
 
     host = "0.0.0.0" if args.public else args.host
     msg = f"Starting server on {host}:{args.port} (reload={bool(args.reload)})"
-    if console:
-        console.print(msg)
-    else:
-        print(msg)
+    console.print(msg)
 
     run_server(host=host, port=args.port, reload=bool(args.reload))

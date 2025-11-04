@@ -59,3 +59,36 @@ def test_list_next_up_empty(console):
 
     output = console.export_text()
     assert "Next Up queue is empty" in output
+
+
+def test_remove_from_next_up(mock_data, console):
+    problem = "Removable problem"
+    args_add = SimpleNamespace(action="add", name=problem)
+    nextup.handle(args=args_add, console=console)
+
+    args_remove = SimpleNamespace(action="remove", name=problem)
+    nextup.handle(args=args_remove, console=console)
+
+    with open(mock_data.NEXT_UP_FILE) as f:
+        data = json.load(f)
+    assert problem not in data
+
+    output = console.export_text()
+    assert "Removed" in output
+    assert problem in output
+
+
+def test_clear_next_up(mock_data, console):
+    p1 = "Problem A"
+    p2 = "Problem B"
+    nextup.handle(args=SimpleNamespace(action="add", name=p1), console=console)
+    nextup.handle(args=SimpleNamespace(action="add", name=p2), console=console)
+
+    nextup.handle(args=SimpleNamespace(action="clear"), console=console)
+
+    with open(mock_data.NEXT_UP_FILE) as f:
+        data = json.load(f)
+    assert data == {}
+
+    output = console.export_text()
+    assert "Next Up queue cleared" in output

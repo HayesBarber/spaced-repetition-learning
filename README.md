@@ -260,8 +260,8 @@ A Dockerfile is included for convenience. Build and run the server with:
 # build an image named "srl"
 docker build -t srl .
 
-# run locally, exposing the server on port 8080
-docker run --rm -p 8080:8080 srl
+# run locally, exposing the server on port 8080 and mounting your data dir
+docker run --rm -p 8080:8080 -v "$HOME/.srl:/root/.srl" srl
 ```
 
 ---

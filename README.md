@@ -114,6 +114,18 @@ List problems in the queue:
 srl nextup list
 ```
 
+Remove a problem from the queue:
+
+```bash
+srl nextup remove "Sliding Window Maximum"
+```
+
+Clear the queue:
+
+```bash
+srl nextup clear
+```
+
 ---
 
 ### Random Audit

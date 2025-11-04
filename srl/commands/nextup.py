@@ -11,9 +11,13 @@ from srl.storage import (
 def add_subparser(subparsers):
     parser = subparsers.add_parser("nextup", help="Next up problem queue")
     parser.add_argument(
-        "action", choices=["add", "list"], help="Add or list next-up problems"
+        "action",
+        choices=["add", "list", "remove", "clear"],
+        help="Add, remove, list, or clear next-up problems",
     )
-    parser.add_argument("name", nargs="?", help="Problem name (only needed for 'add')")
+    parser.add_argument(
+        "name", nargs="?", help="Problem name (only needed for 'add' or 'remove')"
+    )
     parser.set_defaults(handler=handle)
     return parser
 
@@ -42,6 +46,15 @@ def handle(args, console: Console):
             )
         else:
             console.print("[yellow]Next Up queue is empty.[/yellow]")
+    elif args.action == "remove":
+        if not args.name:
+            console.print(
+                "[bold red]Please provide a problem name to remove from Next Up.[/bold red]"
+            )
+        else:
+            remove_from_next_up(args.name, console)
+    elif args.action == "clear":
+        clear_next_up(console)
 
 
 def add_to_next_up(name, console):
@@ -63,3 +76,20 @@ def get_next_up_problems() -> list[str]:
         res.append(name)
 
     return res
+
+
+def remove_from_next_up(name: str, console: Console):
+    data = load_json(NEXT_UP_FILE)
+
+    if name not in data:
+        console.print(f'[yellow]"{name}" not found in the Next Up queue.[/yellow]')
+        return
+
+    del data[name]
+    save_json(NEXT_UP_FILE, data)
+    console.print(f"[green]Removed[/green] [bold]{name}[/bold] from Next Up Queue")
+
+
+def clear_next_up(console: Console):
+    save_json(NEXT_UP_FILE, {})
+    console.print("[green]Next Up queue cleared.[/green]")

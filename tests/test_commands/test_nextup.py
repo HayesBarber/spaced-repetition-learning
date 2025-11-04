@@ -1,5 +1,4 @@
 from srl.commands import nextup
-import json
 from types import SimpleNamespace
 
 

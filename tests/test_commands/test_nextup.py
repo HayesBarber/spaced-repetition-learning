@@ -3,14 +3,13 @@ import json
 from types import SimpleNamespace
 
 
-def test_add_to_next_up_new_problem(mock_data, console):
+def test_add_to_next_up_new_problem(mock_data, console, load_json):
     problem = "What is the square root of 16?"
     args = SimpleNamespace(action="add", name=problem)
 
     nextup.handle(args=args, console=console)
 
-    with open(mock_data.NEXT_UP_FILE) as f:
-        data = json.load(f)
+    data = load_json(mock_data.NEXT_UP_FILE)
     assert problem in data
 
     output = console.export_text()
@@ -61,7 +60,7 @@ def test_list_next_up_empty(console):
     assert "Next Up queue is empty" in output
 
 
-def test_remove_from_next_up(mock_data, console):
+def test_remove_from_next_up(mock_data, console, load_json):
     problem = "Removable problem"
     args_add = SimpleNamespace(action="add", name=problem)
     nextup.handle(args=args_add, console=console)
@@ -69,8 +68,7 @@ def test_remove_from_next_up(mock_data, console):
     args_remove = SimpleNamespace(action="remove", name=problem)
     nextup.handle(args=args_remove, console=console)
 
-    with open(mock_data.NEXT_UP_FILE) as f:
-        data = json.load(f)
+    data = load_json(mock_data.NEXT_UP_FILE)
     assert problem not in data
 
     output = console.export_text()
@@ -78,7 +76,7 @@ def test_remove_from_next_up(mock_data, console):
     assert problem in output
 
 
-def test_clear_next_up(mock_data, console):
+def test_clear_next_up(mock_data, console, load_json):
     p1 = "Problem A"
     p2 = "Problem B"
     nextup.handle(args=SimpleNamespace(action="add", name=p1), console=console)
@@ -86,8 +84,7 @@ def test_clear_next_up(mock_data, console):
 
     nextup.handle(args=SimpleNamespace(action="clear"), console=console)
 
-    with open(mock_data.NEXT_UP_FILE) as f:
-        data = json.load(f)
+    data = load_json(mock_data.NEXT_UP_FILE)
     assert data == {}
 
     output = console.export_text()

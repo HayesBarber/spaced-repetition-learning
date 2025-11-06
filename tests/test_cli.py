@@ -1,10 +1,4 @@
 import pytest
-from srl import cli
-
-
-@pytest.fixture
-def parser():
-    return cli.build_parser()
 
 
 def test_add_command(parser):
@@ -144,3 +138,17 @@ def test_server_custom_host_port_reload(parser):
     assert args.host == "0.0.0.0"
     assert args.port == 9000
     assert args.reload is True
+
+
+def test_random_command(parser):
+    args = parser.parse_args(["random"])
+    assert args.command == "random"
+    assert hasattr(args, "handler")
+    assert args.all == False
+
+
+def test_random_command_all_flag(parser):
+    args = parser.parse_args(["random", "--all"])
+    assert args.command == "random"
+    assert hasattr(args, "handler")
+    assert args.all is True

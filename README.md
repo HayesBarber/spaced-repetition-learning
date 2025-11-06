@@ -149,10 +149,12 @@ If you failed the audit:
 ```bash
 srl audit --fail
 ```
+
 ---
+
 ### Random command
 
-A convenient helper was added to pick a single problem at random from your data. 
+A convenient helper was added to pick a single problem at random from your data.
 
 - srl random
 
@@ -173,7 +175,6 @@ A convenient helper was added to pick a single problem at random from your data.
   ```
 
   If no problems exist in your data directory, the command prints a friendly message.
-
 
 ---
 

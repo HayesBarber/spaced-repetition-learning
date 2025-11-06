@@ -1,4 +1,6 @@
 def test_random_all_command(parser):
-    args = parser.parse_args(["random_all"])
-    assert args.command == "random_all"
+    # random_all was folded into `random --all` — ensure parser accepts the new form
+    args = parser.parse_args(["random", "--all"])
+    assert args.command == "random"
     assert hasattr(args, "handler")
+    assert args.all is True

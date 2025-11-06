@@ -146,13 +146,13 @@ srl audit --pass
 
 If you failed the audit:
 
-### Random commands
+### Random command
 
-Two convenient helpers were added to pick a single problem at random from your data.
+A convenient helper was added to pick a single problem at random from your data. The previous `random_all` command has been folded into `random` with an `--all` flag.
 
 - srl random
 
-  Picks a random problem from the set of problems that are due today (same logic as `srl list`). If there are no problems due, this falls back to the `Next Up` queue. Example:
+  Picks a random problem from the set of problems that are due today (same logic as `srl list`). If there are no problems due, this falls back to the `Next Up` queue.
 
   ```bash
   srl random
@@ -160,15 +160,23 @@ Two convenient helpers were added to pick a single problem at random from your d
 
   Use this when you want a quick, random practice item from today's due list.
 
-- srl random_all
+- srl random --all
 
   Picks a random problem from every problem you have stored: in-progress problems, mastered problems, and items in the Next Up queue. This is useful when you want a completely random review across your whole dataset.
 
   ```bash
-  srl random_all
+  srl random --all
   ```
 
   If no problems exist in your data directory, the command prints a friendly message.
+
+Diff (random command)
+
+```diff
+- srl random_all
+  # -> folded into:
+  srl random --all
+```
 
 
 ```bash

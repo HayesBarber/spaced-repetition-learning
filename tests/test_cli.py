@@ -1,10 +1,4 @@
 import pytest
-from srl import cli
-
-
-@pytest.fixture
-def parser():
-    return cli.build_parser()
 
 
 def test_add_command(parser):

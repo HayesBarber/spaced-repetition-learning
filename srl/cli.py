@@ -11,6 +11,7 @@ from srl.commands import (
     config,
     take,
     server,
+    random,
 )
 
 
@@ -29,5 +30,5 @@ def build_parser() -> argparse.ArgumentParser:
     config.add_subparser(subparsers)
     take.add_subparser(subparsers)
     server.add_subparser(subparsers)
-
+    random.add_subparser(subparsers)
     return parser

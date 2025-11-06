@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import pathlib
 import json
 from datetime import datetime, timedelta
+from srl import cli
 
 
 @dataclass
@@ -20,6 +21,11 @@ class Paths:
 @pytest.fixture
 def console():
     return Console(record=True)
+
+
+@pytest.fixture
+def parser():
+    return cli.build_parser()
 
 
 @pytest.fixture

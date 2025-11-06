@@ -146,9 +146,13 @@ srl audit --pass
 
 If you failed the audit:
 
+```bash
+srl audit --fail
+```
+---
 ### Random command
 
-A convenient helper was added to pick a single problem at random from your data. The previous `random_all` command has been folded into `random` with an `--all` flag.
+A convenient helper was added to pick a single problem at random from your data. 
 
 - srl random
 
@@ -170,18 +174,6 @@ A convenient helper was added to pick a single problem at random from your data.
 
   If no problems exist in your data directory, the command prints a friendly message.
 
-Diff (random command)
-
-```diff
-- srl random_all
-  # -> folded into:
-  srl random --all
-```
-
-
-```bash
-srl audit --fail
-```
 
 ---
 

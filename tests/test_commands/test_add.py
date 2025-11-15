@@ -63,3 +63,38 @@ def test_remove_problem_from_next_up(mock_data, console):
 
     output = console.export_text()
     assert "Added rating" in output
+
+
+def test_append_to_mastered_already_present(mock_data, console):
+    problem = "Existing mastered problem"
+    rating = 5
+    progress_file = mock_data.PROGRESS_FILE
+    mastered_file = mock_data.MASTERED_FILE
+
+    # Pre-populate MASTERED_FILE with existing history
+    initial_history = [{"rating": 5, "date": "2025-11-14"}]
+    mastered_file.write_text(json.dumps({problem: {"history": initial_history.copy()}}))
+
+    # Pre-populate PROGRESS_FILE with the problem, enough to trigger mastery
+    progress_file.write_text(
+        json.dumps({problem: {"history": [{"rating": 5, "date": "2025-11-15"}]}})
+    )
+
+    args = SimpleNamespace(name=problem, rating=rating)
+    add.handle(args=args, console=console)
+
+    # Check PROGRESS_FILE no longer contains the problem
+    with open(progress_file) as f:
+        progress = json.load(f)
+    assert problem not in progress
+
+    # Check MASTERED_FILE history appended
+    with open(mastered_file) as f:
+        mastered = json.load(f)
+    assert problem in mastered
+    # Should contain initial + two new entries
+    assert len(mastered[problem]["history"]) == len(initial_history) + 2
+    assert mastered[problem]["history"][: len(initial_history)] == initial_history
+
+    output = console.export_text()
+    assert "moved to" in output

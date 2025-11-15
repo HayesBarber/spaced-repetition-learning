@@ -29,7 +29,7 @@ def add_subparser(subparsers):
 
 def handle(args, console: Console):
     if args.action == "add":
-        if args.file:
+        if hasattr(args, "file") and args.file:
             try:
                 with open(args.file, "r") as f:
                     lines = [line.strip() for line in f.readlines()]

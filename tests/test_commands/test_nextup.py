@@ -205,6 +205,18 @@ def test_add_to_next_up_problem_already_inprogress(
     output = console.export_text()
     assert f'"{problem}" is already in progress' in output
 
+    console.clear()
+
+    # Call again with allow mastered flag
+    args = SimpleNamespace(action="add", name=problem, allow_mastered=True)
+    nextup.handle(args=args, console=console)
+
+    # Should not add even with allow mastered
+    data = load_json(next_up_file)
+    assert problem not in data
+    output = console.export_text()
+    assert f'"{problem}" is already in progress' in output
+
 
 def test_add_to_next_up_problem_already_in_mastered(
     mock_data, console, dump_json, load_json

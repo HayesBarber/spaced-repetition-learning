@@ -41,8 +41,9 @@ def handle(args, console: Console):
             for line in lines:
                 if not line:
                     continue
-                add_to_next_up(line, console)
-                added_count += 1
+                added = add_to_next_up(line, console)
+                if added:
+                    added_count += 1
 
             console.print(
                 f"[green]Added {added_count} problems from file[/green] [bold]{args.file}[/bold] to Next Up Queue"
@@ -81,15 +82,19 @@ def handle(args, console: Console):
         clear_next_up(console)
 
 
-def add_to_next_up(name, console):
+def add_to_next_up(name, console) -> bool:
+    """
+    returns True if the problem name was added, False if the name was already in the queue
+    """
     data = load_json(NEXT_UP_FILE)
 
     if name in data:
         console.print(f'[yellow]"{name}" is already in the Next Up queue.[/yellow]')
-        return
+        return False
 
     data[name] = {"added": today().isoformat()}
     save_json(NEXT_UP_FILE, data)
+    return True
 
 
 def get_next_up_problems() -> list[str]:

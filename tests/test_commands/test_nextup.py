@@ -256,3 +256,59 @@ def test_add_to_next_up_problem_already_in_mastered_allow_mastered(
     assert problem in data
     output = console.export_text()
     assert f'"{problem}" is mastered but will be added due to flag.' in output
+
+
+def test_nextup_add_file_some_mastered(
+    mock_data, tmp_path, console, dump_json, load_json
+):
+    # Create a file with 3 problems
+    file_path = tmp_path / "test_mastered.txt"
+    content = "Problem A\nProblem B\nProblem C\n"
+    file_path.write_text(content)
+
+    # Mark Problem B as mastered
+    mastered_file = mock_data.MASTERED_FILE
+    dump_json(
+        mastered_file, {"Problem B": {"history": [{"rating": 5, "date": "2025-11-14"}]}}
+    )
+
+    args = SimpleNamespace(action="add", file=str(file_path))
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # Only Problem A and C should be added
+    assert "Problem A" in data
+    assert "Problem C" in data
+    assert "Problem B" not in data
+
+    output = console.export_text()
+    assert '"Problem B" is already mastered' in output
+    assert "Added 2 problems from file" in output
+
+
+def test_nextup_add_file_some_mastered_allow_mastered(
+    mock_data, tmp_path, console, dump_json, load_json
+):
+    # Create a file with 3 problems
+    file_path = tmp_path / "test_mastered_flag.txt"
+    content = "Problem X\nProblem Y\nProblem Z\n"
+    file_path.write_text(content)
+
+    # Mark Problem Y as mastered
+    mastered_file = mock_data.MASTERED_FILE
+    dump_json(
+        mastered_file, {"Problem Y": {"history": [{"rating": 5, "date": "2025-11-14"}]}}
+    )
+
+    args = SimpleNamespace(action="add", file=str(file_path), allow_mastered=True)
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # All problems should be added
+    assert "Problem X" in data
+    assert "Problem Y" in data
+    assert "Problem Z" in data
+
+    output = console.export_text()
+    assert '"Problem Y" is mastered but will be added due to flag.' in output
+    assert "Added 3 problems from file" in output

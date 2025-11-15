@@ -35,7 +35,10 @@ def handle(args, console: Console):
     history = entry["history"]
     if len(history) >= 2 and history[-1]["rating"] == 5 and history[-2]["rating"] == 5:
         mastered = load_json(MASTERED_FILE)
-        mastered[name] = entry
+        if name in mastered:
+            mastered[name]["history"].extend(history)
+        else:
+            mastered[name] = entry
         save_json(MASTERED_FILE, mastered)
         if name in data:
             del data[name]

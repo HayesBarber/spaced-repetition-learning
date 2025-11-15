@@ -100,3 +100,14 @@ def test_clear_next_up(mock_data, console, load_json):
 
     output = console.export_text()
     assert "Next Up queue cleared" in output
+
+
+def test_nextup_add_file_all_new(blind75_file, console, mock_data, load_json):
+    args = SimpleNamespace(action="add", file=str(blind75_file))
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    assert len(data) == 75
+
+    output = console.export_text()
+    assert "Added 75 problems from file" in output

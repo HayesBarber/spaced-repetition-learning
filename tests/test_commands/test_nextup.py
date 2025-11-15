@@ -224,3 +224,23 @@ def test_add_to_next_up_problem_already_in_mastered(
     assert problem not in data
     output = console.export_text()
     assert f'"{problem}" is already mastered' in output
+
+
+def test_add_to_next_up_problem_already_in_mastered_allow_mastered(
+    mock_data, console, dump_json, load_json
+):
+    # Simulate a problem that is already mastered
+    problem = "Mastered Problem"
+    initial_history = [{"rating": 5, "date": "2025-11-14"}]
+    mastered_file = mock_data.MASTERED_FILE
+    dump_json(mastered_file, {problem: {"history": initial_history.copy()}})
+
+    args = SimpleNamespace(action="add", name=problem, allow_mastered=True)
+    nextup.handle(args=args, console=console)
+
+    # Should add because we passed allow_mastered
+    next_up_file = mock_data.NEXT_UP_FILE
+    data = load_json(next_up_file)
+    assert problem in data
+    output = console.export_text()
+    assert f'"{problem}" is mastered but will be added due to flag.' in output

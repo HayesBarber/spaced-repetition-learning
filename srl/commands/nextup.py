@@ -48,7 +48,11 @@ def handle(args, console: Console):
             for line in lines:
                 if not line:
                     continue
-                added = add_to_next_up(line, console)
+                added = add_to_next_up(
+                    line,
+                    console,
+                    hasattr(args, "allow_mastered") and args.allow_mastered,
+                )
                 if added:
                     added_count += 1
 
@@ -61,7 +65,11 @@ def handle(args, console: Console):
                     "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
                 )
             else:
-                add_to_next_up(args.name, console)
+                add_to_next_up(
+                    args.name,
+                    console,
+                    hasattr(args, "allow_mastered") and args.allow_mastered,
+                )
                 console.print(
                     f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
                 )

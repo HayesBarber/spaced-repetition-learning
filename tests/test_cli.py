@@ -55,6 +55,24 @@ def test_nextup_list(parser):
     assert args.name is None
 
 
+def test_nextup_add_allow_mastered_flag_short(parser):
+    args = parser.parse_args(["nextup", "add", "Binary Search", "--allow-mastered"])
+    assert args.command == "nextup"
+    assert args.action == "add"
+    assert args.name == "Binary Search"
+    assert args.allow_mastered
+
+
+def test_nextup_add_allow_mastered_flag_file(parser):
+    args = parser.parse_args(
+        ["nextup", "add", "-f", "problems.txt", "--allow-mastered"]
+    )
+    assert args.command == "nextup"
+    assert args.action == "add"
+    assert args.file == "problems.txt"
+    assert args.allow_mastered
+
+
 def test_audit_pass(parser):
     args = parser.parse_args(["audit", "--pass"])
     assert args.command == "audit"

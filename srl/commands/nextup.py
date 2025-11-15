@@ -23,6 +23,11 @@ def add_subparser(subparsers):
         "-f",
         help="Path to a file containing problem names (one per line)",
     )
+    parser.add_argument(
+        "--allow-mastered",
+        action="store_true",
+        help="Allow adding problems that are already mastered",
+    )
     parser.set_defaults(handler=handle)
     return parser
 

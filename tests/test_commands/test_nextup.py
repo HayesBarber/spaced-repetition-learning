@@ -131,3 +131,16 @@ def test_nextup_add_file_some_existing(blind75_file, console, mock_data, load_js
     output = console.export_text()
     # No new problems should be added on second pass
     assert "Added 0 problems from file" in output
+
+
+def test_nextup_add_file_not_found(console, mock_data, load_json):
+    args = SimpleNamespace(action="add", file="non_existent_file.txt")
+
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # Queue should remain empty
+    assert len(data) == 0
+
+    output = console.export_text()
+    assert "File not found" in output

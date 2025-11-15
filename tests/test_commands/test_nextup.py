@@ -164,3 +164,23 @@ def test_nextup_add_file_ignores_blank_lines(tmp_path, console, mock_data, load_
 
     output = console.export_text()
     assert "Added 3 problems from file" in output
+
+
+def test_nextup_add_file_mixed_whitespace(tmp_path, console, mock_data, load_json):
+    # File with problems that have leading/trailing whitespace
+    file_path = tmp_path / "test_whitespace.txt"
+    content = "   Problem A\nProblem B   \n  Problem C  \n"
+    file_path.write_text(content)
+
+    args = SimpleNamespace(action="add", file=str(file_path))
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # All three problems should be added with whitespace stripped
+    assert len(data) == 3
+    assert "Problem A" in data
+    assert "Problem B" in data
+    assert "Problem C" in data
+
+    output = console.export_text()
+    assert "Added 3 problems from file" in output

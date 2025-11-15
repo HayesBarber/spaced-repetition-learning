@@ -7,7 +7,6 @@ import pytest
 
 @pytest.fixture
 def blind75_file(tmp_path):
-    # Path to repo-level starter_data file
     src = Path("starter_data/blind_75.txt")
     dst = tmp_path / "blind_75.txt"
     shutil.copy(src, dst)
@@ -111,3 +110,24 @@ def test_nextup_add_file_all_new(blind75_file, console, mock_data, load_json):
 
     output = console.export_text()
     assert "Added 75 problems from file" in output
+
+
+def test_nextup_add_file_some_existing(blind75_file, console, mock_data, load_json):
+    args = SimpleNamespace(action="add", file=str(blind75_file))
+
+    # First add: all 75 problems
+    nextup.handle(args=args, console=console)
+
+    # Capture console output
+    console.clear()
+
+    # Second add: all problems already exist
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # Should still have 75 problems
+    assert len(data) == 75
+
+    output = console.export_text()
+    # No new problems should be added on second pass
+    assert "Added 0 problems from file" in output

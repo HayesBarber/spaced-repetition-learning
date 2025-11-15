@@ -144,7 +144,7 @@ def test_random_command(parser):
     args = parser.parse_args(["random"])
     assert args.command == "random"
     assert hasattr(args, "handler")
-    assert args.all == False
+    assert not args
 
 
 def test_random_command_all_flag(parser):

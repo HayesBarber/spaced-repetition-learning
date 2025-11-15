@@ -116,8 +116,8 @@ srl nextup add -f starter_data/blind_75.txt
 
 Starter data files are available in the `starter_data/` directory at the top level of the repo. For example:
 
-- `starter_data/blind_75.txt` — Blink 75 problems
-- `starter_data/neetcode_150.txt` — Neetcode 150 problems
+- [starter_data/blind_75.txt](starter_data/blind_75.txt)
+- [starter_data/neetcode_150.txt](starter_data/neetcode_150.txt)
 
 List problems in the queue:
 

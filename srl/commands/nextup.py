@@ -18,21 +18,45 @@ def add_subparser(subparsers):
     parser.add_argument(
         "name", nargs="?", help="Problem name (only needed for 'add' or 'remove')"
     )
+    parser.add_argument(
+        "--file",
+        "-f",
+        help="Path to a file containing problem names (one per line)",
+    )
     parser.set_defaults(handler=handle)
     return parser
 
 
 def handle(args, console: Console):
     if args.action == "add":
-        if not args.name:
+        if args.file:
+            try:
+                with open(args.file, "r") as f:
+                    lines = [line.strip() for line in f.readlines()]
+            except FileNotFoundError:
+                console.print(f"[bold red]File not found:[/bold red] {args.file}")
+                return
+
+            added_count = 0
+            for line in lines:
+                if not line:
+                    continue
+                add_to_next_up(line, console)
+                added_count += 1
+
             console.print(
-                "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
+                f"[green]Added {added_count} problems from file[/green] [bold]{args.file}[/bold] to Next Up Queue"
             )
         else:
-            add_to_next_up(args.name, console)
-            console.print(
-                f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
-            )
+            if not args.name:
+                console.print(
+                    "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
+                )
+            else:
+                add_to_next_up(args.name, console)
+                console.print(
+                    f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
+                )
     elif args.action == "list":
         next_up = get_next_up_problems()
         if next_up:

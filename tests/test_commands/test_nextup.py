@@ -1,5 +1,16 @@
 from srl.commands import nextup
 from types import SimpleNamespace
+import shutil
+from pathlib import Path
+import pytest
+
+
+@pytest.fixture
+def blind75_file(tmp_path):
+    src = Path("starter_data/blind_75.txt")
+    dst = tmp_path / "blind_75.txt"
+    shutil.copy(src, dst)
+    return dst
 
 
 def test_add_to_next_up_new_problem(mock_data, console, load_json):
@@ -88,3 +99,88 @@ def test_clear_next_up(mock_data, console, load_json):
 
     output = console.export_text()
     assert "Next Up queue cleared" in output
+
+
+def test_nextup_add_file_all_new(blind75_file, console, mock_data, load_json):
+    args = SimpleNamespace(action="add", file=str(blind75_file))
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    assert len(data) == 75
+
+    output = console.export_text()
+    assert "Added 75 problems from file" in output
+
+
+def test_nextup_add_file_some_existing(blind75_file, console, mock_data, load_json):
+    args = SimpleNamespace(action="add", file=str(blind75_file))
+
+    # First add: all 75 problems
+    nextup.handle(args=args, console=console)
+
+    # Capture console output
+    console.clear()
+
+    # Second add: all problems already exist
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # Should still have 75 problems
+    assert len(data) == 75
+
+    output = console.export_text()
+    # No new problems should be added on second pass
+    assert "Added 0 problems from file" in output
+
+
+def test_nextup_add_file_not_found(console, mock_data, load_json):
+    args = SimpleNamespace(action="add", file="non_existent_file.txt")
+
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # Queue should remain empty
+    assert len(data) == 0
+
+    output = console.export_text()
+    assert "File not found" in output
+
+
+def test_nextup_add_file_ignores_blank_lines(tmp_path, console, mock_data, load_json):
+    # Create a file with 3 problems and 2 blank lines
+    file_path = tmp_path / "test_blank_lines.txt"
+    content = "\nProblem 1\n\nProblem 2\nProblem 3\n\n"
+    file_path.write_text(content)
+
+    args = SimpleNamespace(action="add", file=str(file_path))
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # Only 3 problems should be added
+    assert len(data) == 3
+    assert "Problem 1" in data
+    assert "Problem 2" in data
+    assert "Problem 3" in data
+
+    output = console.export_text()
+    assert "Added 3 problems from file" in output
+
+
+def test_nextup_add_file_mixed_whitespace(tmp_path, console, mock_data, load_json):
+    # File with problems that have leading/trailing whitespace
+    file_path = tmp_path / "test_whitespace.txt"
+    content = "   Problem A\nProblem B   \n  Problem C  \n"
+    file_path.write_text(content)
+
+    args = SimpleNamespace(action="add", file=str(file_path))
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # All three problems should be added with whitespace stripped
+    assert len(data) == 3
+    assert "Problem A" in data
+    assert "Problem B" in data
+    assert "Problem C" in data
+
+    output = console.export_text()
+    assert "Added 3 problems from file" in output

@@ -108,6 +108,17 @@ Add problems to your Next Up queue — problems you'd like to tackle next when n
 srl nextup add "Sliding Window Maximum"
 ```
 
+You can also add multiple problems at once from a file (one problem per line) using the `-f` or `--file` flag:
+
+```bash
+srl nextup add -f starter_data/blind_75.txt
+```
+
+Starter data files are available in the `starter_data/` directory at the top level of the repo. For example:
+
+- [starter_data/blind_75.txt](starter_data/blind_75.txt)
+- [starter_data/neetcode_150.txt](starter_data/neetcode_150.txt)
+
 List problems in the queue:
 
 ```bash

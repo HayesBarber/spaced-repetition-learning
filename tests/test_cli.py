@@ -32,6 +32,22 @@ def test_nextup_add(parser):
     assert args.name == "Binary Search"
 
 
+def test_nextup_add_with_file_short_flag(parser):
+    args = parser.parse_args(["nextup", "add", "-f", "problems.txt"])
+    assert args.command == "nextup"
+    assert args.action == "add"
+    assert args.file == "problems.txt"
+    assert args.name is None
+
+
+def test_nextup_add_with_file_long_flag(parser):
+    args = parser.parse_args(["nextup", "add", "--file", "problems.txt"])
+    assert args.command == "nextup"
+    assert args.action == "add"
+    assert args.file == "problems.txt"
+    assert args.name is None
+
+
 def test_nextup_list(parser):
     args = parser.parse_args(["nextup", "list"])
     assert args.command == "nextup"
@@ -144,11 +160,11 @@ def test_random_command(parser):
     args = parser.parse_args(["random"])
     assert args.command == "random"
     assert hasattr(args, "handler")
-    assert args.all == False
+    assert not args.all
 
 
 def test_random_command_all_flag(parser):
     args = parser.parse_args(["random", "--all"])
     assert args.command == "random"
     assert hasattr(args, "handler")
-    assert args.all is True
+    assert args.all

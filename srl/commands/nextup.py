@@ -5,6 +5,8 @@ from srl.storage import (
     load_json,
     save_json,
     NEXT_UP_FILE,
+    PROGRESS_FILE,
+    MASTERED_FILE,
 )
 
 
@@ -87,18 +89,34 @@ def handle(args, console: Console):
         clear_next_up(console)
 
 
-def add_to_next_up(name, console) -> bool:
+def add_to_next_up(name, console, allow_mastered=False) -> bool:
     """
-    returns True if the problem name was added, False if the name was already in the queue
+    Add a problem to Next Up queue if not already present, in progress, or mastered.
+    Returns True if added, False otherwise.
     """
-    data = load_json(NEXT_UP_FILE)
+    next_up = load_json(NEXT_UP_FILE)
+    in_progress = load_json(PROGRESS_FILE)
+    mastered = load_json(MASTERED_FILE)
 
-    if name in data:
+    if name in next_up:
         console.print(f'[yellow]"{name}" is already in the Next Up queue.[/yellow]')
         return False
 
-    data[name] = {"added": today().isoformat()}
-    save_json(NEXT_UP_FILE, data)
+    if name in in_progress:
+        console.print(f'[yellow]"{name}" is already in progress.[/yellow]')
+        return False
+
+    if name in mastered:
+        if allow_mastered:
+            console.print(
+                f'[blue]"{name}" is mastered but will be added due to flag.[/blue]'
+            )
+        else:
+            console.print(f'[yellow]"{name}" is already mastered.[/yellow]')
+            return False
+
+    next_up[name] = {"added": today().isoformat()}
+    save_json(NEXT_UP_FILE, next_up)
     return True
 
 

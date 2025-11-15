@@ -184,3 +184,33 @@ def test_nextup_add_file_mixed_whitespace(tmp_path, console, mock_data, load_jso
 
     output = console.export_text()
     assert "Added 3 problems from file" in output
+
+
+def test_add_to_next_up_problem_already_inprogress(mock_data, console, dump_json):
+    # Simulate a problem that is already in progress
+    problem = "In Progress Problem"
+    in_progress_file = mock_data.PROGRESS_FILE
+    initial_history = [{"rating": 5, "date": "2025-11-14"}]
+    dump_json(in_progress_file, {problem: {"history": initial_history.copy()}})
+
+    added = nextup.add_to_next_up(problem, console)
+
+    # Should not add because it's already in-progress
+    assert not added
+    output = console.export_text()
+    assert f'"{problem}" is already in progress' in output
+
+
+def test_add_to_next_up_problem_already_in_mastered(mock_data, console, dump_json):
+    # Simulate a problem that is already mastered
+    problem = "Mastered Problem"
+    initial_history = [{"rating": 5, "date": "2025-11-14"}]
+    mastered_file = mock_data.MASTERED_FILE
+    dump_json(mastered_file, {problem: {"history": initial_history.copy()}})
+
+    added = nextup.add_to_next_up(problem, console)
+
+    # Should not add because it's already mastered
+    assert not added
+    output = console.export_text()
+    assert f'"{problem}" is already mastered' in output

@@ -1,5 +1,17 @@
 from srl.commands import nextup
 from types import SimpleNamespace
+import shutil
+from pathlib import Path
+import pytest
+
+
+@pytest.fixture
+def blind75_file(tmp_path):
+    # Path to repo-level starter_data file
+    src = Path("starter_data/blind_75.txt")
+    dst = tmp_path / "blind_75.txt"
+    shutil.copy(src, dst)
+    return dst
 
 
 def test_add_to_next_up_new_problem(mock_data, console, load_json):

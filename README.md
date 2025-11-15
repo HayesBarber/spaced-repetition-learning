@@ -102,13 +102,21 @@ srl mastered -c
 
 ### Manage the Next Up Queue
 
-Add problems to your Next Up queue — problems you'd like to tackle next when nothing is due:
+Add problems to your Next Up queue — problems you'd like to tackle next when nothing is due.
+
+By default, `srl nextup add` **will skip problems that are already in the queue, in progress, or mastered** to avoid duplicates. You will see a message explaining why a problem was skipped.
 
 ```bash
 srl nextup add "Sliding Window Maximum"
 ```
 
-You can also add multiple problems at once from a file (one problem per line) using the `-f` or `--file` flag:
+If you want to add a problem that is already mastered, use the `--allow-mastered` flag:
+
+```bash
+srl nextup add "Sliding Window Maximum" --allow-mastered
+```
+
+You can also add multiple problems at once from a file (one problem per line) using the `-f` or `--file` flag. The same deduplication rules apply:
 
 ```bash
 srl nextup add -f starter_data/blind_75.txt

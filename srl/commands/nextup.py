@@ -5,6 +5,8 @@ from srl.storage import (
     load_json,
     save_json,
     NEXT_UP_FILE,
+    PROGRESS_FILE,
+    MASTERED_FILE,
 )
 
 
@@ -22,6 +24,11 @@ def add_subparser(subparsers):
         "--file",
         "-f",
         help="Path to a file containing problem names (one per line)",
+    )
+    parser.add_argument(
+        "--allow-mastered",
+        action="store_true",
+        help="Allow adding problems that are already mastered",
     )
     parser.set_defaults(handler=handle)
     return parser
@@ -41,7 +48,11 @@ def handle(args, console: Console):
             for line in lines:
                 if not line:
                     continue
-                added = add_to_next_up(line, console)
+                added = add_to_next_up(
+                    line,
+                    console,
+                    hasattr(args, "allow_mastered") and args.allow_mastered,
+                )
                 if added:
                     added_count += 1
 
@@ -54,7 +65,11 @@ def handle(args, console: Console):
                     "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
                 )
             else:
-                add_to_next_up(args.name, console)
+                add_to_next_up(
+                    args.name,
+                    console,
+                    hasattr(args, "allow_mastered") and args.allow_mastered,
+                )
                 console.print(
                     f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
                 )
@@ -82,18 +97,34 @@ def handle(args, console: Console):
         clear_next_up(console)
 
 
-def add_to_next_up(name, console) -> bool:
+def add_to_next_up(name, console, allow_mastered=False) -> bool:
     """
-    returns True if the problem name was added, False if the name was already in the queue
+    Add a problem to Next Up queue if not already present, in progress, or mastered.
+    Returns True if added, False otherwise.
     """
-    data = load_json(NEXT_UP_FILE)
+    next_up = load_json(NEXT_UP_FILE)
+    in_progress = load_json(PROGRESS_FILE)
+    mastered = load_json(MASTERED_FILE)
 
-    if name in data:
+    if name in next_up:
         console.print(f'[yellow]"{name}" is already in the Next Up queue.[/yellow]')
         return False
 
-    data[name] = {"added": today().isoformat()}
-    save_json(NEXT_UP_FILE, data)
+    if name in in_progress:
+        console.print(f'[yellow]"{name}" is already in progress.[/yellow]')
+        return False
+
+    if name in mastered:
+        if allow_mastered:
+            console.print(
+                f'[blue]"{name}" is mastered but will be added due to flag.[/blue]'
+            )
+        else:
+            console.print(f'[yellow]"{name}" is already mastered.[/yellow]')
+            return False
+
+    next_up[name] = {"added": today().isoformat()}
+    save_json(NEXT_UP_FILE, next_up)
     return True
 
 

@@ -144,3 +144,23 @@ def test_nextup_add_file_not_found(console, mock_data, load_json):
 
     output = console.export_text()
     assert "File not found" in output
+
+
+def test_nextup_add_file_ignores_blank_lines(tmp_path, console, mock_data, load_json):
+    # Create a file with 3 problems and 2 blank lines
+    file_path = tmp_path / "test_blank_lines.txt"
+    content = "\nProblem 1\n\nProblem 2\nProblem 3\n\n"
+    file_path.write_text(content)
+
+    args = SimpleNamespace(action="add", file=str(file_path))
+    nextup.handle(args=args, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    # Only 3 problems should be added
+    assert len(data) == 3
+    assert "Problem 1" in data
+    assert "Problem 2" in data
+    assert "Problem 3" in data
+
+    output = console.export_text()
+    assert "Added 3 problems from file" in output

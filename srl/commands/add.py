@@ -13,6 +13,12 @@ def add_subparser(subparsers):
     add = subparsers.add_parser("add", help="Add or update a problem attempt")
     add.add_argument("name", type=str, help="Name of the LeetCode problem")
     add.add_argument("rating", type=int, choices=range(1, 6), help="Rating from 1-5")
+    add.add_argument(
+        "difficulty",
+        nargs="?",
+        choices=["easy", "medium", "hard"],
+        help="Difficulty level (optional)",
+    )
     add.set_defaults(handler=handle)
     return add
 
@@ -20,6 +26,7 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     name: str = args.name
     rating: int = args.rating
+    difficulty: str = args.difficulty
 
     data = load_json(PROGRESS_FILE)
 
@@ -30,6 +37,8 @@ def handle(args, console: Console):
             "date": today().isoformat(),
         }
     )
+    if difficulty:
+        entry["difficulty"] = difficulty
 
     # Mastery check: last two ratings are 5
     history = entry["history"]
@@ -37,6 +46,11 @@ def handle(args, console: Console):
         mastered = load_json(MASTERED_FILE)
         if name in mastered:
             mastered[name]["history"].extend(history)
+            # Preserve existing difficulty if not provided in this update, or update if provided
+            if difficulty:
+                mastered[name]["difficulty"] = difficulty
+            elif "difficulty" in entry:
+                 mastered[name]["difficulty"] = entry["difficulty"]
         else:
             mastered[name] = entry
         save_json(MASTERED_FILE, mastered)

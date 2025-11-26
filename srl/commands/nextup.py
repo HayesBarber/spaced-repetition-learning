@@ -30,6 +30,12 @@ def add_subparser(subparsers):
         action="store_true",
         help="Allow adding problems that are already mastered",
     )
+    parser.add_argument(
+        "--difficulty",
+        "-d",
+        choices=["easy", "medium", "hard"],
+        help="Difficulty level",
+    )
     parser.set_defaults(handler=handle)
     return parser
 
@@ -48,10 +54,13 @@ def handle(args, console: Console):
             for line in lines:
                 if not line:
                     continue
+                # File import doesn't support difficulty tag per line yet easily without parsing changes
+                # So we pass None for difficulty when importing from file for now
                 added = add_to_next_up(
                     line,
                     console,
                     hasattr(args, "allow_mastered") and args.allow_mastered,
+                    difficulty=None,
                 )
                 if added:
                     added_count += 1
@@ -69,6 +78,7 @@ def handle(args, console: Console):
                     args.name,
                     console,
                     hasattr(args, "allow_mastered") and args.allow_mastered,
+                    difficulty=args.difficulty if hasattr(args, "difficulty") else None,
                 )
                 console.print(
                     f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
@@ -76,9 +86,21 @@ def handle(args, console: Console):
     elif args.action == "list":
         next_up = get_next_up_problems()
         if next_up:
+            problem_lines = []
+            for name, difficulty in next_up:
+                diff_tag = ""
+                if difficulty:
+                    color = {
+                        "easy": "green",
+                        "medium": "yellow",
+                        "hard": "red",
+                    }.get(difficulty.lower(), "white")
+                    diff_tag = f" [{color}][{difficulty.capitalize()}][/{color}]"
+                problem_lines.append(f"• {name}{diff_tag}")
+
             console.print(
                 Panel.fit(
-                    "\n".join(f"• {name}" for name in next_up),
+                    "\n".join(problem_lines),
                     title=f"[bold cyan]Next Up Problems ({len(next_up)})[/bold cyan]",
                     border_style="cyan",
                     title_align="left",
@@ -97,7 +119,7 @@ def handle(args, console: Console):
         clear_next_up(console)
 
 
-def add_to_next_up(name, console, allow_mastered=False) -> bool:
+def add_to_next_up(name, console, allow_mastered=False, difficulty=None) -> bool:
     """
     Add a problem to Next Up queue if not already present, in progress, or mastered.
     Returns True if added, False otherwise.
@@ -123,17 +145,22 @@ def add_to_next_up(name, console, allow_mastered=False) -> bool:
             console.print(f'[yellow]"{name}" is already mastered.[/yellow]')
             return False
 
-    next_up[name] = {"added": today().isoformat()}
+    entry = {"added": today().isoformat()}
+    if difficulty:
+        entry["difficulty"] = difficulty
+    
+    next_up[name] = entry
     save_json(NEXT_UP_FILE, next_up)
     return True
 
 
-def get_next_up_problems() -> list[str]:
+def get_next_up_problems() -> list[tuple]:
     data = load_json(NEXT_UP_FILE)
     res = []
 
-    for name in data.keys():
-        res.append(name)
+    for name, info in data.items():
+        difficulty = info.get("difficulty")
+        res.append((name, difficulty))
 
     return res
 

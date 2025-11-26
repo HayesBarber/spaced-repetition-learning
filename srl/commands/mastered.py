@@ -30,9 +30,18 @@ def handle(args, console: Console):
             table.add_column("Problem", style="cyan", no_wrap=True)
             table.add_column("Attempts", style="magenta")
             table.add_column("Mastered Date", style="green")
+            table.add_column("Difficulty", style="white")
 
-            for name, attempts, mastered_date in mastered_problems:
-                table.add_row(name, str(attempts), mastered_date)
+            for name, attempts, mastered_date, difficulty in mastered_problems:
+                diff_str = ""
+                if difficulty:
+                    color = {
+                        "easy": "green",
+                        "medium": "yellow",
+                        "hard": "red",
+                    }.get(difficulty.lower(), "white")
+                    diff_str = f"[{color}]{difficulty.capitalize()}[/{color}]"
+                table.add_row(name, str(attempts), mastered_date, diff_str)
 
             console.print(table)
 
@@ -47,6 +56,7 @@ def get_mastered_problems():
             continue
         attempts = len(history)
         mastered_date = history[-1]["date"]
-        mastered.append((name, attempts, mastered_date))
+        difficulty = info.get("difficulty")
+        mastered.append((name, attempts, mastered_date, difficulty))
 
     return mastered

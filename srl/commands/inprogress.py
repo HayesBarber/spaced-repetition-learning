@@ -15,9 +15,21 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     in_progress = get_in_progress()
     if in_progress:
+        problem_lines = []
+        for name, difficulty in in_progress:
+            diff_tag = ""
+            if difficulty:
+                color = {
+                    "easy": "green",
+                    "medium": "yellow",
+                    "hard": "red",
+                }.get(difficulty.lower(), "white")
+                diff_tag = f" [{color}][{difficulty.capitalize()}][/{color}]"
+            problem_lines.append(f"• {name}{diff_tag}")
+
         console.print(
             Panel.fit(
-                "\n".join(f"• {p}" for p in in_progress),
+                "\n".join(problem_lines),
                 title=f"[bold magenta]Problems in Progress ({len(in_progress)})[/bold magenta]",
                 border_style="magenta",
                 title_align="left",
@@ -27,11 +39,12 @@ def handle(args, console: Console):
         console.print("[yellow]No problems currently in progress.[/yellow]")
 
 
-def get_in_progress() -> list[str]:
+def get_in_progress() -> list[tuple]:
     data = load_json(PROGRESS_FILE)
     res = []
 
-    for name, _ in data.items():
-        res.append(name)
+    for name, info in data.items():
+        difficulty = info.get("difficulty")
+        res.append((name, difficulty))
 
     return res

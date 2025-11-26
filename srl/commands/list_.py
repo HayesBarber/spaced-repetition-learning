@@ -35,7 +35,7 @@ def handle(args, console: Console):
         console.print(
             Panel.fit(
                 "\n".join(f"• {p}" for p in problems),
-                title=f"[bold blue]Problems to Practice Today ({len(problems)})[/bold blue]",
+                title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(problems)})[/bold blue]",
                 border_style="blue",
                 title_align="left",
             )

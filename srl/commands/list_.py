@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.panel import Panel
-from srl.utils import today
+from srl.utils import today, get_difficulty_tag
 from srl.commands.audit import get_current_audit, random_audit
 from datetime import datetime, timedelta
 import random
@@ -32,9 +32,15 @@ def handle(args, console: Console):
 
     problems = get_due_problems(args.n)
     if problems:
+        problem_lines = []
+        for p in problems:
+            name, _, _, difficulty = p
+            diff_tag = get_difficulty_tag(difficulty)
+            problem_lines.append(f"• {name}{diff_tag}")
+
         console.print(
             Panel.fit(
-                "\n".join(f"• {p}" for p in problems),
+                "\n".join(problem_lines),
                 title=f"[bold blue]Problems to Practice Today ({len(problems)})[/bold blue]",
                 border_style="blue",
                 title_align="left",
@@ -54,7 +60,7 @@ def should_audit():
     return random.random() < probability
 
 
-def get_due_problems(limit=None) -> list[str]:
+def get_due_problems(limit=None) -> list[tuple]:
     data = load_json(PROGRESS_FILE)
     due = []
 
@@ -66,15 +72,27 @@ def get_due_problems(limit=None) -> list[str]:
         last_date = datetime.fromisoformat(last["date"]).date()
         due_date = last_date + timedelta(days=last["rating"])
         if due_date <= today():
-            due.append((name, last_date, last["rating"]))
+            difficulty = info.get("difficulty")
+            due.append((name, last_date, last["rating"], difficulty))
 
     # Sort: older last attempt first, then lower rating
     due.sort(key=lambda x: (x[1], x[2]))
-    due_names = [name for name, _, _ in (due[:limit] if limit else due)]
+    
+    # Slice if limit is provided
+    if limit:
+        due = due[:limit]
 
-    if not due_names:
-        next_up = load_json(NEXT_UP_FILE)
-        fallback = list(next_up.keys())[: limit or 3]
-        return fallback
+    # If we have due problems, return them (as tuples)
+    if due:
+        return due
 
-    return due_names
+    # Fallback to Next Up if no due problems
+    next_up = load_json(NEXT_UP_FILE)
+    # We need to return tuples to match the format: (name, date, rating, difficulty)
+    # For Next Up items, date/rating are dummy values, difficulty is fetched if available
+    fallback_items = []
+    for name, info in list(next_up.items())[: limit or 3]:
+        difficulty = info.get("difficulty")
+        fallback_items.append((name, None, None, difficulty))
+        
+    return fallback_items

@@ -41,7 +41,6 @@ def handle(args, console: Console):
     )
 
     # Mastery check: last two ratings are 5
-    # Mastery check: last two ratings are 5
     history = entry["history"]
     if len(history) >= 2 and history[-1]["rating"] == 5 and history[-2]["rating"] == 5:
         mastered = load_json(MASTERED_FILE)

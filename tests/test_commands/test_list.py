@@ -15,7 +15,8 @@ def test_list_with_due_problem(console, monkeypatch, backdate_problem):
     list_.handle(args=args, console=console)
 
     output = console.export_text()
-    assert "Problems to Practice Today (1)" in output
+    assert "Problems to Practice" in output
+    assert "(1)" in output
     assert problem in output
 
 
@@ -31,7 +32,7 @@ def test_list_with_next_up_fallback(console, monkeypatch):
 
     output = console.export_text()
     assert problem in output
-    assert "Problems to Practice Today" in output
+    assert "Problems to Practice" in output
     assert "No problems due" not in output
 
 

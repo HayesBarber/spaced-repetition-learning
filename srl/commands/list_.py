@@ -78,11 +78,9 @@ def get_due_problems(limit=None) -> list[tuple]:
     # Sort: older last attempt first, then lower rating
     due.sort(key=lambda x: (x[1], x[2]))
     
-    # Slice if limit is provided
     if limit:
         due = due[:limit]
 
-    # If we have due problems, return them (as tuples)
     if due:
         return due
 

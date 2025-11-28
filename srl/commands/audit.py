@@ -94,7 +94,6 @@ def audit_fail(curr, console: Console):
         return
 
     entry = mastered[curr]
-    # Append new failed attempt
     entry["history"].append(
         {
             "rating": 1,
@@ -102,11 +101,9 @@ def audit_fail(curr, console: Console):
         }
     )
 
-    # Move to progress
     progress[curr] = entry
     save_json(PROGRESS_FILE, progress)
 
-    # Remove from mastered
     del mastered[curr]
     save_json(MASTERED_FILE, mastered)
 

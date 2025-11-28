@@ -66,8 +66,7 @@ def handle(args, console: Console):
         )
 
     save_json(PROGRESS_FILE, data)
-
-    # Remove from next up if it exists there
+    
     next_up = load_json(NEXT_UP_FILE)
     if name in next_up:
         del next_up[name]

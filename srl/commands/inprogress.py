@@ -4,6 +4,7 @@ from srl.storage import (
     load_json,
     PROGRESS_FILE,
 )
+from srl.utils import get_difficulty_tag
 
 
 def add_subparser(subparsers):
@@ -18,13 +19,7 @@ def handle(args, console: Console):
         problem_lines = []
         for name, difficulty in in_progress:
             diff_tag = ""
-            if difficulty:
-                color = {
-                    "easy": "green",
-                    "medium": "yellow",
-                    "hard": "red",
-                }.get(difficulty.lower(), "white")
-                diff_tag = f" [{color}][{difficulty.capitalize()}][/{color}]"
+            diff_tag = get_difficulty_tag(difficulty)
             problem_lines.append(f"• {name}{diff_tag}")
 
         console.print(

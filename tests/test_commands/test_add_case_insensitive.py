@@ -29,8 +29,6 @@ def test_add_case_insensitive_update(mock_data, console, load_json):
     # Verify we still have only 1 entry (the original key)
     progress = load_json(progress_file)
     
-    # This assertion is expected to FAIL before the fix
-    # Currently it would likely create a second entry for "test problem"
     assert len(progress) == 1, f"Expected 1 entry, found {len(progress)}: {list(progress.keys())}"
     assert problem_original in progress
     assert problem_variant not in progress

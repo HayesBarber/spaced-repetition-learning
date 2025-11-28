@@ -22,6 +22,8 @@ Data is stored in the `~/.srl` directory, which is created automatically.
 
 ## Installation
 
+**Prerequisites**: Python 3.10+ is required.
+
 1. Clone the repo:
 
 ```bash

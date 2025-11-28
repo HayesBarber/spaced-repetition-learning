@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.panel import Panel
-from srl.utils import today
+from srl.utils import today, get_difficulty_tag
 from srl.storage import (
     load_json,
     save_json,
@@ -88,14 +88,7 @@ def handle(args, console: Console):
         if next_up:
             problem_lines = []
             for name, difficulty in next_up:
-                diff_tag = ""
-                if difficulty:
-                    color = {
-                        "easy": "green",
-                        "medium": "yellow",
-                        "hard": "red",
-                    }.get(difficulty.lower(), "white")
-                    diff_tag = f" [{color}][{difficulty.capitalize()}][/{color}]"
+                diff_tag = get_difficulty_tag(difficulty)
                 problem_lines.append(f"• {name}{diff_tag}")
 
             console.print(

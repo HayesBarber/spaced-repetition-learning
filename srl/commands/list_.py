@@ -92,9 +92,6 @@ def get_due_problems(limit=None) -> list[tuple]:
     # For Next Up items, date/rating are dummy values, difficulty is fetched if available
     fallback_items = []
     for name, info in list(next_up.items())[: limit or 3]:
-        # Next Up items in file don't store difficulty usually, but let's check if we save it there
-        # The current nextup implementation saves {"added": date}, but we might add difficulty there too.
-        # For now, let's assume difficulty might be there or None.
         difficulty = info.get("difficulty")
         fallback_items.append((name, None, None, difficulty))
         

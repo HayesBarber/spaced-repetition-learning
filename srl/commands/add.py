@@ -7,19 +7,31 @@ from srl.storage import (
     MASTERED_FILE,
     NEXT_UP_FILE,
 )
+from srl.commands.list_ import get_due_problems
 
 
 def add_subparser(subparsers):
     add = subparsers.add_parser("add", help="Add or update a problem attempt")
-    add.add_argument("name", type=str, help="Name of the LeetCode problem")
+    group = add.add_mutually_exclusive_group(required=True)
+    group.add_argument("name", nargs="?", type=str, help="Name of the LeetCode problem")
+    group.add_argument(
+        "-n", "--number", type=int, help="Problem number from `srl list`"
+    )
     add.add_argument("rating", type=int, choices=range(1, 6), help="Rating from 1-5")
     add.set_defaults(handler=handle)
     return add
 
 
 def handle(args, console: Console):
-    name: str = args.name
     rating: int = args.rating
+    if args.number:
+        problems = get_due_problems()
+        if args.number > len(problems) or args.number <= 0:
+            console.print(f"[bold red]Invalid problem number: {args.number}[/bold red]")
+            return
+        name = problems[args.number - 1]
+    else:
+        name: str = args.name
 
     data = load_json(PROGRESS_FILE)
 

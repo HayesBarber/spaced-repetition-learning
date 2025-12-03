@@ -18,7 +18,7 @@ def test_take_add_problem_from_inprogress(
     console, load_json, backdate_problem, mock_data
 ):
     problem = "Problem with rating"
-    args = SimpleNamespace(name=problem, rating=4)
+    args = SimpleNamespace(name=problem, rating=4, number=None)
     add.handle(args, console)
 
     # backdate problem so it's due
@@ -70,7 +70,7 @@ def test_take_index_out_of_bounds(console):
 def test_take_add_no_problems_due(console, load_json, mock_data):
     problem = "Problem with rating"
     original_rating = 4
-    args = SimpleNamespace(name=problem, rating=original_rating)
+    args = SimpleNamespace(name=problem, rating=original_rating, number=None)
     add.handle(args, console)
 
     # the problem ^ just added is not due, so "take" should do nothing

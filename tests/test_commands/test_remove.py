@@ -6,7 +6,7 @@ from types import SimpleNamespace
 def test_remove_existing_problem(mock_data, console):
     problem = "Test Problem"
     rating = 3
-    args = SimpleNamespace(name=problem, rating=rating)
+    args = SimpleNamespace(name=problem, rating=rating, number=None)
     add.handle(args, console)
 
     args = SimpleNamespace(name=problem)

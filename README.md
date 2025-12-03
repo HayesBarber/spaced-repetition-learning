@@ -55,6 +55,13 @@ srl add "Two Sum" 3
 - Adds a new attempt or updates an existing one.
 - Rating must be between `1` and `5`.
 
+You can also add an attempt by its number in the `srl list` output. This is useful to avoid retyping long problem names.
+
+```bash
+# Assuming "Two Sum" is number 1 in `srl list`
+srl add -n 1 3
+```
+
 ---
 
 ### Remove a Problem
@@ -73,7 +80,7 @@ srl remove "Two Sum"
 srl list
 ```
 
-Lists all problems scheduled for today, sorted by:
+Lists all problems scheduled for today as a numbered list, sorted by:
 
 1. Earliest last attempt.
 2. Lower ratings first.

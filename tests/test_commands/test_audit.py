@@ -13,7 +13,7 @@ def test_start_audit_with_no_mastered(console):
 def test_start_audit_with_mastered(console):
     problem = "Mastered Problem"
     rating = 5
-    args = SimpleNamespace(name=problem, rating=rating)
+    args = SimpleNamespace(name=problem, rating=rating, number=None)
 
     add.handle(args=args, console=console)
     add.handle(args=args, console=console)
@@ -29,7 +29,7 @@ def test_start_audit_with_mastered(console):
 def test_show_current_audit(console):
     problem = "Current Audit"
     rating = 5
-    args = SimpleNamespace(name=problem, rating=rating)
+    args = SimpleNamespace(name=problem, rating=rating, number=None)
 
     add.handle(args=args, console=console)
     add.handle(args=args, console=console)

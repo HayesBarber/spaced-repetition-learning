@@ -34,7 +34,7 @@ def handle(args, console: Console):
     if problems:
         console.print(
             Panel.fit(
-                "\n".join(f"• {p}" for p in problems),
+                "\n".join(f"{i+1}. {p}" for i, p in enumerate(problems)),
                 title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(problems)})[/bold blue]",
                 border_style="blue",
                 title_align="left",

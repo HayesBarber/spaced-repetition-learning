@@ -46,6 +46,8 @@ def handle(args, console: Console):
                 "[red]Error: rating must be provided when action is 'add'[/red]"
             )
             return
-        add.handle(SimpleNamespace(name=problem, rating=args.rating), console)
+        add.handle(
+            SimpleNamespace(name=problem, rating=args.rating, number=None), console
+        )
     else:
         console.print(problem)

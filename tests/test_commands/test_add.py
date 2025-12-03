@@ -5,7 +5,7 @@ from types import SimpleNamespace
 def test_add_new_problem(mock_data, console, load_json):
     problem = "What is 2+2?"
     rating = 3
-    args = SimpleNamespace(name=problem, rating=rating)
+    args = SimpleNamespace(name=problem, rating=rating, number=None)
 
     add.handle(
         args=args,
@@ -27,7 +27,7 @@ def test_move_problem_to_mastered(mock_data, console, load_json):
     progress_file = mock_data.PROGRESS_FILE
     mastered_file = mock_data.MASTERED_FILE
 
-    args = SimpleNamespace(name=problem, rating=rating)
+    args = SimpleNamespace(name=problem, rating=rating, number=None)
     # call twice with rating 5
     add.handle(args=args, console=console)
     add.handle(args=args, console=console)
@@ -50,7 +50,7 @@ def test_remove_problem_from_next_up(mock_data, console, load_json, dump_json):
 
     dump_json(next_up_file, {problem: {"dummy": True}})
 
-    args = SimpleNamespace(name=problem, rating=rating)
+    args = SimpleNamespace(name=problem, rating=rating, number=None)
     add.handle(args=args, console=console)
 
     next_up = load_json(next_up_file)
@@ -75,7 +75,7 @@ def test_append_to_mastered_already_present(mock_data, console, load_json, dump_
         progress_file, {problem: {"history": [{"rating": 5, "date": "2025-11-15"}]}}
     )
 
-    args = SimpleNamespace(name=problem, rating=rating)
+    args = SimpleNamespace(name=problem, rating=rating, number=None)
     add.handle(args=args, console=console)
 
     # Check PROGRESS_FILE no longer contains the problem

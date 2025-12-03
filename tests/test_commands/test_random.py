@@ -47,7 +47,7 @@ def test_random_all_dedup_and_choice(mock_data, dump_json, console, monkeypatch)
 def test_random_picks_due_problem(console, monkeypatch, backdate_problem):
     # add a problem and backdate it so it's due
     problem = "Due Problem"
-    args_add = SimpleNamespace(name=problem, rating=1)
+    args_add = SimpleNamespace(name=problem, rating=1, number=None)
     add.handle(args=args_add, console=console)
     backdate_problem(problem, 2)
 

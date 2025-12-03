@@ -5,7 +5,7 @@ from types import SimpleNamespace
 def test_mastered_count(console):
     problem = "Counting Test"
     rating = 5
-    args = SimpleNamespace(name=problem, rating=rating)
+    args = SimpleNamespace(number=None, name=problem, rating=rating)
     # call twice should move to mastered
     add.handle(args, console)
     add.handle(args, console)
@@ -22,15 +22,15 @@ def test_mastered_list_with_items(console, today_string):
     problem_a = "Problem A"
     problem_b = "Problem B"
 
-    args = SimpleNamespace(name=problem_a, rating=5)
+    args = SimpleNamespace(number=None, name=problem_a, rating=5)
     add.handle(args, console)
     add.handle(args, console)
 
-    args = SimpleNamespace(name=problem_b, rating=5)
+    args = SimpleNamespace(number=None, name=problem_b, rating=5)
     add.handle(args, console)
-    args = SimpleNamespace(name=problem_b, rating=1)
+    args = SimpleNamespace(number=None, name=problem_b, rating=1)
     add.handle(args, console)
-    args = SimpleNamespace(name=problem_b, rating=5)
+    args = SimpleNamespace(number=None, name=problem_b, rating=5)
     add.handle(args, console)
     add.handle(args, console)
 
@@ -57,7 +57,7 @@ def test_mastered_list_empty(console):
 def test_get_mastered_problems_filters_empty_history(console, today_string):
     problem_a = "Problem A"
 
-    args = SimpleNamespace(name=problem_a, rating=5)
+    args = SimpleNamespace(number=None, name=problem_a, rating=5)
     add.handle(args, console)
     add.handle(args, console)
 

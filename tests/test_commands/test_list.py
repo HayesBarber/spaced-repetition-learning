@@ -7,7 +7,7 @@ def test_list_with_due_problem(console, monkeypatch, backdate_problem):
 
     problem = "Due Problem"
     # Add problem with rating=1, then backdate it so it's due
-    args = SimpleNamespace(name=problem, rating=1, number=None)
+    args = SimpleNamespace(name=problem, rating=1)
     add.handle(args=args, console=console)
     backdate_problem(problem, 2)
 
@@ -58,7 +58,7 @@ def test_should_audit_probability(monkeypatch):
 
 def test_list_triggers_audit(mock_data, console, monkeypatch):
     problem = "Audit Problem"
-    args = SimpleNamespace(name=problem, rating=5, number=None)
+    args = SimpleNamespace(name=problem, rating=5)
     add.handle(args=args, console=console)
     add.handle(args=args, console=console)  # move to mastered
 

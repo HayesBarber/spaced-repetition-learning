@@ -6,10 +6,10 @@ def test_inprogress_with_items(mock_data, console, load_json):
     problem_a = "Problem A"
     problem_b = "Problem B"
 
-    args = SimpleNamespace(name=problem_a, rating=5, number=None)
+    args = SimpleNamespace(name=problem_a, rating=5)
     add.handle(args, console)
 
-    args = SimpleNamespace(name=problem_b, rating=4, number=None)
+    args = SimpleNamespace(name=problem_b, rating=4)
     add.handle(args, console)
 
     args = SimpleNamespace()

@@ -12,7 +12,7 @@ def test_add_case_insensitive_update(mock_data, console, load_json):
     rating2 = 2
     
     # 1. Add original problem
-    args1 = SimpleNamespace(name=problem_original, rating=rating1, number=None)
+    args1 = SimpleNamespace(name=problem_original, rating=rating1)
     add.handle(args=args1, console=console)
     
     # Verify it exists
@@ -23,7 +23,7 @@ def test_add_case_insensitive_update(mock_data, console, load_json):
     assert progress[problem_original]["history"][0]["rating"] == rating1
 
     # 2. Add variant (different casing)
-    args2 = SimpleNamespace(name=problem_variant, rating=rating2, number=None)
+    args2 = SimpleNamespace(name=problem_variant, rating=rating2)
     add.handle(args=args2, console=console)
     
     # Verify we still have only 1 entry (the original key)

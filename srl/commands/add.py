@@ -24,7 +24,7 @@ def add_subparser(subparsers):
 
 def handle(args, console: Console):
     rating: int = args.rating
-    if args.number:
+    if hasattr(args, "number") and args.number is not None:
         problems = get_due_problems()
         if args.number > len(problems) or args.number <= 0:
             console.print(f"[bold red]Invalid problem number: {args.number}[/bold red]")

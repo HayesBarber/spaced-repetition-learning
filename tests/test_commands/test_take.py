@@ -8,7 +8,7 @@ def test_take_print_problem(console):
     nextup.handle(SimpleNamespace(action="add", name=problem1), console=console)
     nextup.handle(SimpleNamespace(action="add", name=problem2), console=console)
 
-    args = SimpleNamespace(index=0, action=None, rating=None)
+    args = SimpleNamespace(index=1, action=None, rating=None)
     take.handle(args=args, console=console)
     output = console.export_text()
     assert problem1 in output
@@ -25,7 +25,7 @@ def test_take_add_problem_from_inprogress(
     backdate_problem(problem, 5)
 
     new_rating = 3
-    args = SimpleNamespace(index=0, action="add", rating=new_rating)
+    args = SimpleNamespace(index=1, action="add", rating=new_rating)
     take.handle(args=args, console=console)
 
     inprogress_data = load_json(mock_data.PROGRESS_FILE)
@@ -37,7 +37,7 @@ def test_take_add_problem_from_nextup(console, load_json, mock_data):
     problem = "Problem with rating"
     nextup.handle(SimpleNamespace(action="add", name=problem), console=console)
 
-    args = SimpleNamespace(index=0, action="add", rating=3)
+    args = SimpleNamespace(index=1, action="add", rating=3)
     take.handle(args=args, console=console)
 
     inprogress_data = load_json(mock_data.PROGRESS_FILE)
@@ -52,19 +52,36 @@ def test_take_add_missing_rating(console):
     problem = "Problem missing rating"
     nextup.handle(SimpleNamespace(action="add", name=problem), console=console)
 
-    args = SimpleNamespace(index=0, action="add", rating=None)
+    args = SimpleNamespace(index=1, action="add", rating=None)
     take.handle(args=args, console=console)
 
     output = console.export_text()
     assert "Error: rating must be provided" in output
 
 
-def test_take_index_out_of_bounds(console):
-    args = SimpleNamespace(index=5, action=None, rating=None)
-    take.handle(args=args, console=console)
 
+def test_take_index_out_of_bounds_high(console):
+    # Add a problem directly to NEXT_UP_FILE
+    from srl.storage import save_json, NEXT_UP_FILE
+    from srl.utils import today
+    save_json(NEXT_UP_FILE, {"Problem A": {"added": today().isoformat()}})
+
+    args = SimpleNamespace(index=2, action=None, rating=None) # Index 2 for 1 problem is out of bounds
+    take.handle(args=args, console=console)
     output = console.export_text()
     assert output == ""
+
+def test_take_index_zero_is_invalid(console):
+    # Add a problem directly to NEXT_UP_FILE
+    from srl.storage import save_json, NEXT_UP_FILE
+    from srl.utils import today
+    save_json(NEXT_UP_FILE, {"Problem B": {"added": today().isoformat()}})
+
+    args = SimpleNamespace(index=0, action=None, rating=None) # Index 0 should be invalid
+    take.handle(args=args, console=console)
+    output = console.export_text()
+    assert output == ""
+
 
 
 def test_take_add_no_problems_due(console, load_json, mock_data):
@@ -75,7 +92,7 @@ def test_take_add_no_problems_due(console, load_json, mock_data):
 
     # the problem ^ just added is not due, so "take" should do nothing
     new_rating = 3
-    args = SimpleNamespace(index=0, action="add", rating=new_rating)
+    args = SimpleNamespace(index=1, action="add", rating=new_rating)
     take.handle(args=args, console=console)
 
     inprogress_data = load_json(mock_data.PROGRESS_FILE)

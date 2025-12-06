@@ -11,13 +11,17 @@ from dataclasses import dataclass, field
 class Config:
     audit_probability: float = 0.1
     calendar_colors: dict[int, str] = field(
-        default_factory=lambda: {
+        default_factory=lambda: Config.default_calendar_colors()
+    )
+
+    @staticmethod
+    def default_calendar_colors() -> dict[int, str]:
+        return {
             0: "#1a1a1a",
             1: "#99e699",
             2: "#33cc33",
             3: "#00ff00",
         }
-    )
 
     @classmethod
     def load(cls) -> "Config":
@@ -39,10 +43,7 @@ class Config:
         setattr(self, key, value)
 
     def reset_colors(self):
-        default_factory = (
-            type(self).__dataclass_fields__["calendar_colors"].default_factory
-        )
-        self.calendar_colors = default_factory()
+        self.calendar_colors = self.default_calendar_colors().copy()
 
 
 def add_subparser(subparsers):

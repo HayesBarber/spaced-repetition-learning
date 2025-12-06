@@ -7,9 +7,9 @@ import random
 from srl.storage import (
     load_json,
     NEXT_UP_FILE,
-    CONFIG_FILE,
     PROGRESS_FILE,
 )
+from srl.commands.config import Config
 
 
 def add_subparser(subparsers):
@@ -45,8 +45,8 @@ def handle(args, console: Console):
 
 
 def should_audit():
-    config = load_json(CONFIG_FILE)
-    probability = config.get("audit_probability", 0.1)
+    cfg = Config.load()
+    probability = cfg.audit_probability
     try:
         probability = float(probability)
     except (ValueError, TypeError):

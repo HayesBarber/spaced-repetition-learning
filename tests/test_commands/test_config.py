@@ -63,11 +63,12 @@ def test_reset_colors(mock_data, console, load_json):
 
     data = load_json(mock_data.CONFIG_FILE)
 
+    # using str keys rather than ints because that is how the json is stored
     assert data["calendar_colors"] == {
-        0: "#1a1a1a",
-        1: "#99e699",
-        2: "#33cc33",
-        3: "#00ff00",
+        "0": "#1a1a1a",
+        "1": "#99e699",
+        "2": "#33cc33",
+        "3": "#00ff00",
     }
 
     output = console.export_text()

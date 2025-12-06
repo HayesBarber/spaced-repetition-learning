@@ -1,5 +1,6 @@
 from srl.commands import config
 from types import SimpleNamespace
+from srl.commands.config import Config
 
 
 def test_set_valid_audit_probability(mock_data, console, load_json):
@@ -123,3 +124,23 @@ def test_set_color_invalid_format(mock_data, console, load_json):
     out = console.export_text()
     assert "Invalid format" in out
     assert "No valid color updates" in out
+
+
+def test_config_load_converts_color_keys_to_ints(mock_data, dump_json):
+    raw = {
+        "audit_probability": 0.42,
+        "calendar_colors": {
+            "0": "#111111",
+            "1": "#222222",
+        },
+    }
+    dump_json(mock_data.CONFIG_FILE, raw)
+
+    cfg = Config.load()
+
+    # Keys should now be ints
+    assert cfg.calendar_colors == {
+        0: "#111111",
+        1: "#222222",
+    }
+    assert cfg.audit_probability == 0.42

@@ -4,6 +4,25 @@ from srl.storage import (
     save_json,
     CONFIG_FILE,
 )
+from dataclasses import dataclass
+
+
+@dataclass
+class Config:
+    audit_probability: float = 0.1
+
+    @classmethod
+    def load(cls) -> "Config":
+        raw = load_json(CONFIG_FILE)
+        return cls(**raw)
+
+    def save(self):
+        save_json(CONFIG_FILE, self.__dict__)
+
+    def set(self, key: str, value):
+        if not hasattr(self, key):
+            raise KeyError(f"Unknown config field: {key}")
+        setattr(self, key, value)
 
 
 def add_subparser(subparsers):

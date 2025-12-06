@@ -9,6 +9,7 @@ from srl.storage import (
     PROGRESS_FILE,
     AUDIT_FILE,
 )
+from srl.commands.config import Config
 
 
 def add_subparser(subparsers):
@@ -25,23 +26,14 @@ def add_subparser(subparsers):
 
 
 def handle(args, console: Console):
-    colors = colors_dict()
+    colors = Config.load().calendar_colors
     counts = get_all_date_counts()
     render_activity(console, counts, colors, args.months)
     console.print("-" * 5)
     render_legend(console, colors)
 
 
-def colors_dict() -> dict[int, str]:
-    return {
-        0: "#1a1a1a",
-        1: "#99e699",
-        2: "#33cc33",
-        3: "#00ff00",
-    }
-
-
-def render_legend(console: Console, colors: dict[int, str]) -> str:
+def render_legend(console: Console, colors: dict[int, str]):
     squares = " ".join(f"[{colors[level]}]■[/]" for level in colors)
     legend = f"Less {squares} More"
     console.print(legend)
@@ -80,7 +72,7 @@ def render_activity(
     )
 
     for row_idx in range(7):
-        combined_row = [days_of_week[row_idx], " "]
+        combined_row: list[int | str] = [days_of_week[row_idx], " "]
         for grid in grids:
             combined_row.extend(grid[row_idx])
 

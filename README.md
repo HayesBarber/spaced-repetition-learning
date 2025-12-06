@@ -268,6 +268,18 @@ or using the shorthand:
 srl calendar -m 3
 ```
 
+You can customize the colors used by `srl calendar`. Colors are configured by intensity level, where level 0 is the lowest activity and higher numbers represent stronger activity.
+
+Set one or more levels with:
+```bash
+srl config --set-color 0=#1a1a1a --set-color 1=#99e699
+```
+
+To reset the heatmap colors back to the defaults:
+```bash
+srl config --reset-colors
+```
+
 ---
 
 ### Server Command

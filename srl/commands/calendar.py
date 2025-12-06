@@ -41,7 +41,7 @@ def colors_dict() -> dict[int, str]:
     }
 
 
-def render_legend(console: Console, colors: dict[int, str]) -> str:
+def render_legend(console: Console, colors: dict[int, str]):
     squares = " ".join(f"[{colors[level]}]■[/]" for level in colors)
     legend = f"Less {squares} More"
     console.print(legend)
@@ -80,7 +80,7 @@ def render_activity(
     )
 
     for row_idx in range(7):
-        combined_row = [days_of_week[row_idx], " "]
+        combined_row: list[int | str] = [days_of_week[row_idx], " "]
         for grid in grids:
             combined_row.extend(grid[row_idx])
 

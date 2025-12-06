@@ -76,7 +76,7 @@ def handle(args, console: Console):
         cfg.reset_colors()
         cfg.save()
         console.print("Colors reset")
-    elif getattr(args, "set_color", False):
+    elif getattr(args, "set_color", []):
         updated_levels = []
 
         for entry in args.set_color:

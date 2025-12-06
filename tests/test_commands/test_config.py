@@ -81,3 +81,21 @@ def test_reset_colors(mock_data, console, load_json):
 
     output = console.export_text()
     assert "Colors reset" in output
+
+
+def test_set_color_valid(mock_data, console, load_json):
+    args = SimpleNamespace(
+        audit_probability=None,
+        get=False,
+        reset_colors=False,
+        set_color=["2=#123456", "3=#abcdef"],
+    )
+
+    config.handle(args, console)
+
+    data = load_json(mock_data.CONFIG_FILE)
+    assert data["calendar_colors"]["2"] == "#123456"
+    assert data["calendar_colors"]["3"] == "#abcdef"
+
+    out = console.export_text()
+    assert "Updated colors for level(s): 2, 3" in out

@@ -71,7 +71,25 @@ def handle(args, console: Console):
         cfg.save()
         console.print("Colors reset")
     elif args.set_color:
-        pass
+        updated_levels = []
+
+        for entry in args.set_color:
+            try:
+                level_str, hex_value = entry.split("=")
+                level = int(level_str)
+                cfg.calendar_colors[level] = hex_value
+                updated_levels.append(level)
+            except ValueError:
+                console.print(f"[red]Invalid format: {entry}[/red]")
+                continue
+
+        cfg.save()
+
+        if updated_levels:
+            lvls = ", ".join(str(l) for l in updated_levels)
+            console.print(f"[green]Updated colors for level(s): {lvls}.[/green]")
+        else:
+            console.print("[yellow]No valid color updates provided.[/yellow]")
     else:
         probability: float | None = args.audit_probability
 

@@ -4,12 +4,20 @@ from srl.storage import (
     save_json,
     CONFIG_FILE,
 )
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
 class Config:
     audit_probability: float = 0.1
+    calendar_colors: dict[int, str] = field(
+        default_factory=lambda: {
+            0: "#1a1a1a",
+            1: "#99e699",
+            2: "#33cc33",
+            3: "#00ff00",
+        }
+    )
 
     @classmethod
     def load(cls) -> "Config":

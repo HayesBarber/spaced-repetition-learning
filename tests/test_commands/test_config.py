@@ -1,6 +1,7 @@
 from srl.commands import config
 from types import SimpleNamespace
 from srl.commands.config import Config
+import json
 
 
 def test_set_valid_audit_probability(mock_data, console, load_json):
@@ -40,9 +41,17 @@ def test_set_none_probability(mock_data, console, load_json):
 def test_config_get(console):
     args = SimpleNamespace(audit_probability=None, get=True)
     config.handle(args, console)
-    output = console.export_text()
-    # Should contain a JSON object, e.g. starts with '{' or contains "audit_probability"
-    assert "{" in output or "audit_probability" in output
+
+    output = console.export_text().strip()
+    data = json.loads(output)
+
+    assert "audit_probability" in data
+    assert isinstance(data["audit_probability"], float)
+    assert data["audit_probability"] == 0.1
+    assert "calendar_colors" in data
+    assert isinstance(data["calendar_colors"], dict)
+    parsed_keys = {int(k) for k in data["calendar_colors"].keys()}
+    assert parsed_keys == {0, 1, 2, 3}
 
 
 def test_reset_colors(mock_data, console, load_json):

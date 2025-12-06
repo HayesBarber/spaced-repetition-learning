@@ -41,6 +41,16 @@ def add_subparser(subparsers):
     parser.add_argument(
         "--get", action="store_true", help="Display current configuration"
     )
+    parser.add_argument(
+        "--set-color",
+        action="append",
+        help="Set a heatmap color (format: level=#hex). Can be repeated",
+    )
+    parser.add_argument(
+        "--reset-colors",
+        action="store_true",
+        help="Reset heatmap colors to defaults",
+    )
     parser.set_defaults(handler=handle)
     return parser
 

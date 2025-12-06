@@ -42,3 +42,33 @@ def test_config_get(console):
     output = console.export_text()
     # Should contain a JSON object, e.g. starts with '{' or contains "audit_probability"
     assert "{" in output or "audit_probability" in output
+
+
+def test_reset_colors(mock_data, console, load_json):
+    args_set = SimpleNamespace(
+        audit_probability=None,
+        get=False,
+        set_color=["1=#ffffff"],
+        reset_colors=False,
+    )
+    config.handle(args_set, console)
+
+    args_reset = SimpleNamespace(
+        audit_probability=None,
+        get=False,
+        set_color=None,
+        reset_colors=True,
+    )
+    config.handle(args_reset, console)
+
+    data = load_json(mock_data.CONFIG_FILE)
+
+    assert data["calendar_colors"] == {
+        0: "#1a1a1a",
+        1: "#99e699",
+        2: "#33cc33",
+        3: "#00ff00",
+    }
+
+    output = console.export_text()
+    assert "Colors reset" in output

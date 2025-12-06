@@ -32,6 +32,12 @@ class Config:
             raise KeyError(f"Unknown config field: {key}")
         setattr(self, key, value)
 
+    def reset_colors(self):
+        default_factory = (
+            type(self).__dataclass_fields__["calendar_colors"].default_factory
+        )
+        self.calendar_colors = default_factory()
+
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser("config", help="Update configuration values")
@@ -60,6 +66,12 @@ def handle(args, console: Console):
 
     if args.get:
         console.print_json(data=cfg.__dict__)
+    elif args.reset_colors:
+        cfg.reset_colors()
+        cfg.save()
+        console.print("Colors reset")
+    elif args.set_color:
+        pass
     else:
         probability: float | None = args.audit_probability
 

@@ -99,3 +99,27 @@ def test_set_color_valid(mock_data, console, load_json):
 
     out = console.export_text()
     assert "Updated colors for level(s): 2, 3" in out
+
+
+def test_set_color_invalid_format(mock_data, console, load_json):
+    args = SimpleNamespace(
+        audit_probability=None,
+        get=False,
+        reset_colors=False,
+        set_color=["not-a-valid-entry"],
+    )
+
+    config.handle(args, console)
+
+    data = load_json(mock_data.CONFIG_FILE)
+
+    assert data["calendar_colors"] == {
+        "0": "#1a1a1a",
+        "1": "#99e699",
+        "2": "#33cc33",
+        "3": "#00ff00",
+    }
+
+    out = console.export_text()
+    assert "Invalid format" in out
+    assert "No valid color updates" in out

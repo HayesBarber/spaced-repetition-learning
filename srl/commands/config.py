@@ -22,6 +22,12 @@ class Config:
     @classmethod
     def load(cls) -> "Config":
         raw = load_json(CONFIG_FILE)
+
+        if "calendar_colors" in raw:
+            raw["calendar_colors"] = {
+                int(k): v for k, v in raw["calendar_colors"].items()
+            }
+
         return cls(**raw)
 
     def save(self):

@@ -70,13 +70,13 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     cfg = Config.load()
 
-    if args.get:
+    if getattr(args, "get", False):
         console.print_json(data=cfg.__dict__)
-    elif args.reset_colors:
+    elif getattr(args, "reset_colors", False):
         cfg.reset_colors()
         cfg.save()
         console.print("Colors reset")
-    elif args.set_color:
+    elif getattr(args, "set_color", False):
         updated_levels = []
 
         for entry in args.set_color:

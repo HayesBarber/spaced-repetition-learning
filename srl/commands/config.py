@@ -38,9 +38,10 @@ def add_subparser(subparsers):
 
 
 def handle(args, console: Console):
+    cfg = Config.load()
+
     if args.get:
-        config = load_json(CONFIG_FILE)
-        console.print_json(data=config)
+        console.print_json(data=cfg.__dict__)
     else:
         probability: float | None = args.audit_probability
 
@@ -48,7 +49,6 @@ def handle(args, console: Console):
             console.print("[yellow]Invalid configuration option provided.[/yellow]")
             return
 
-        config = load_json(CONFIG_FILE)
-        config["audit_probability"] = probability
-        save_json(CONFIG_FILE, config)
+        cfg.set("audit_probability", probability)
+        cfg.save()
         console.print(f"Audit probability set to [cyan]{probability}[/cyan]")

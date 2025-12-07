@@ -31,10 +31,17 @@ def handle(args, console: Console):
             return
 
     problems = get_due_problems(args.n)
+    masters = mastery_candidates()
+
     if problems:
+        lines = []
+        for i, p in enumerate(problems):
+            mark = " [magenta]★[/magenta]" if p in masters else ""
+            lines.append(f"{i+1}. {p}{mark}")
+
         console.print(
             Panel.fit(
-                "\n".join(f"{i+1}. {p}" for i, p in enumerate(problems)),
+                "\n".join(lines),
                 title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(problems)})[/bold blue]",
                 border_style="blue",
                 title_align="left",

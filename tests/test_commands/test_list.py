@@ -11,13 +11,33 @@ def test_list_with_due_problem(console, monkeypatch, backdate_problem):
     add.handle(args=args, console=console)
     backdate_problem(problem, 2)
 
-    args = SimpleNamespace(n=None)
+    args = SimpleNamespace()
     list_.handle(args=args, console=console)
 
     output = console.export_text()
     assert "Problems to Practice" in output
     assert "(1)" in output
     assert problem in output
+
+
+def test_list_with_limit(console, monkeypatch, backdate_problem):
+    monkeypatch.setattr(list_, "should_audit", lambda: False)
+
+    for i in range(10):
+        problem = f"problem {i}"
+        args = SimpleNamespace(name=problem, rating=1)
+        add.handle(args=args, console=console)
+        backdate_problem(problem, 2)
+
+    console.clear()
+    args = SimpleNamespace(n=3)
+    list_.handle(args=args, console=console)
+
+    output = console.export_text()
+    for i in range(3):
+        assert f"problem {i}" in output
+    for i in range(3, 10):
+        assert f"problem {i}" not in output
 
 
 def test_list_with_next_up_fallback(console, monkeypatch):
@@ -39,7 +59,7 @@ def test_list_with_next_up_fallback(console, monkeypatch):
 def test_list_empty(console, monkeypatch):
     monkeypatch.setattr(list_, "should_audit", lambda: False)
 
-    args = SimpleNamespace(n=None)
+    args = SimpleNamespace()
     list_.handle(args=args, console=console)
 
     output = console.export_text()
@@ -56,7 +76,7 @@ def test_should_audit_probability(monkeypatch):
     assert list_.should_audit() is False
 
 
-def test_list_triggers_audit(mock_data, console, monkeypatch):
+def test_list_triggers_audit(console, monkeypatch):
     problem = "Audit Problem"
     args = SimpleNamespace(name=problem, rating=5)
     add.handle(args=args, console=console)
@@ -64,10 +84,25 @@ def test_list_triggers_audit(mock_data, console, monkeypatch):
 
     monkeypatch.setattr(list_, "should_audit", lambda: True)
 
-    args = SimpleNamespace(n=None)
+    args = SimpleNamespace()
     list_.handle(args=args, console=console)
 
     output = console.export_text()
     assert "You have been randomly audited!" in output
     assert "Audit problem:" in output
     assert problem in output
+
+
+def test_list_indicate_mastered(console, backdate_problem, monkeypatch):
+    monkeypatch.setattr(list_, "should_audit", lambda: False)
+
+    problem = "Mastered attempt"
+    args = SimpleNamespace(name=problem, rating=5)
+    add.handle(args=args, console=console)
+    backdate_problem(problem, 7)
+
+    args = SimpleNamespace()
+    list_.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert f"1. {problem} *" in output

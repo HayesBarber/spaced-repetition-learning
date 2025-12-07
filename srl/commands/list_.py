@@ -30,11 +30,18 @@ def handle(args, console: Console):
             )
             return
 
-    problems = get_due_problems(args.n)
+    problems = get_due_problems(getattr(args, "n", None))
+    masters = mastery_candidates()
+
     if problems:
+        lines = []
+        for i, p in enumerate(problems):
+            mark = " [magenta]*[/magenta]" if p in masters else ""
+            lines.append(f"{i+1}. {p}{mark}")
+
         console.print(
             Panel.fit(
-                "\n".join(f"{i+1}. {p}" for i, p in enumerate(problems)),
+                "\n".join(lines),
                 title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(problems)})[/bold blue]",
                 border_style="blue",
                 title_align="left",
@@ -78,3 +85,14 @@ def get_due_problems(limit=None) -> list[str]:
         return fallback
 
     return due_names
+
+
+def mastery_candidates() -> set[str]:
+    """Return names of problems whose *last* rating was 5."""
+    data = load_json(PROGRESS_FILE)
+    out = set()
+    for name, info in data.items():
+        hist = info.get("history", [])
+        if hist and hist[-1].get("rating") == 5:
+            out.add(name)
+    return out

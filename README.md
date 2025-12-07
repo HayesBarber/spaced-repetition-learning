@@ -1,5 +1,7 @@
 # `srl` — Spaced Repetition Learning CLI
 
+![Preview](./preview.svg)
+
 A lightweight command-line tool for mastering LeetCode-style data structures and algorithm problems using **spaced repetition**.
 
 ## Overview

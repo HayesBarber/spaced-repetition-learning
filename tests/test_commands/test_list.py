@@ -34,10 +34,10 @@ def test_list_with_limit(console, monkeypatch, backdate_problem):
     list_.handle(args=args, console=console)
 
     output = console.export_text()
-    assert "problem 0" in output
-    assert "problem 1" in output
-    assert "problem 2" in output
-    assert "problem 3" not in output
+    for i in range(3):
+        assert f"problem {i}" in output
+    for i in range(3, 10):
+        assert f"problem {i}" not in output
 
 
 def test_list_with_next_up_fallback(console, monkeypatch):

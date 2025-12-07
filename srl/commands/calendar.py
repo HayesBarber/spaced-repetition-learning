@@ -28,7 +28,7 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     colors = Config.load().calendar_colors
     counts = get_all_date_counts()
-    render_activity(console, counts, colors, args.months)
+    render_activity(console, counts, colors, getattr(args, "months", 12))
     console.print("-" * 5)
     render_legend(console, colors)
 

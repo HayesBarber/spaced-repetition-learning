@@ -1,5 +1,5 @@
 from rich.console import Console
-from rich.text import Text
+from types import SimpleNamespace
 
 
 def add_subparser(subparsers):
@@ -11,15 +11,8 @@ def add_subparser(subparsers):
 
 
 def handle(_, console: Console):
-    from srl.banner import banner
-    from srl.cli import build_parser
+    from srl.commands import calendar
 
     console.record = True
-
-    banner(console)
-
-    parser = build_parser()
-    text = Text.from_ansi(parser.format_help())
-    console.print(text, crop=False)
-
+    calendar.handle(SimpleNamespace(months=8), console)
     console.save_svg(path="./preview.svg", title="srl")

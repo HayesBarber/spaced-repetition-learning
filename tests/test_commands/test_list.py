@@ -56,7 +56,7 @@ def test_should_audit_probability(monkeypatch):
     assert list_.should_audit() is False
 
 
-def test_list_triggers_audit(mock_data, console, monkeypatch):
+def test_list_triggers_audit(console, monkeypatch):
     problem = "Audit Problem"
     args = SimpleNamespace(name=problem, rating=5)
     add.handle(args=args, console=console)

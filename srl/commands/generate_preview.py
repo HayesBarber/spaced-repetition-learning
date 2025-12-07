@@ -1,4 +1,5 @@
 from rich.console import Console
+from rich.text import Text
 
 
 def add_subparser(subparsers):
@@ -14,7 +15,11 @@ def handle(_, console: Console):
     from srl.cli import build_parser
 
     console.record = True
+
     banner(console)
+
     parser = build_parser()
-    parser.print_help()
+    text = Text.from_ansi(parser.format_help())
+    console.print(text, crop=False)
+
     console.save_svg(path="./preview.svg", title="srl")

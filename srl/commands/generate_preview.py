@@ -13,6 +13,8 @@ def handle(_, console: Console):
     from srl.banner import banner
     from srl.cli import build_parser
 
+    console.record = True
     banner(console)
     parser = build_parser()
     parser.print_help()
+    console.save_svg(path="./preview.svg", title="srl")

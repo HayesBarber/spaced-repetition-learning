@@ -78,3 +78,14 @@ def get_due_problems(limit=None) -> list[str]:
         return fallback
 
     return due_names
+
+
+def mastery_candidates() -> set[str]:
+    """Return names of problems whose *last* rating was 5."""
+    data = load_json(PROGRESS_FILE)
+    out = set()
+    for name, info in data.items():
+        hist = info.get("history", [])
+        if hist and hist[-1].get("rating") == 5:
+            out.add(name)
+    return out

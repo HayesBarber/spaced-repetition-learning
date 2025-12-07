@@ -85,6 +85,8 @@ Lists all problems scheduled for today as a numbered list, sorted by:
 1. Earliest last attempt.
 2. Lower ratings first.
 
+Problems whose most recent rating was 5 are marked with a * to indicate a _mastery attempt_.
+
 You can limit the number of problems shown:
 
 ```bash

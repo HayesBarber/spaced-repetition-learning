@@ -163,7 +163,10 @@ def test_add_by_number_no_due_problems(console):
 
 def test_add_by_number_removes_from_nextup(console, load_json, mock_data):
     problem = "Problem from nextup"
-    nextup.handle(SimpleNamespace(action="add", name=problem, file=None, allow_mastered=False), console)
+    nextup.handle(
+        SimpleNamespace(action="add", name=problem, file=None, allow_mastered=False),
+        console,
+    )
 
     console.clear()
 
@@ -203,7 +206,9 @@ def test_add_by_number_mastery(console, load_json, backdate_problem, mock_data):
     assert f"{problem} moved to mastered!" in output
 
 
-def test_add_by_number_case_insensitive(console, load_json, backdate_problem, mock_data):
+def test_add_by_number_case_insensitive(
+    console, load_json, backdate_problem, mock_data
+):
     problem_lower = "problem"
     problem_upper = "Problem"
 
@@ -217,10 +222,12 @@ def test_add_by_number_case_insensitive(console, load_json, backdate_problem, mo
     # We will pretend that `get_due_problems()` returned "Problem" (with capital P)
     # to test the case-insensitivity of the `add` command.
     from srl.commands.list_ import get_due_problems
+
     original_get_due_problems = get_due_problems
+
     def mock_get_due_problems():
         return [problem_upper]
-    
+
     add.get_due_problems = mock_get_due_problems
 
     args = SimpleNamespace(number=1, rating=4, name=None)

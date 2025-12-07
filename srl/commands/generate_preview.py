@@ -10,4 +10,9 @@ def add_subparser(subparsers):
 
 
 def handle(_, console: Console):
-    pass
+    from srl.banner import banner
+    from srl.cli import build_parser
+
+    banner(console)
+    parser = build_parser()
+    parser.print_help()

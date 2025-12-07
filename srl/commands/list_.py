@@ -30,13 +30,13 @@ def handle(args, console: Console):
             )
             return
 
-    problems = get_due_problems(args.n)
+    problems = get_due_problems(getattr(args, "n", None))
     masters = mastery_candidates()
 
     if problems:
         lines = []
         for i, p in enumerate(problems):
-            mark = " [magenta]★[/magenta]" if p in masters else ""
+            mark = " [magenta]*[/magenta]" if p in masters else ""
             lines.append(f"{i+1}. {p}{mark}")
 
         console.print(

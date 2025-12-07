@@ -11,7 +11,7 @@ def test_list_with_due_problem(console, monkeypatch, backdate_problem):
     add.handle(args=args, console=console)
     backdate_problem(problem, 2)
 
-    args = SimpleNamespace(n=None)
+    args = SimpleNamespace()
     list_.handle(args=args, console=console)
 
     output = console.export_text()
@@ -39,7 +39,7 @@ def test_list_with_next_up_fallback(console, monkeypatch):
 def test_list_empty(console, monkeypatch):
     monkeypatch.setattr(list_, "should_audit", lambda: False)
 
-    args = SimpleNamespace(n=None)
+    args = SimpleNamespace()
     list_.handle(args=args, console=console)
 
     output = console.export_text()
@@ -64,10 +64,25 @@ def test_list_triggers_audit(console, monkeypatch):
 
     monkeypatch.setattr(list_, "should_audit", lambda: True)
 
-    args = SimpleNamespace(n=None)
+    args = SimpleNamespace()
     list_.handle(args=args, console=console)
 
     output = console.export_text()
     assert "You have been randomly audited!" in output
     assert "Audit problem:" in output
     assert problem in output
+
+
+def test_list_indicate_mastered(console, backdate_problem, monkeypatch):
+    monkeypatch.setattr(list_, "should_audit", lambda: False)
+
+    problem = "Mastered attempt"
+    args = SimpleNamespace(name=problem, rating=5)
+    add.handle(args=args, console=console)
+    backdate_problem(problem, 7)
+
+    args = SimpleNamespace()
+    list_.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert f"1. {problem} *" in output

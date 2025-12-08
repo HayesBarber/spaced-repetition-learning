@@ -352,3 +352,11 @@ srl list
 ```
 
 4. Rinse and repeat until mastery!
+
+## Testing
+
+Run the tests using pytest:
+
+```bash
+pytest
+```

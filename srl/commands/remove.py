@@ -34,6 +34,7 @@ def handle(args, console: Console):
 
     if not name:
         console.print("[red]Invalid args[/red]")
+        return
 
     if name in data:
         del data[name]

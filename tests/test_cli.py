@@ -1,11 +1,30 @@
 import pytest
 
 
-def test_add_command(parser):
+def test_add_by_name(parser):
     args = parser.parse_args(["add", "Two Sum", "3"])
     assert args.command == "add"
     assert args.name == "Two Sum"
+    assert args.number is None
     assert args.rating == 3
+
+
+def test_add_by_number(parser):
+    args = parser.parse_args(["add", "-n", "4", "5"])
+    assert args.command == "add"
+    assert args.name is None
+    assert args.number == 4
+    assert args.rating == 5
+
+
+def test_add_mutually_exclusive_both_given(parser):
+    with pytest.raises(SystemExit):
+        parser.parse_args(["add", "Two Sum", "-n", "4", "3"])
+
+
+def test_add_requires_name_or_number(parser):
+    with pytest.raises(SystemExit):
+        parser.parse_args(["add"])
 
 
 def test_add_invalid_rating(parser):

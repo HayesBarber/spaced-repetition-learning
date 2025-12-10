@@ -33,7 +33,7 @@ def handle(args, console: Console):
         name = names[args.number - 1]
 
     if not name:
-        console.print(f"[red]Invalid args[/red]")
+        console.print("[red]Invalid args[/red]")
 
     if name in data:
         del data[name]

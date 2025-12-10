@@ -20,9 +20,21 @@ def add_subparser(subparsers):
 
 
 def handle(args, console: Console):
-    name: str = args.name
-
     data = load_json(PROGRESS_FILE)
+    name = getattr(args, "name", None)
+
+    if getattr(args, "number", None):
+        names = list(data.keys())
+
+        if args.number < 1 or args.number > len(names):
+            console.print(f"[red]Invalid problem number:[/red] {args.number}")
+            return
+
+        name = names[args.number - 1]
+
+    if not name:
+        console.print(f"[red]Invalid args[/red]")
+
     if name in data:
         del data[name]
         save_json(PROGRESS_FILE, data)

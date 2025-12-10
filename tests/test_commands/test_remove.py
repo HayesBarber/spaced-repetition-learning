@@ -33,13 +33,9 @@ def test_remove_nonexistent_problem(mock_data, load_json, console):
     assert problem in output
 
 
-def test_remove_by_number(load_json, backdate_problem, mock_data, console):
-    problem_a = "A"
-    add.handle(SimpleNamespace(name=problem_a, rating=5, number=None), console)
-    backdate_problem(problem_a, 5)
-    problem_b = "B"
-    add.handle(SimpleNamespace(name=problem_b, rating=5, number=None), console)
-    backdate_problem(problem_b, 5)
+def test_remove_by_number(load_json, mock_data, console):
+    add.handle(SimpleNamespace(name="A", rating=5, number=None), console)
+    add.handle(SimpleNamespace(name="B", rating=5, number=None), console)
 
     args = SimpleNamespace(name=None, number=2)
     remove.handle(args=args, console=console)

@@ -13,7 +13,7 @@ def add_subparser(subparsers):
         "name", nargs="?", type=str, help="Name of the problem to remove"
     )
     group.add_argument(
-        "-n", "--number", type=int, help="Problem number from `srl list`"
+        "-n", "--number", type=int, help="Problem number from `srl inprogress`"
     )
     parser.set_defaults(handler=handle)
     return parser

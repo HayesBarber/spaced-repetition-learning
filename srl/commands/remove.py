@@ -8,7 +8,13 @@ from srl.storage import (
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser("remove", help="Remove a problem from in-progress")
-    parser.add_argument("name", type=str, help="Name of the problem to remove")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "name", nargs="?", type=str, help="Name of the problem to remove"
+    )
+    group.add_argument(
+        "-n", "--number", type=int, help="Problem number from `srl list`"
+    )
     parser.set_defaults(handler=handle)
     return parser
 

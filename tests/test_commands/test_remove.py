@@ -37,14 +37,17 @@ def test_remove_nonexistent_problem(mock_data, load_json, console):
 def test_remove_by_number(load_json, mock_data, console):
     add.handle(SimpleNamespace(name="A", rating=5, number=None), console)
     add.handle(SimpleNamespace(name="B", rating=5, number=None), console)
+    for name in "CDEFG":
+        add.handle(SimpleNamespace(name=name, rating=5, number=None), console)
 
     args = SimpleNamespace(name=None, number=2)
     remove.handle(args=args, console=console)
 
     data = load_json(mock_data.PROGRESS_FILE)
 
+    for name in "ACDEFG":
+        assert name in data
     assert "B" not in data
-    assert "A" in data
 
     output = console.export_text()
     assert "Removed" in output

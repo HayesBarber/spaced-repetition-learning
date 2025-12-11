@@ -68,8 +68,14 @@ srl add -n 1 3
 
 ### Remove a Problem
 
+You can remove a problem either by **name** or by its **number** from `srl inprogress`.
+
 ```bash
 srl remove "Two Sum"
+```
+
+```bash
+srl remove -n 3
 ```
 
 - Removes a problem from your in-progress list.

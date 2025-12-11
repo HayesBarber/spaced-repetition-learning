@@ -13,7 +13,7 @@ from srl.commands.list_ import get_due_problems
 def add_subparser(subparsers):
     add = subparsers.add_parser("add", help="Add or update a problem attempt")
     group = add.add_mutually_exclusive_group(required=True)
-    group.add_argument("name", nargs="?", type=str, help="Name of the LeetCode problem")
+    group.add_argument("name", nargs="?", type=str, help="Name of the problem")
     group.add_argument(
         "-n", "--number", type=int, help="Problem number from `srl list`"
     )
@@ -41,7 +41,7 @@ def handle(args, console: Console):
         if key.lower() == name.lower():
             existing_name = key
             break
-    
+
     # Use existing name if found, otherwise use the provided name
     target_name = existing_name if existing_name else name
     entry = data.get(target_name, {"history": []})

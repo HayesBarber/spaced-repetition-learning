@@ -17,7 +17,7 @@ def handle(args, console: Console):
     if in_progress:
         console.print(
             Panel.fit(
-                "\n".join(f"• {p}" for p in in_progress),
+                "\n".join(f"{i+1}. {p}" for i, p in enumerate(in_progress)),
                 title=f"[bold magenta]Problems in Progress ({len(in_progress)})[/bold magenta]",
                 border_style="magenta",
                 title_align="left",

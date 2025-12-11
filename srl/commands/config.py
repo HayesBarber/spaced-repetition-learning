@@ -93,7 +93,7 @@ def handle(args, console: Console):
         cfg.save()
 
         if updated_levels:
-            lvls = ", ".join(str(l) for l in updated_levels)
+            lvls = ", ".join(str(level) for level in updated_levels)
             console.print(f"[green]Updated colors for level(s): {lvls}.[/green]")
         else:
             console.print("[yellow]No valid color updates provided.[/yellow]")

@@ -46,7 +46,7 @@ def test_remove_by_number(load_json, mock_data, console):
     data = load_json(mock_data.PROGRESS_FILE)
 
     for name in "ACDEFG":
-        assert name in data
+        assert name + "n" in data
     assert "B" not in data
 
     output = console.export_text()

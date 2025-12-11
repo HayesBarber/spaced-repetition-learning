@@ -48,3 +48,16 @@ def test_remove_by_number(load_json, mock_data, console):
     output = console.export_text()
     assert "Removed" in output
     assert "B" in output
+
+
+def test_remove_by_number_out_of_range_high(mock_data, load_json, console):
+    add.handle(SimpleNamespace(name="Only", rating=5), console)
+
+    args = SimpleNamespace(name=None, number=5)
+    remove.handle(args=args, console=console)
+
+    data = load_json(mock_data.PROGRESS_FILE)
+
+    assert "Only" in data
+    output = console.export_text()
+    assert "Invalid problem number" in output

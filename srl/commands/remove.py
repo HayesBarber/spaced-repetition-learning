@@ -23,7 +23,7 @@ def handle(args, console: Console):
     data = load_json(PROGRESS_FILE)
     name = getattr(args, "name", None)
 
-    if getattr(args, "number", None):
+    if getattr(args, "number", None) is not None:
         names = list(data.keys())
 
         if args.number < 1 or args.number > len(names):

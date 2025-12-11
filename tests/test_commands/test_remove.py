@@ -1,5 +1,6 @@
 from srl.commands import remove, add
 from types import SimpleNamespace
+import pytest
 
 
 def test_remove_existing_problem(mock_data, load_json, console):
@@ -50,14 +51,15 @@ def test_remove_by_number(load_json, mock_data, console):
     assert "B" in output
 
 
-def test_remove_by_number_out_of_range_high(mock_data, load_json, console):
-    add.handle(SimpleNamespace(name="Only", rating=5), console)
+@pytest.mark.parametrize("num", [0, -1, 5])
+def test_remove_by_number_out_of_range(mock_data, load_json, console, num):
+    add.handle(SimpleNamespace(name="X", rating=2), console)
 
-    args = SimpleNamespace(name=None, number=5)
+    args = SimpleNamespace(name=None, number=num)
     remove.handle(args=args, console=console)
 
     data = load_json(mock_data.PROGRESS_FILE)
 
-    assert "Only" in data
+    assert "X" in data
     output = console.export_text()
     assert "Invalid problem number" in output

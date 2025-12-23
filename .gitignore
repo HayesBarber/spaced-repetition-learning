@@ -7,6 +7,9 @@ __pycache__/
 venv/
 env/
 
+# Build directory
+build/
+
 # IDE or editor-specific files
 .vscode/
 .idea/

@@ -30,21 +30,22 @@ Data is stored in the `~/.srl` directory, which is created automatically.
 
 ```bash
 git clone https://github.com/HayesBarber/spaced-repetition-learning.git
+cd spaced-repetition-learning
 ```
 
-2. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Install the package in editable mode:
+2. Install the package:
 
 ```bash
 pip install -e .
 ```
 
-This exposes the `srl` command globally.
+Or with [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv pip install -e .
+```
+
+This exposes the `srl` command globally (use `uv run srl` if using uv).
 
 ## ‍Usage
 
@@ -359,10 +360,6 @@ srl list
 
 4. Rinse and repeat until mastery!
 
-## Testing
+## Contributing
 
-Run the tests using pytest:
-
-```bash
-pytest
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and testing instructions.

@@ -34,8 +34,8 @@ def handle(args, console: Console):
     problem = None
     due_problems = list_.get_due_problems()
 
-    if due_problems and index < len(due_problems):
-        problem = due_problems[index]
+    if due_problems and 0 < index <= len(due_problems):
+        problem = due_problems[index - 1]
 
     if not problem:
         return
@@ -46,6 +46,8 @@ def handle(args, console: Console):
                 "[red]Error: rating must be provided when action is 'add'[/red]"
             )
             return
-        add.handle(SimpleNamespace(name=problem, rating=args.rating), console)
+        add.handle(
+            SimpleNamespace(name=problem, rating=args.rating), console
+        )
     else:
         console.print(problem)

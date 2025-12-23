@@ -20,7 +20,18 @@ class Paths:
 
 @pytest.fixture
 def console():
-    return Console(record=True)
+    c = Console(record=True)
+
+    original_clear = c.clear
+
+    def patched_clear(*args, **kwargs):
+        original_clear(*args, **kwargs)
+
+        c._record_buffer.clear()
+
+    c.clear = patched_clear
+
+    return c
 
 
 @pytest.fixture

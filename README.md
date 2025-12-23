@@ -1,5 +1,7 @@
 # `srl` — Spaced Repetition Learning CLI
 
+![Preview](./preview.svg)
+
 A lightweight command-line tool for mastering LeetCode-style data structures and algorithm problems using **spaced repetition**.
 
 ## Overview
@@ -22,25 +24,24 @@ Data is stored in the `~/.srl` directory, which is created automatically.
 
 ## Installation
 
+**Prerequisites**: Python 3.10+ is required.
+
 1. Clone the repo:
 
 ```bash
 git clone https://github.com/HayesBarber/spaced-repetition-learning.git
+cd spaced-repetition-learning
 ```
 
-2. Install dependencies:
+2. Install the package:
+
+Install with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-pip install -r requirements.txt
+uv pip install -e .
 ```
 
-3. Install the package in editable mode:
-
-```bash
-pip install -e .
-```
-
-This exposes the `srl` command globally.
+Create a venv or use `--system` for system wide installation
 
 ## ‍Usage
 
@@ -53,12 +54,25 @@ srl add "Two Sum" 3
 - Adds a new attempt or updates an existing one.
 - Rating must be between `1` and `5`.
 
+You can also add an attempt by its number in the `srl list` output. This is useful to avoid retyping long problem names.
+
+```bash
+# Assuming "Two Sum" is number 1 in `srl list`
+srl add -n 1 3
+```
+
 ---
 
 ### Remove a Problem
 
+You can remove a problem either by **name** or by its **number** from `srl inprogress`.
+
 ```bash
 srl remove "Two Sum"
+```
+
+```bash
+srl remove -n 3
 ```
 
 - Removes a problem from your in-progress list.
@@ -71,10 +85,12 @@ srl remove "Two Sum"
 srl list
 ```
 
-Lists all problems scheduled for today, sorted by:
+Lists all problems scheduled for today as a numbered list, sorted by:
 
 1. Earliest last attempt.
 2. Lower ratings first.
+
+Problems whose most recent rating was 5 are marked with a asterisk (*) to indicate a _mastery attempt_.
 
 You can limit the number of problems shown:
 
@@ -259,6 +275,18 @@ or using the shorthand:
 srl calendar -m 3
 ```
 
+You can customize the colors used by `srl calendar`. Colors are configured by intensity level, where level 0 is the lowest activity and higher numbers represent stronger activity.
+
+Set one or more levels with:
+```bash
+srl config --set-color 0=#1a1a1a --set-color 1=#99e699
+```
+
+To reset the heatmap colors back to the defaults:
+```bash
+srl config --reset-colors
+```
+
 ---
 
 ### Server Command
@@ -327,3 +355,7 @@ srl list
 ```
 
 4. Rinse and repeat until mastery!
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and testing instructions.

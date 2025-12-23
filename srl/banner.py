@@ -3,6 +3,12 @@ from rich.text import Text
 
 
 def banner(console: Console):
+    txt = _banner()
+    with_color = Text(txt, style="bold cyan")
+    console.print(with_color)
+
+
+def _banner():
     txt = """
     ███████╗██████╗ ██╗     
     ██╔════╝██╔══██╗██║     
@@ -11,5 +17,4 @@ def banner(console: Console):
     ███████║██║  ██║███████║
     ╚══════╝╚═╝  ╚═╝╚══════╝
 """
-    with_color = Text(txt, style="bold cyan")
-    console.print(with_color)
+    return txt

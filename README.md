@@ -35,17 +35,13 @@ cd spaced-repetition-learning
 
 2. Install the package:
 
-```bash
-pip install -e .
-```
-
-Or with [uv](https://docs.astral.sh/uv/):
+Install with [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv pip install -e .
 ```
 
-This exposes the `srl` command globally (use `uv run srl` if using uv).
+Create a venv or use `--system` for system wide installation
 
 ## ‍Usage
 

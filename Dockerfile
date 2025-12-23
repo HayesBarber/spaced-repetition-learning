@@ -1,14 +1,13 @@
-FROM python:3.11-slim
+FROM python:3.12-slim-trixie
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+COPY srl .
+COPY pyproject.toml uv.lock ./
 
-COPY . .
-
-RUN pip install .
+ENV UV_NO_DEV=1
+RUN uv sync --locked
 
 EXPOSE 8080
 

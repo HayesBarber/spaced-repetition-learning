@@ -11,11 +11,7 @@ cd spaced-repetition-learning
 
 2. Install the package with dev dependencies:
 
-```bash
-pip install -e ".[dev]"
-```
-
-Or with [uv](https://docs.astral.sh/uv/):
+Install with [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv pip install -e ".[dev]"

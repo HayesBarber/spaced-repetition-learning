@@ -10,6 +10,7 @@ ENV UV_SYSTEM_PYTHON=1
 ENV UV_NO_DEV=1
 
 RUN uv sync --frozen
+ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8080
 

@@ -18,12 +18,14 @@ def add_subparser(subparsers):
         "-n", "--number", type=int, help="Problem number from `srl list`"
     )
     add.add_argument("rating", type=int, choices=range(1, 6), help="Rating from 1-5")
+    add.add_argument("-u", "--url", type=str, help="URL to the problem")
     add.set_defaults(handler=handle)
     return add
 
 
 def handle(args, console: Console):
     rating: int = args.rating
+    url: str = getattr(args, "url", "")
     if hasattr(args, "number") and args.number is not None:
         problems = get_due_problems()
         if args.number > len(problems) or args.number <= 0:
@@ -51,6 +53,8 @@ def handle(args, console: Console):
             "date": today().isoformat(),
         }
     )
+    if url:
+        entry["url"] = url
 
     # Mastery check: last two ratings are 5
     history = entry["history"]

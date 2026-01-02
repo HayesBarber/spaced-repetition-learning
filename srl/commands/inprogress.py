@@ -1,6 +1,5 @@
 from rich.console import Console
 from rich.panel import Panel
-from rich.markdown import Markdown
 from srl.storage import (
     load_json,
     PROGRESS_FILE,
@@ -18,15 +17,16 @@ def handle(args, console: Console):
     url_enabled: bool = getattr(args, "url", False)
     in_progress = get_in_progress()
     if in_progress:
+        lines = []
+        for i, p in enumerate(in_progress):
+            if url_enabled and p["url"]:
+                lines.append(f"{i+1}. {p['name']}  [blue][link={p['url']}]Open in LeetCode[/link][/blue]")
+            else:
+                lines.append(f"{i+1}. {p['name']}")
+
         console.print(
             Panel.fit(
-                # TODO: update tests to accept MD output
-                # meanwhile, don't render MD for default input to pass tests
-                (
-                    Markdown("\n".join(f"{i+1}. {p["name"]}{f"  [Open in LeetCode]({p["url"]})" if p["url"] else ""}" for i, p in enumerate(in_progress)))
-                    if url_enabled 
-                    else "\n".join(f"{i+1}. {p["name"]}" for i, p in enumerate(in_progress))
-                ),
+                "\n".join(lines),
                 title=f"[bold magenta]Problems in Progress ({len(in_progress)})[/bold magenta]",
                 border_style="magenta",
                 title_align="left",

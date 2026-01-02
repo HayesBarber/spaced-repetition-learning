@@ -15,6 +15,7 @@ from srl.commands.config import Config
 def add_subparser(subparsers):
     parser = subparsers.add_parser("list", help="List due problems")
     parser.add_argument("-n", type=int, default=None, help="Max number of problems")
+    parser.add_argument("-u", "--url", action="store_true", help="Include problem URLs")
     parser.set_defaults(handler=handle)
     return parser
 
@@ -30,7 +31,8 @@ def handle(args, console: Console):
             )
             return
 
-    problems = get_due_problems(getattr(args, "n", None))
+    include_url = getattr(args, "url", False)
+    problems = get_due_problems(getattr(args, "n", None), include_url)
     masters = mastery_candidates()
 
     if problems:
@@ -61,11 +63,12 @@ def should_audit():
     return random.random() < probability
 
 
-def get_due_problems(limit=None) -> list[str]:
+def get_due_problems(limit=None, include_url=False) -> list[str]:
     data = load_json(PROGRESS_FILE)
     due = []
 
     for name, info in data.items():
+        url = info.get("url", "")
         history = info["history"]
         if not history:
             continue
@@ -73,11 +76,20 @@ def get_due_problems(limit=None) -> list[str]:
         last_date = datetime.fromisoformat(last["date"]).date()
         due_date = last_date + timedelta(days=last["rating"])
         if due_date <= today():
-            due.append((name, last_date, last["rating"]))
+            due.append((name, last_date, last["rating"], url))
 
     # Sort: older last attempt first, then lower rating
     due.sort(key=lambda x: (x[1], x[2]))
-    due_names = [name for name, _, _ in (due[:limit] if limit else due)]
+
+    if not include_url:
+        due_names = [name for name, _, _, _ in due[:limit]]
+    else:
+        due_names = [
+            f"{name}  [blue][link={url}]Open in LeetCode[/link][/blue]"
+            if url
+            else name
+            for name, _, _, url in due[:limit]
+        ]
 
     if not due_names:
         next_up = load_json(NEXT_UP_FILE)

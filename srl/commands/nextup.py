@@ -21,14 +21,23 @@ def add_subparser(subparsers):
         "name", nargs="?", help="Problem name (only needed for 'add' or 'remove')"
     )
     parser.add_argument(
-        "--file",
         "-f",
+        "--file",
         help="Path to a file containing problem names (one per line)",
     )
     parser.add_argument(
         "--allow-mastered",
         action="store_true",
         help="Allow adding problems that are already mastered",
+    )
+    parser.add_argument(
+        "-u", 
+        "--url", 
+        nargs="?",
+        type=str,
+        const="",
+        default=None,
+        help="URL to the problem for 'add' or include URLs in output for 'list'"
     )
     parser.set_defaults(handler=handle)
     return parser
@@ -69,16 +78,27 @@ def handle(args, console: Console):
                     args.name,
                     console,
                     hasattr(args, "allow_mastered") and args.allow_mastered,
+                    getattr(args, "url", ""),
                 )
                 console.print(
                     f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
                 )
     elif args.action == "list":
+        url_requested = isinstance(getattr(args, "url", None), str)
+        urls = get_next_up_problem_urls() if url_requested else []
+
         next_up = get_next_up_problems()
         if next_up:
+            lines = []
+            for i, name in enumerate(next_up):
+                if url_requested and urls[i]:
+                    lines.append(f"• {name}  [blue][link={urls[i]}]Open in LeetCode[/link][/blue]")
+                else:
+                    lines.append(f"• {name}")
+
             console.print(
                 Panel.fit(
-                    "\n".join(f"• {name}" for name in next_up),
+                    "\n".join(lines),
                     title=f"[bold cyan]Next Up Problems ({len(next_up)})[/bold cyan]",
                     border_style="cyan",
                     title_align="left",
@@ -97,7 +117,7 @@ def handle(args, console: Console):
         clear_next_up(console)
 
 
-def add_to_next_up(name, console, allow_mastered=False) -> bool:
+def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
     """
     Add a problem to Next Up queue if not already present, in progress, or mastered.
     Returns True if added, False otherwise.
@@ -124,6 +144,9 @@ def add_to_next_up(name, console, allow_mastered=False) -> bool:
             return False
 
     next_up[name] = {"added": today().isoformat()}
+    if url: 
+        next_up[name]["url"] = url
+
     save_json(NEXT_UP_FILE, next_up)
     return True
 
@@ -136,6 +159,12 @@ def get_next_up_problems() -> list[str]:
         res.append(name)
 
     return res
+
+# NOTE: mirror func created to avoid breaking existing tests for get_next_up_problems()
+# TODO: merge with get_next_up_problems() to return list[{name: str, url: str}]
+def get_next_up_problem_urls() -> list[str]:
+    data = load_json(NEXT_UP_FILE)
+    return [info.get("url", "") for info in data.values()]
 
 
 def remove_from_next_up(name: str, console: Console):

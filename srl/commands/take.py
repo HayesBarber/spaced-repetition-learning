@@ -25,7 +25,9 @@ def add_subparser(subparsers):
     parser.add_argument(
         "rating", type=int, choices=range(1, 6), nargs="?", help="Rating from 1-5"
     )
-    parser.add_argument("-u", "--url", action="store_true", help="Include problem URLs")
+    parser.add_argument(
+        "-u", "--url", action="store_true", help="Include problem URLs"
+    )
     parser.set_defaults(handler=handle)
     return parser
 

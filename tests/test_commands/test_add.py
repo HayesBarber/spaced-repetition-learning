@@ -241,3 +241,45 @@ def test_add_by_number_case_insensitive(
     assert problem_upper not in progress_data
     assert len(progress_data[problem_lower]["history"]) == 2
     assert progress_data[problem_lower]["history"][-1]["rating"] == 4
+
+
+def test_add_new_problem_with_url(mock_data, console, load_json):
+    problem = "What is 2+2?"
+    rating = 3
+    url = "https://example.com"
+    args = SimpleNamespace(name=problem, rating=rating, url=url)
+
+    add.handle(
+        args=args,
+        console=console,
+    )
+
+    progress_file = mock_data.PROGRESS_FILE
+    progress = load_json(progress_file)
+    assert problem in progress
+    assert progress[problem]["history"][0]["rating"] == rating
+    assert progress[problem]["url"] == url
+
+    output = console.export_text()
+    assert f"Added rating {rating} for '{problem}'" in output
+
+
+def test_add_multiple_ratings_url_persists(mock_data, console, load_json):
+    problem = "Two Sum"
+    url = "https://leetcode.com/problems/two-sum/"
+
+    # Add first rating with URL
+    args = SimpleNamespace(name=problem, rating=3, url=url)
+    add.handle(args, console)
+
+    # Add second rating without URL parameter
+    args = SimpleNamespace(name=problem, rating=4)
+    add.handle(args, console)
+
+    # Verify URL still exists
+    progress = load_json(mock_data.PROGRESS_FILE)
+    assert problem in progress
+    assert progress[problem]["url"] == url
+    assert len(progress[problem]["history"]) == 2
+    assert progress[problem]["history"][0]["rating"] == 3
+    assert progress[problem]["history"][1]["rating"] == 4

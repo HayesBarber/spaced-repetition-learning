@@ -85,7 +85,7 @@ def get_due_problems(limit=None, include_url=False) -> list[str]:
         due_names = [name for name, _, _, _ in due[:limit]]
     else:
         due_names = [
-            f"{name}  [blue][link={url}]Open in LeetCode[/link][/blue]"
+            f"{name}  [blue][link={url}]Open in Browser[/link][/blue]"
             if url
             else name
             for name, _, _, url in due[:limit]

@@ -20,7 +20,7 @@ def handle(args, console: Console):
         lines = []
         for i, p in enumerate(in_progress):
             if url_enabled and p["url"]:
-                lines.append(f"{i+1}. {p['name']}  [blue][link={p['url']}]Open in LeetCode[/link][/blue]")
+                lines.append(f"{i+1}. {p['name']}  [blue][link={p['url']}]Open in Browser[/link][/blue]")
             else:
                 lines.append(f"{i+1}. {p['name']}")
 

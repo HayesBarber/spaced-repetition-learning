@@ -92,7 +92,7 @@ def handle(args, console: Console):
             lines = []
             for i, name in enumerate(next_up):
                 if url_requested and urls[i]:
-                    lines.append(f"• {name}  [blue][link={urls[i]}]Open in LeetCode[/link][/blue]")
+                    lines.append(f"• {name}  [blue][link={urls[i]}]Open in Browser[/link][/blue]")
                 else:
                     lines.append(f"• {name}")
 

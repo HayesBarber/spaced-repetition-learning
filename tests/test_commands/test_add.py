@@ -283,3 +283,46 @@ def test_add_multiple_ratings_url_persists(mock_data, console, load_json):
     assert len(progress[problem]["history"]) == 2
     assert progress[problem]["history"][0]["rating"] == 3
     assert progress[problem]["history"][1]["rating"] == 4
+
+
+# TODO: implement URL preservation from nextup to progress in add.py
+# Currently, when a problem is moved from nextup to progress, the URL is lost.
+# The add.py code deletes the nextup entry without preserving the URL.
+# def test_add_preserves_url_from_nextup(mock_data, console, load_json):
+#     problem = "Problem with URL"
+#     url = "https://example.com"
+#
+#     # Add problem to nextup with URL
+#     nextup.handle(
+#         SimpleNamespace(action="add", name=problem, url=url),
+#         console
+#     )
+#
+#     # Add rating (moves from nextup to progress)
+#     args = SimpleNamespace(name=problem, rating=3)
+#     add.handle(args, console)
+#
+#     # Verify URL was preserved
+#     progress = load_json(mock_data.PROGRESS_FILE)
+#     assert problem in progress
+#     assert progress[problem]["url"] == url
+
+
+# TODO: implement URL preservation from progress to mastered in add.py
+# Currently, when a problem is moved to mastered (two rating=5), the URL is lost.
+# def test_move_problem_with_url_to_mastered(mock_data, console, load_json):
+#     problem = "Problem with URL"
+#     url = "https://example.com"
+#
+#     # Add problem with URL and rating 5
+#     args = SimpleNamespace(name=problem, rating=5, url=url)
+#     add.handle(args, console)
+#
+#     # Add second rating 5 (triggers move to mastered)
+#     args = SimpleNamespace(name=problem, rating=5)
+#     add.handle(args, console)
+#
+#     # Verify URL was preserved in mastered
+#     mastered = load_json(mock_data.MASTERED_FILE)
+#     assert problem in mastered
+#     assert mastered[problem]["url"] == url

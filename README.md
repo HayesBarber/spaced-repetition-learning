@@ -24,6 +24,14 @@ Data is stored in the `~/.srl` directory, which is created automatically.
 
 ## Installation
 
+### Homebrew
+
+```bash
+brew tap HayesBarber/tap
+brew install srl
+```
+
+### From Source
 **Prerequisites**: Python 3.10+ is required.
 
 1. Clone the repo:

@@ -171,7 +171,7 @@ srl nextup clear
 
 ---
 
-### Audit Command
+### Random Audit
 
 When running `srl list` there is a 10% chance you will be "audited" with a problem from your mastered list.
 

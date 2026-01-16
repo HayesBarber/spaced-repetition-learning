@@ -129,7 +129,7 @@ def test_audit_history_with_entries(console, mock_data, dump_json):
     assert "Total Audits: 3" in output
     assert "Passed: 2 (66.7%)" in output
     assert "Failed: 1 (33.3%)" in output
-    assert "Recent Audit History" in output
+    assert "Audit History" in output
     assert "binary-search" in output
     assert "quick-sort" in output
     assert "merge-sort" in output

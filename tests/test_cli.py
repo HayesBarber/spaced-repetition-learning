@@ -93,7 +93,7 @@ def test_nextup_add_allow_mastered_flag_file(parser):
 
 
 def test_audit_pass(parser):
-    args = parser.parse_args(["audit", "--pass"])
+    args = parser.parse_args(["audit", "pass"])
     assert args.command == "audit"
     assert args.audit_pass is True
     assert args.audit_fail is False

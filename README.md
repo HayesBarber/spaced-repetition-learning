@@ -184,14 +184,22 @@ srl audit
 If you passed the audit:
 
 ```bash
-srl audit --pass
+srl audit pass
 ```
 
 If you failed the audit:
 
 ```bash
-srl audit --fail
+srl audit fail
 ```
+
+View your complete audit history with statistics:
+
+```bash
+srl audit history
+```
+
+This displays a list of your audit attempts along with summary statistics including total audits, pass count, fail count, and pass rate percentage.
 
 ---
 

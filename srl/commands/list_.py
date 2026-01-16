@@ -26,7 +26,7 @@ def handle(args, console: Console):
             console.print("[bold red]You have been randomly audited![/bold red]")
             console.print(f"[yellow]Audit problem:[/yellow] [cyan]{problem}[/cyan]")
             console.print(
-                "Run [green]srl audit --pass[/green] or [red]--fail[/red] when done"
+                "Run [green]srl audit pass[/green] or [red]fail[/red] when done"
             )
             return
 

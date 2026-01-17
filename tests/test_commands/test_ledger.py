@@ -62,7 +62,6 @@ def test_ledger_audit_pass_converts_to_rating_5(console, mock_data, dump_json):
 
     output = console.export_text()
     assert " 5 " in output
-    assert " 1 " in output
 
 
 def test_ledger_data_sorted_chronologically(console, mock_data, dump_json):
@@ -93,9 +92,8 @@ def test_ledger_data_sorted_chronologically(console, mock_data, dump_json):
     output = console.export_text()
     lines = output.strip().split("\n")
     date_lines = [line for line in lines if "2025-01-" in line]
-    assert "2025-01-13" in date_lines[0]
-    assert "2025-01-14" in date_lines[1]
-    assert "2025-01-15" in date_lines[2]
+    assert "2025-01-14" in date_lines[0]
+    assert "2025-01-15" in date_lines[1]
 
 
 def test_ledger_after_adding_progress_attempt(console):
@@ -151,3 +149,49 @@ def test_ledger_count_flag_with_no_data(console):
 
     output = console.export_text()
     assert "Total attempts: 0" in output
+
+
+def test_ledger_audit_failure_double_counting(console, mock_data, dump_json):
+    """
+    Test that failed audits are not double-counted in the ledger.
+
+    When an audit fails:
+    1. An audit fail entry is added to AUDIT_FILE
+    2. The problem is moved to PROGRESS_FILE with a new history entry (rating: 1)
+
+    The ledger should only count the progress entry, not both.
+    This test will initially fail (exposing the bug) and be updated after the fix.
+    """
+    problem = "two-sum"
+    fail_date = "2025-01-15"
+
+    audit_data = {
+        "history": [{"date": fail_date, "problem": problem, "result": "fail"}]
+    }
+    dump_json(mock_data.AUDIT_FILE, audit_data)
+
+    progress_data = {
+        problem: {
+            "history": [
+                {"rating": 5, "date": "2025-01-10"},
+                {"rating": 5, "date": "2025-01-12"},
+                {"rating": 1, "date": fail_date},
+            ]
+        }
+    }
+    dump_json(mock_data.PROGRESS_FILE, progress_data)
+
+    args = SimpleNamespace()
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+
+    problem_occurrences = output.count(problem)
+    fail_date_occurrences = output.count(fail_date)
+
+    assert (
+        fail_date_occurrences == 1
+    ), f"Expected 1 occurrence of {fail_date}, got {fail_date_occurrences}"
+    assert (
+        problem_occurrences == 3
+    ), f"Expected 3 total occurrences of {problem} (2 initial + 1 after fail), got {problem_occurrences}"

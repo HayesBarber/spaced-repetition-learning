@@ -43,12 +43,14 @@ def handle(args, console: Console):
 
     # Process audit attempts
     for attempt in audit_data.get("history", []):
-        audit_rating = 5 if attempt["result"] == "pass" else 1
+        result = attempt["result"]
+        if result == "fail":
+            continue
         all_attempts.append(
             {
                 "date": attempt["date"],
                 "problem": attempt["problem"],
-                "rating": audit_rating,
+                "rating": 5,
                 "status": "audit",
             }
         )

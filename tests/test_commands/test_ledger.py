@@ -113,4 +113,3 @@ def test_ledger_after_adding_progress_attempt(console):
     assert "two-sum" in output
     assert " 4 " in output
     assert "progress" in output
-

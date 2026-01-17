@@ -68,7 +68,7 @@ Create a venv or use `--system` for system wide installation
    ```bash
    srl add <problem> <rating>
    ```
-4. Rinse and repeat
+4. Rinse and repeat daily
 
 ## Usage
 

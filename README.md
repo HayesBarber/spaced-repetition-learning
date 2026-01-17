@@ -51,7 +51,26 @@ uv pip install -e .
 
 Create a venv or use `--system` for system wide installation
 
-## ‍Usage
+## Recommended Workflow
+
+1. Queue up problems
+
+   ```bash
+   srl nextup add -f starter_data/neetcode_150.txt
+   ```
+2. View today’s work
+
+   ```bash
+   srl list
+   ```
+3. Work on problems and log the attempts with a rating
+
+   ```bash
+   srl add <problem> <rating>
+   ```
+4. Rinse and repeat daily
+
+## Usage
 
 ### Add or Update a Problem Attempt
 
@@ -370,23 +389,6 @@ docker run --rm -p 8080:8080 -v "$HOME/.srl:/root/.srl" srl
 ```
 
 ---
-
-## Example Workflow
-
-1. Solve a LeetCode problem.
-2. Run:
-
-```bash
-srl add "Merge Intervals" 2
-```
-
-3. The next day, check what to review:
-
-```bash
-srl list
-```
-
-4. Rinse and repeat until mastery!
 
 ## Contributing
 

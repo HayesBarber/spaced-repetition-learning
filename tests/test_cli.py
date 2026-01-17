@@ -234,3 +234,9 @@ def test_random_command_all_flag(parser):
     assert args.command == "random"
     assert hasattr(args, "handler")
     assert args.all
+
+
+def test_ledger_command(parser):
+    args = parser.parse_args(["ledger"])
+    assert args.command == "ledger"
+    assert hasattr(args, "handler")

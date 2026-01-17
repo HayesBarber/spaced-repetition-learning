@@ -82,6 +82,3 @@ def handle(args, console: Console):
             )
 
         console.print(timeline_table)
-
-    console.print()
-

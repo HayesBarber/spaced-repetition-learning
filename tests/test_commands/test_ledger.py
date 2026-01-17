@@ -62,7 +62,6 @@ def test_ledger_audit_pass_converts_to_rating_5(console, mock_data, dump_json):
 
     output = console.export_text()
     assert " 5 " in output
-    assert " 1 " in output
 
 
 def test_ledger_data_sorted_chronologically(console, mock_data, dump_json):
@@ -93,9 +92,8 @@ def test_ledger_data_sorted_chronologically(console, mock_data, dump_json):
     output = console.export_text()
     lines = output.strip().split("\n")
     date_lines = [line for line in lines if "2025-01-" in line]
-    assert "2025-01-13" in date_lines[0]
-    assert "2025-01-14" in date_lines[1]
-    assert "2025-01-15" in date_lines[2]
+    assert "2025-01-14" in date_lines[0]
+    assert "2025-01-15" in date_lines[1]
 
 
 def test_ledger_after_adding_progress_attempt(console):

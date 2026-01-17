@@ -10,7 +10,7 @@ def test_mastered_count(console):
     add.handle(args, console)
     add.handle(args, console)
 
-    args = SimpleNamespace(c=True)
+    args = SimpleNamespace(count=True)
     mastered.handle(args=args, console=console)
 
     output = console.export_text()

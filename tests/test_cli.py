@@ -38,10 +38,18 @@ def test_list_with_n(parser):
     assert args.n == 5
 
 
-def test_mastered_count(parser):
+def test_mastered_count_short_flag(parser):
     args = parser.parse_args(["mastered", "-c"])
     assert args.command == "mastered"
-    assert args.c is True
+    assert hasattr(args, "handler")
+    assert args.count is True
+
+
+def test_mastered_count_long_flag(parser):
+    args = parser.parse_args(["mastered", "--count"])
+    assert args.command == "mastered"
+    assert hasattr(args, "handler")
+    assert args.count is True
 
 
 def test_nextup_add(parser):
@@ -240,3 +248,17 @@ def test_ledger_command(parser):
     args = parser.parse_args(["ledger"])
     assert args.command == "ledger"
     assert hasattr(args, "handler")
+
+
+def test_ledger_count_short_flag(parser):
+    args = parser.parse_args(["ledger", "-c"])
+    assert args.command == "ledger"
+    assert hasattr(args, "handler")
+    assert args.count is True
+
+
+def test_ledger_count_long_flag(parser):
+    args = parser.parse_args(["ledger", "--count"])
+    assert args.command == "ledger"
+    assert hasattr(args, "handler")
+    assert args.count is True

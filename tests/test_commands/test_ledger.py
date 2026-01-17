@@ -113,3 +113,41 @@ def test_ledger_after_adding_progress_attempt(console):
     assert "two-sum" in output
     assert " 4 " in output
     assert "progress" in output
+
+
+def test_ledger_count_flag_displays_count_only(console, mock_data, dump_json):
+    progress_data = {"two-sum": {"history": [{"rating": 3, "date": "2025-01-15"}]}}
+    dump_json(mock_data.PROGRESS_FILE, progress_data)
+
+    mastered_data = {
+        "valid-parentheses": {"history": [{"rating": 5, "date": "2025-01-14"}]}
+    }
+    dump_json(mock_data.MASTERED_FILE, mastered_data)
+
+    audit_data = {
+        "history": [
+            {
+                "date": "2025-01-13",
+                "problem": "merge-sorted-array",
+                "result": "pass",
+            }
+        ]
+    }
+    dump_json(mock_data.AUDIT_FILE, audit_data)
+
+    args = SimpleNamespace(count=True)
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "Total attempts: 3" in output
+    assert "two-sum" not in output
+    assert "valid-parentheses" not in output
+    assert "merge-sorted-array" not in output
+
+
+def test_ledger_count_flag_with_no_data(console):
+    args = SimpleNamespace(count=True)
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "Total attempts: 0" in output

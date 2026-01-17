@@ -11,6 +11,9 @@ from srl.storage import (
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser("ledger", help="Print a summary of all attempts")
+    parser.add_argument(
+        "-c", "--count", action="store_true", help="Show only the count of problems"
+    )
     parser.set_defaults(handler=handle)
     return parser
 
@@ -52,7 +55,10 @@ def handle(args, console: Console):
 
     all_attempts.sort(key=lambda x: x["date"])
 
-    if all_attempts:
+    count_only = getattr(args, "count", False)
+    if count_only:
+        console.print(f"Total attempts: {len(all_attempts)}")
+    elif all_attempts:
         timeline_table = Table(box=box.ROUNDED)
         timeline_table.add_column("Date", style="white")
         timeline_table.add_column("Problem", style="cyan")

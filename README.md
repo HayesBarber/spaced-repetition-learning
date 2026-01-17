@@ -116,7 +116,7 @@ srl mastered
 
 Shows all problems you’ve marked as mastered (achieved `5` twice in a row).
 
-You can show the count of mastered problems by passing in the `-c` flag.
+You can show the count of mastered problems by passing in the `-c` or `--count` flag.
 
 ```bash
 srl mastered -c
@@ -131,6 +131,12 @@ srl ledger
 ```
 
 Displays a table of all your attempts across in-progress, mastered, and audit categories, sorted by date.
+
+You can show the count of attempts by passing in the `-c` or `--count` flag.
+
+```bash
+srl ledger -c
+```
 
 ---
 

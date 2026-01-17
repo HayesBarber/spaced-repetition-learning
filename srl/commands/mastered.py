@@ -9,7 +9,7 @@ from srl.storage import (
 def add_subparser(subparsers):
     parser = subparsers.add_parser("mastered", help="List mastered problems")
     parser.add_argument(
-        "-c", action="store_true", help="Show count of mastered problems"
+        "-c", "--count", action="store_true", help="Show count of mastered problems"
     )
     parser.set_defaults(handler=handle)
     return parser
@@ -18,7 +18,8 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     mastered_problems = get_mastered_problems()
     mastered_count = len(mastered_problems)
-    if args.c:
+    count_only = getattr(args, "count", False)
+    if count_only:
         console.print(f"[bold green]Mastered Count:[/bold green] {mastered_count}")
     else:
         if not mastered_problems:

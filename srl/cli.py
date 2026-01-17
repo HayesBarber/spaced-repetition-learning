@@ -13,6 +13,7 @@ from srl.commands import (
     server,
     random,
     generate_preview,
+    ledger,
 )
 
 
@@ -33,4 +34,5 @@ def build_parser() -> argparse.ArgumentParser:
     server.add_subparser(subparsers)
     random.add_subparser(subparsers)
     generate_preview.add_subparser(subparsers)
+    ledger.add_subparser(subparsers)
     return parser

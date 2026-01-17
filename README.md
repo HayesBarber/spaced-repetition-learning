@@ -124,6 +124,16 @@ srl mastered -c
 
 ---
 
+### View All Attempts
+
+```bash
+srl ledger
+```
+
+Displays a table of all your attempts across in-progress, mastered, and audit categories, sorted by date.
+
+---
+
 ### Manage the Next Up Queue
 
 Add problems to your Next Up queue — problems you'd like to tackle next when nothing is due.

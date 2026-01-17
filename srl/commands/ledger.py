@@ -22,29 +22,21 @@ def handle(args, console: Console):
 
     all_attempts = []
 
-    # Process progress problems
-    for problem_url, problem_data in progress_data.items():
-        for attempt in problem_data.get("history", []):
-            all_attempts.append(
-                {
-                    "date": attempt["date"],
-                    "problem": problem_url,
-                    "rating": attempt["rating"],
-                    "status": "progress",
-                }
-            )
-
-    # Process mastered problems
-    for problem_url, problem_data in mastered_data.items():
-        for attempt in problem_data.get("history", []):
-            all_attempts.append(
-                {
-                    "date": attempt["date"],
-                    "problem": problem_url,
-                    "rating": attempt["rating"],
-                    "status": "mastered",
-                }
-            )
+    # Process progress and mastered problems
+    for data, status in (
+        (progress_data, "progress"),
+        (mastered_data, "mastered"),
+    ):
+        for problem_url, problem_data in data.items():
+            for attempt in problem_data.get("history", []):
+                all_attempts.append(
+                    {
+                        "date": attempt["date"],
+                        "problem": problem_url,
+                        "rating": attempt["rating"],
+                        "status": status,
+                    }
+                )
 
     # Process audit attempts
     for attempt in audit_data.get("history", []):

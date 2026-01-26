@@ -204,20 +204,19 @@ def test_list_empty_with_url_flag(console, monkeypatch):
     assert "No problems due today or in Next Up" in output
 
 
-# TODO: implement this functionality
-# def test_list_with_nextup_fallback_with_url_flag(console, monkeypatch):
-#     monkeypatch.setattr(list_, "should_audit", lambda: False)
+def test_list_with_nextup_fallback_with_url_flag(console, monkeypatch):
+    monkeypatch.setattr(list_, "should_audit", lambda: False)
 
-#     problem = "Next Up Problem"
-#     url = "https://example.com"
-#     args = SimpleNamespace(action="add", name=problem, url=url)
-#     nextup.handle(args=args, console=console)
+    problem = "Next Up Problem"
+    url = "https://example.com"
+    args = SimpleNamespace(action="add", name=problem, url=url)
+    nextup.handle(args=args, console=console)
 
-#     args= SimpleNamespace(n=None, url=True)
-#     list_.handle(args=args, console=console)
+    args= SimpleNamespace(n=None, url=True)
+    list_.handle(args=args, console=console)
 
-#     output = console.export_text()
-#     assert problem in output
-#     assert "Open in Browser" in output
-#     assert "Problems to Practice" in output
-#     assert "No problems due" not in output
+    output = console.export_text()
+    assert problem in output
+    assert "Open in Browser" in output
+    assert "Problems to Practice" in output
+    assert "No problems due" not in output

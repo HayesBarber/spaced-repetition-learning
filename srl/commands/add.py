@@ -79,7 +79,12 @@ def handle(args, console: Console):
     save_json(PROGRESS_FILE, data)
 
     # Remove from next up if it exists there
+    # and transfer the url if needed
     next_up = load_json(NEXT_UP_FILE)
     if target_name in next_up:
+        if next_up[target_name].get("url") and not data[target_name].get("url"):
+            data[target_name]["url"] = next_up[target_name]["url"]
+            save_json(PROGRESS_FILE, data)
+
         del next_up[target_name]
         save_json(NEXT_UP_FILE, next_up)

@@ -93,7 +93,12 @@ def get_due_problems(limit=None, include_url=False) -> list[str]:
 
     if not due_names:
         next_up = load_json(NEXT_UP_FILE)
-        fallback = list(next_up.keys())[: limit or 3]
+        fallback = [
+            f"{prob}  [blue][link={info.get('url')}]Open in Browser[/link][/blue]"
+            if info.get("url")
+            else prob
+            for prob, info in list(next_up.items())[:limit or 3]
+        ]
         return fallback
 
     return due_names

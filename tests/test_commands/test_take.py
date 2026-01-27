@@ -59,7 +59,6 @@ def test_take_add_missing_rating(console):
     assert "Error: rating must be provided" in output
 
 
-
 def test_take_index_out_of_bounds_high(console):
     # Add a problem directly to NEXT_UP_FILE
     from srl.storage import save_json, NEXT_UP_FILE
@@ -71,6 +70,7 @@ def test_take_index_out_of_bounds_high(console):
     output = console.export_text()
     assert output == ""
 
+
 def test_take_index_zero_is_invalid(console):
     # Add a problem directly to NEXT_UP_FILE
     from srl.storage import save_json, NEXT_UP_FILE
@@ -81,7 +81,6 @@ def test_take_index_zero_is_invalid(console):
     take.handle(args=args, console=console)
     output = console.export_text()
     assert output == ""
-
 
 
 def test_take_add_no_problems_due(console, load_json, mock_data):
@@ -98,3 +97,75 @@ def test_take_add_no_problems_due(console, load_json, mock_data):
     inprogress_data = load_json(mock_data.PROGRESS_FILE)
     assert problem in inprogress_data
     assert inprogress_data[problem]["history"][-1]["rating"] == original_rating
+
+
+def test_take_print_url_from_due_problem(console, backdate_problem):
+    problem = "Problem A"
+    url = "https://example.com"
+    add_args = SimpleNamespace(name=problem, rating=4, url=url)
+    add.handle(add_args, console)
+    console.clear()
+
+    # backdate problem so it's due
+    backdate_problem(problem, 5)
+
+    take_args = SimpleNamespace(index=1, action=None, rating=None, url=True)
+    take.handle(args=take_args, console=console)
+
+    output = console.export_text()
+    assert problem not in output
+    assert url in output
+
+
+def test_take_print_problem_from_due_problem_without_url(console, backdate_problem):
+    problem = "Problem A"
+    url = "https://example.com"
+    add_args = SimpleNamespace(name=problem, rating=4, url=url)
+    add.handle(add_args, console)
+    console.clear()
+
+    # backdate problem so it's due
+    backdate_problem(problem, 5)
+
+    take_args = SimpleNamespace(index=1, action=None, rating=None)
+    take.handle(args=take_args, console=console)
+    output = console.export_text()
+    assert problem in output
+    assert "Open in Browser" not in output
+
+
+def test_take_prints_none_with_url_flag_but_no_url(console, backdate_problem):
+    problem = "Problem Without URL"
+    add_args = SimpleNamespace(name=problem, rating=4)
+    add.handle(add_args, console)
+    console.clear()
+
+    # backdate problem so it's due
+    backdate_problem(problem, 5)
+
+    take_args = SimpleNamespace(index=1, action=None, rating=None, url=True)
+    take.handle(args=take_args, console=console)
+    output = console.export_text()
+    assert "None" in output
+
+
+def test_take_print_url_from_nextup_problem(console):
+    problem1 = "Problem 1"
+    problem2 = "Problem 2"
+    url = "https://example.com"
+    nextup.handle(
+        SimpleNamespace(action="add", name=problem1),
+        console=console
+    )
+    nextup.handle(
+        SimpleNamespace(action="add", name=problem2, url=url),
+        console=console
+    )
+
+    console.clear()
+
+    args = SimpleNamespace(index=2, action=None, rating=None, url=True)
+    take.handle(args=args, console=console)
+    output = console.export_text()
+    assert problem2 not in output
+    assert url in output

@@ -90,10 +90,13 @@ def handle(args, console: Console):
         if next_up:
             lines = []
             for name in next_up:
-                if url_requested and name[1]:
-                    lines.append(
-                        f"• {name}  [blue][link={name[1]}]Open in Browser[/link][/blue]"
-                    )
+                if url_requested:
+                    if name[1]:
+                        lines.append(
+                            f"• {name[0]}  [blue][link={name[1]}]Open in Browser[/link][/blue]"
+                        )
+                    else:
+                        lines.append(f"• {name[0]}")
                 else:
                     lines.append(f"• {name}")
 
@@ -153,6 +156,10 @@ def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
 
 
 def get_next_up_problems(include_urls=False) -> list[str] | list[tuple[str, str]]:
+    """
+    returns a list of tuples (name, url) if include_urls is True
+    otherwiser returns a list of only problem names
+    """
     data = load_json(NEXT_UP_FILE)
     res = []
 

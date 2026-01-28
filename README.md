@@ -81,7 +81,7 @@ srl add "Two Sum" 3
 - Adds a new attempt or updates an existing one.
 - Rating must be between `1` and `5`.
 
-To include a URL to the problem:
+To include a URL to the problem (only needed on the first add):
 
 ```bash
 srl add "Two Sum" 3 -u "https://leetcode.com/problems/two-sum/"

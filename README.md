@@ -348,7 +348,7 @@ This prints the problem at the given index (as shown in `srl list`), making it e
 srl take <index> -u
 ```
 
-This prints the URL stored for the problem at that index, or nothing if no URL exists.
+This prints the URL stored for the problem at that index, or `None` if no URL exists.
 
 - Add a problem at a given index with a rating:
 

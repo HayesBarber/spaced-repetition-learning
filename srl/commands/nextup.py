@@ -31,13 +31,13 @@ def add_subparser(subparsers):
         help="Allow adding problems that are already mastered",
     )
     parser.add_argument(
-        "-u", 
-        "--url", 
+        "-u",
+        "--url",
         nargs="?",
         type=str,
         const="",
         default=None,
-        help="URL to the problem for 'add' or include URLs in output for 'list'"
+        help="URL to the problem for 'add' or include URLs in output for 'list'",
     )
     parser.set_defaults(handler=handle)
     return parser
@@ -85,14 +85,18 @@ def handle(args, console: Console):
                 )
     elif args.action == "list":
         url_requested = isinstance(getattr(args, "url", None), str)
-        urls = get_next_up_problem_urls() if url_requested else []
+        next_up = get_next_up_problems(include_urls=url_requested)
 
-        next_up = get_next_up_problems()
         if next_up:
             lines = []
-            for i, name in enumerate(next_up):
-                if url_requested and urls[i]:
-                    lines.append(f"• {name}  [blue][link={urls[i]}]Open in Browser[/link][/blue]")
+            for name in next_up:
+                if url_requested:
+                    if name[1]:
+                        lines.append(
+                            f"• {name[0]}  [blue][link={name[1]}]Open in Browser[/link][/blue]"
+                        )
+                    else:
+                        lines.append(f"• {name[0]}")
                 else:
                     lines.append(f"• {name}")
 
@@ -144,27 +148,28 @@ def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
             return False
 
     next_up[name] = {"added": today().isoformat()}
-    if url: 
+    if url:
         next_up[name]["url"] = url
 
     save_json(NEXT_UP_FILE, next_up)
     return True
 
 
-def get_next_up_problems() -> list[str]:
+def get_next_up_problems(include_urls=False) -> list[str] | list[tuple[str, str]]:
+    """
+    returns a list of tuples (name, url) if include_urls is True
+    otherwise returns a list of only problem names
+    """
     data = load_json(NEXT_UP_FILE)
     res = []
 
-    for name in data.keys():
-        res.append(name)
+    for name, info in data.items():
+        if include_urls:
+            res.append((name, info.get("url", "")))
+        else:
+            res.append(name)
 
     return res
-
-# NOTE: mirror func created to avoid breaking existing tests for get_next_up_problems()
-# TODO: merge with get_next_up_problems() to return list[{name: str, url: str}]
-def get_next_up_problem_urls() -> list[str]:
-    data = load_json(NEXT_UP_FILE)
-    return [info.get("url", "") for info in data.values()]
 
 
 def remove_from_next_up(name: str, console: Console):

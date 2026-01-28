@@ -137,7 +137,9 @@ To include URLs as clickable links, use the `-u` flag:
 srl list -u
 ```
 
-This will display problems with their stored URLs as "[Open in Browser]" links when available. If no problems are due today, it will fall back to showing problems from the Next Up queue with URLs if they exist.
+This will display problems with their stored URLs as "[Open in Browser]" links when available.
+
+If no problems are due today, it will fall back to showing problems from the Next Up queue with URLs if they exist.
 
 ---
 

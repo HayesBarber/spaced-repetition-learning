@@ -81,6 +81,12 @@ srl add "Two Sum" 3
 - Adds a new attempt or updates an existing one.
 - Rating must be between `1` and `5`.
 
+To include a URL to the problem:
+
+```bash
+srl add "Two Sum" 3 -u "https://leetcode.com/problems/two-sum/"
+```
+
 You can also add an attempt by its number in the `srl list` output. This is useful to avoid retyping long problem names.
 
 ```bash
@@ -124,6 +130,32 @@ You can limit the number of problems shown:
 ```bash
 srl list -n 3
 ```
+
+To include URLs as clickable links, use the `-u` flag:
+
+```bash
+srl list -u
+```
+
+This will display problems with their stored URLs as "[Open in Browser]" links when available. If no problems are due today, it will fall back to showing problems from the Next Up queue with URLs if they exist.
+
+---
+
+### View In-Progress Problems
+
+```bash
+srl inprogress
+```
+
+Shows all problems that are currently in progress (not yet mastered) as a numbered list.
+
+To include URLs as clickable links, use the `-u` flag:
+
+```bash
+srl inprogress -u
+```
+
+This will display problems with their stored URLs as "[Open in Browser]" links when available.
 
 ---
 
@@ -169,6 +201,12 @@ By default, `srl nextup add` **will skip problems that are already in the queue,
 srl nextup add "Sliding Window Maximum"
 ```
 
+You can also include a URL when adding a problem:
+
+```bash
+srl nextup add "Sliding Window Maximum" -u "https://leetcode.com/problems/sliding-window-maximum/"
+```
+
 If you want to add a problem that is already mastered, use the `--allow-mastered` flag:
 
 ```bash
@@ -183,6 +221,8 @@ srl nextup add -f starter_data/blind_75.txt
 
 Starter data files are available in the `starter_data/` directory at the top level of the repo. For example:
 
+***These files currently only contain links and will add the problems with the link as the problem name rather than utilizing the `-u` flag***
+
 - [starter_data/blind_75.txt](starter_data/blind_75.txt)
 - [starter_data/neetcode_150.txt](starter_data/neetcode_150.txt)
 
@@ -191,6 +231,14 @@ List problems in the queue:
 ```bash
 srl nextup list
 ```
+
+To include URLs as clickable links when listing, use the `-u` flag:
+
+```bash
+srl nextup list -u
+```
+
+This will display problems with their stored URLs as "[Open in Browser]" links when available.
 
 Remove a problem from the queue:
 
@@ -293,6 +341,14 @@ srl take <index>
 ```
 
 This prints the problem at the given index (as shown in `srl list`), making it easy to copy or pipe elsewhere.
+
+- Print the URL at a specific index:
+
+```bash
+srl take <index> -u
+```
+
+This prints the URL stored for the problem at that index, or nothing if no URL exists.
 
 - Add a problem at a given index with a rating:
 

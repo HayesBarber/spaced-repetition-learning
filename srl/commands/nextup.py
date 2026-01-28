@@ -158,7 +158,7 @@ def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
 def get_next_up_problems(include_urls=False) -> list[str] | list[tuple[str, str]]:
     """
     returns a list of tuples (name, url) if include_urls is True
-    otherwiser returns a list of only problem names
+    otherwise returns a list of only problem names
     """
     data = load_json(NEXT_UP_FILE)
     res = []

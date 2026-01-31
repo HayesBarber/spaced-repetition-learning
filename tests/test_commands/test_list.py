@@ -139,7 +139,7 @@ def test_list_hides_url_without_flag(console, monkeypatch, backdate_problem):
     add.handle(args=args, console=console)
     backdate_problem(problem, 2)
 
-    args= SimpleNamespace()
+    args = SimpleNamespace()
     list_.handle(args=args, console=console)
 
     output = console.export_text()
@@ -158,7 +158,7 @@ def test_list_missing_url_not_displayed(console, monkeypatch, backdate_problem):
     add.handle(args=args, console=console)
     backdate_problem(problem, 2)
 
-    args= SimpleNamespace(url=True)
+    args = SimpleNamespace(url=True)
     list_.handle(args=args, console=console)
 
     output = console.export_text()
@@ -212,7 +212,7 @@ def test_list_with_nextup_fallback_with_url_flag(console, monkeypatch):
     args = SimpleNamespace(action="add", name=problem, url=url)
     nextup.handle(args=args, console=console)
 
-    args= SimpleNamespace(n=None, url=True)
+    args = SimpleNamespace(n=None, url=True)
     list_.handle(args=args, console=console)
 
     output = console.export_text()
@@ -220,3 +220,136 @@ def test_list_with_nextup_fallback_with_url_flag(console, monkeypatch):
     assert "Open in Browser" in output
     assert "Problems to Practice" in output
     assert "No problems due" not in output
+
+
+def test_should_audit_max_days_threshold_breached(monkeypatch, mock_data, dump_json):
+    """Test that should_audit returns True when max days threshold is breached."""
+    from datetime import date, timedelta
+
+    # Set max_days_without_audit to 5
+    dump_json(
+        mock_data.CONFIG_FILE,
+        {
+            "audit_probability": 0.0,  # Zero probability, but max days should force it
+            "max_days_without_audit": 5,
+        },
+    )
+
+    # Set last audit date to 7 days ago (beyond threshold)
+    old_date = (date.today() - timedelta(days=7)).isoformat()
+    dump_json(
+        mock_data.AUDIT_FILE,
+        {"history": [{"date": old_date, "problem": "test", "result": "pass"}]},
+    )
+
+    assert list_.should_audit() is True
+
+
+def test_should_audit_max_days_threshold_not_breached(
+    monkeypatch, mock_data, dump_json
+):
+    """Test that should_audit falls back to probability when max days threshold not breached."""
+    from datetime import date, timedelta
+
+    # Set max_days_without_audit to 5
+    dump_json(
+        mock_data.CONFIG_FILE,
+        {
+            "audit_probability": 0.0,  # Zero probability
+            "max_days_without_audit": 5,
+        },
+    )
+
+    # Set last audit date to 3 days ago (within threshold)
+    recent_date = (date.today() - timedelta(days=3)).isoformat()
+    dump_json(
+        mock_data.AUDIT_FILE,
+        {"history": [{"date": recent_date, "problem": "test", "result": "pass"}]},
+    )
+
+    # With probability 0.0, should not audit
+    assert list_.should_audit() is False
+
+
+def test_should_audit_max_days_disabled(monkeypatch, mock_data, dump_json):
+    """Test that should_audit uses probability when max days is disabled (0)."""
+    from datetime import date, timedelta
+
+    # Set max_days_without_audit to 0 (disabled)
+    dump_json(
+        mock_data.CONFIG_FILE,
+        {
+            "audit_probability": 1.0,  # 100% probability
+            "max_days_without_audit": 0,
+        },
+    )
+
+    # Set last audit date to 100 days ago (would trigger if enabled)
+    old_date = (date.today() - timedelta(days=100)).isoformat()
+    dump_json(
+        mock_data.AUDIT_FILE,
+        {"history": [{"date": old_date, "problem": "test", "result": "pass"}]},
+    )
+
+    # Should use probability (100%) since max days is disabled
+    assert list_.should_audit() is True
+
+
+def test_should_audit_no_history(monkeypatch, mock_data, dump_json):
+    """Test that should_audit falls back to probability when no audit history exists."""
+    dump_json(
+        mock_data.CONFIG_FILE,
+        {
+            "audit_probability": 1.0,  # 100% probability
+            "max_days_without_audit": 5,
+        },
+    )
+
+    # No history in audit file
+    dump_json(mock_data.AUDIT_FILE, {"history": []})
+
+    # Should fall back to probability (100%)
+    assert list_.should_audit() is True
+
+
+def test_should_audit_max_days_with_no_audit_file(monkeypatch, mock_data, dump_json):
+    """Test that should_audit falls back to probability when no audit file exists."""
+    dump_json(
+        mock_data.CONFIG_FILE,
+        {
+            "audit_probability": 0.0,  # 0% probability
+            "max_days_without_audit": 5,
+        },
+    )
+
+    # Remove audit file
+    mock_data.AUDIT_FILE.unlink(missing_ok=True)
+
+    # Should fall back to probability (0%)
+    assert list_.should_audit() is False
+
+
+def test_should_audit_probability_fallback_when_recent_audit(
+    monkeypatch, mock_data, dump_json
+):
+    """Test that probability-based audit works when recent audit exists."""
+    from datetime import date, timedelta
+
+    # Set max_days_without_audit to 7
+    dump_json(
+        mock_data.CONFIG_FILE,
+        {
+            "audit_probability": 1.0,  # 100% probability
+            "max_days_without_audit": 7,
+        },
+    )
+
+    # Set last audit date to today (very recent)
+    today_date = date.today().isoformat()
+    dump_json(
+        mock_data.AUDIT_FILE,
+        {"history": [{"date": today_date, "problem": "test", "result": "pass"}]},
+    )
+
+    # Should use probability (100%) since max days not breached
+    assert list_.should_audit() is True

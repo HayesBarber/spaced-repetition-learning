@@ -1,5 +1,6 @@
 from rich.console import Console
 from srl.utils import today
+from datetime import datetime
 import random
 from srl.storage import (
     load_json,
@@ -76,7 +77,7 @@ def handle_history(args, console: Console):
 
     console.print("[bold]Audit History Summary[/bold]")
     console.print(
-        f"Total Audits: {total} | Passed: {passed} ({pass_rate:.1f}%) | Failed: {failed} ({100-pass_rate:.1f}%)"
+        f"Total Audits: {total} | Passed: {passed} ({pass_rate:.1f}%) | Failed: {failed} ({100 - pass_rate:.1f}%)"
     )
     console.print()
 
@@ -102,6 +103,27 @@ def handle_history(args, console: Console):
 def get_current_audit():
     data = load_json(AUDIT_FILE)
     return data.get("current_audit")
+
+
+def get_last_audit_date():
+    """Get the date of the most recent audit from history.
+
+    Returns:
+        datetime.date or None: The date of the last audit, or None if no history exists.
+    """
+    audit_data = load_json(AUDIT_FILE)
+    history = audit_data.get("history", [])
+
+    if not history:
+        return None
+
+    # Find the most recent audit date
+    dates = [entry.get("date") for entry in history if entry.get("date")]
+    if not dates:
+        return None
+
+    most_recent = max(dates)
+    return datetime.fromisoformat(most_recent).date()
 
 
 def log_audit_attempt(problem, result):

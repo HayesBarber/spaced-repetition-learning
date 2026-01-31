@@ -165,3 +165,50 @@ def test_audit_history_all_failed(console, mock_data, dump_json):
     assert "Total Audits: 2" in output
     assert "Passed: 0 (0.0%)" in output
     assert "Failed: 2 (100.0%)" in output
+
+
+def test_get_last_audit_date_with_history(mock_data, dump_json):
+    from datetime import date
+
+    history_data = [
+        {"date": "2025-01-15", "problem": "binary-search", "result": "pass"},
+        {"date": "2025-01-14", "problem": "quick-sort", "result": "fail"},
+        {"date": "2025-01-13", "problem": "merge-sort", "result": "pass"},
+    ]
+    dump_json(mock_data.AUDIT_FILE, {"history": history_data})
+
+    last_date = audit.get_last_audit_date()
+    assert last_date == date(2025, 1, 15)
+
+
+def test_get_last_audit_date_empty_history(mock_data, dump_json):
+    dump_json(mock_data.AUDIT_FILE, {"history": []})
+
+    last_date = audit.get_last_audit_date()
+    assert last_date is None
+
+
+def test_get_last_audit_date_no_history_field(mock_data, dump_json):
+    dump_json(mock_data.AUDIT_FILE, {})
+
+    last_date = audit.get_last_audit_date()
+    assert last_date is None
+
+
+def test_get_last_audit_date_no_file(mock_data):
+    # Ensure file doesn't exist
+    mock_data.AUDIT_FILE.unlink(missing_ok=True)
+
+    last_date = audit.get_last_audit_date()
+    assert last_date is None
+
+
+def test_get_last_audit_date_entries_without_dates(mock_data, dump_json):
+    history_data = [
+        {"problem": "binary-search", "result": "pass"},
+        {"problem": "quick-sort", "result": "fail"},
+    ]
+    dump_json(mock_data.AUDIT_FILE, {"history": history_data})
+
+    last_date = audit.get_last_audit_date()
+    assert last_date is None

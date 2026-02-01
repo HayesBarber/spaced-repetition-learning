@@ -324,6 +324,18 @@ srl config --audit-probability 0.2
 
 This updates the probability that a random audit occurs when running `srl list`.
 
+You can also configure the maximum number of days without an audit (default is 7). If this many days pass without an audit, one will be forced regardless of probability:
+
+```bash
+srl config --max-days-without-audit 5
+```
+
+Set to 0 to disable the max days check and rely solely on probability:
+
+```bash
+srl config --max-days-without-audit 0
+```
+
 To view the current config:
 
 ```bash

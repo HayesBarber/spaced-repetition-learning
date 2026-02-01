@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 @dataclass
 class Config:
     audit_probability: float = 0.1
+    max_days_without_audit: int = 7
     calendar_colors: dict[int, str] = field(
         default_factory=lambda: Config.default_calendar_colors()
     )
@@ -50,6 +51,11 @@ def add_subparser(subparsers):
     parser = subparsers.add_parser("config", help="Update configuration values")
     parser.add_argument(
         "--audit-probability", type=float, help="Set audit probability (0-1)"
+    )
+    parser.add_argument(
+        "--max-days-without-audit",
+        type=int,
+        help="Maximum days without audit (0 to disable, default: 7)",
     )
     parser.add_argument(
         "--get", action="store_true", help="Display current configuration"
@@ -98,12 +104,24 @@ def handle(args, console: Console):
         else:
             console.print("[yellow]No valid color updates provided.[/yellow]")
     else:
-        probability: float | None = args.audit_probability
+        probability: float | None = getattr(args, "audit_probability", None)
+        max_days: int | None = getattr(args, "max_days_without_audit", None)
 
-        if probability is None or probability < 0:
-            console.print("[yellow]Invalid configuration option provided.[/yellow]")
-            return
+        updated = []
 
-        cfg.set("audit_probability", probability)
-        cfg.save()
-        console.print(f"Audit probability set to [cyan]{probability}[/cyan]")
+        if probability is not None and probability >= 0:
+            cfg.set("audit_probability", probability)
+            updated.append(f"audit probability to [cyan]{probability}[/cyan]")
+
+        if max_days is not None and max_days >= 0:
+            cfg.set("max_days_without_audit", max_days)
+            if max_days == 0:
+                updated.append("max days without audit to [cyan]disabled[/cyan]")
+            else:
+                updated.append(f"max days without audit to [cyan]{max_days}[/cyan]")
+
+        if updated:
+            cfg.save()
+            console.print(f"Updated: {', '.join(updated)}")
+        else:
+            console.print("[yellow]No valid configuration option provided.[/yellow]")

@@ -1,7 +1,7 @@
 from rich.console import Console
 from rich.panel import Panel
 from srl.utils import today
-from srl.commands.audit import get_current_audit, random_audit
+from srl.commands.audit import get_current_audit, random_audit, get_last_audit_date
 from datetime import datetime, timedelta
 import random
 from srl.storage import (
@@ -39,7 +39,7 @@ def handle(args, console: Console):
         lines = []
         for i, p in enumerate(problems):
             mark = " [magenta]*[/magenta]" if p in masters else ""
-            lines.append(f"{i+1}. {p}{mark}")
+            lines.append(f"{i + 1}. {p}{mark}")
 
         console.print(
             Panel.fit(
@@ -55,6 +55,16 @@ def handle(args, console: Console):
 
 def should_audit():
     cfg = Config.load()
+
+    # Check max days without audit first
+    if cfg.max_days_without_audit and cfg.max_days_without_audit > 0:
+        last_audit_date = get_last_audit_date()
+        if last_audit_date:
+            days_since_last = (today() - last_audit_date).days
+            if days_since_last >= cfg.max_days_without_audit:
+                return True
+
+    # Fall back to probability-based audit
     probability = cfg.audit_probability
     try:
         probability = float(probability)
@@ -85,9 +95,7 @@ def get_due_problems(limit=None, include_url=False) -> list[str]:
         due_names = [name for name, _, _, _ in due[:limit]]
     else:
         due_names = [
-            f"{name}  [blue][link={url}]Open in Browser[/link][/blue]"
-            if url
-            else name
+            f"{name}  [blue][link={url}]Open in Browser[/link][/blue]" if url else name
             for name, _, _, url in due[:limit]
         ]
 
@@ -97,7 +105,7 @@ def get_due_problems(limit=None, include_url=False) -> list[str]:
             f"{prob}  [blue][link={info.get('url')}]Open in Browser[/link][/blue]"
             if info.get("url")
             else prob
-            for prob, info in list(next_up.items())[:limit or 3]
+            for prob, info in list(next_up.items())[: limit or 3]
         ]
         return fallback
 

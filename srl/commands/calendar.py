@@ -36,7 +36,7 @@ def handle(args, console: Console):
     counts = get_all_date_counts()
 
     if getattr(args, "from_first", False):
-        earliest = get_earliest_date()
+        earliest = get_earliest_date(list(counts.keys()))
         if earliest:
             months = calculate_months_from(earliest)
         else:
@@ -187,13 +187,7 @@ def remove_empty_columns(grid) -> list[list[int | str]]:
     return new_grid
 
 
-def get_earliest_date() -> date | None:
-    """Find the earliest recorded date across all data files."""
-    all_dates = []
-    all_dates.extend(get_dates(MASTERED_FILE))
-    all_dates.extend(get_dates(PROGRESS_FILE))
-    all_dates.extend(get_audit_dates())
-
+def get_earliest_date(all_dates: list[str]) -> date | None:
     if not all_dates:
         return None
 

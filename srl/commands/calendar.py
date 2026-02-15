@@ -14,12 +14,18 @@ from srl.commands.config import Config
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser("calendar", help="Graph of SRL activity")
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         "-m",
         "--months",
         type=int,
         default=12,
         help="Number of months to display (default: 12)",
+    )
+    group.add_argument(
+        "--from-first",
+        action="store_true",
+        help="Display calendar from the first recorded SRL entry",
     )
     parser.set_defaults(handler=handle)
     return parser
@@ -28,7 +34,20 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     colors = Config.load().calendar_colors
     counts = get_all_date_counts()
-    render_activity(console, counts, colors, getattr(args, "months", 12))
+
+    if getattr(args, "from_first", False):
+        earliest = get_earliest_date()
+        if earliest:
+            months = calculate_months_from(earliest)
+        else:
+            months = 12
+            console.print(
+                "[yellow]No recorded dates found, defaulting to 12 months[/yellow]"
+            )
+    else:
+        months = getattr(args, "months", 12)
+
+    render_activity(console, counts, colors, months)
     console.print("-" * 5)
     render_legend(console, colors)
 
@@ -166,3 +185,28 @@ def remove_empty_columns(grid) -> list[list[int | str]]:
         new_grid.append(new_row)
 
     return new_grid
+
+
+def get_earliest_date() -> date | None:
+    """Find the earliest recorded date across all data files."""
+    all_dates = []
+    all_dates.extend(get_dates(MASTERED_FILE))
+    all_dates.extend(get_dates(PROGRESS_FILE))
+    all_dates.extend(get_audit_dates())
+
+    if not all_dates:
+        return None
+
+    dates = [date.fromisoformat(d) for d in all_dates]
+    return min(dates)
+
+
+def calculate_months_from(earliest: date) -> int:
+    """Calculate the number of months from earliest date to current month."""
+    today = date.today()
+
+    # Calculate total months difference
+    months = (today.year - earliest.year) * 12 + (today.month - earliest.month) + 1
+
+    # Ensure at least 1 month is shown
+    return max(months, 1)

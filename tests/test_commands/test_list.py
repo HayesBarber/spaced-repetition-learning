@@ -333,7 +333,7 @@ def test_should_audit_probability_fallback_when_recent_audit(
     monkeypatch, mock_data, dump_json
 ):
     """Test that probability-based audit works when recent audit exists."""
-    from datetime import date, timedelta
+    from datetime import date
 
     # Set max_days_without_audit to 7
     dump_json(

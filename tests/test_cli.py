@@ -203,6 +203,17 @@ def test_calendar_with_months_short(parser):
     assert args.months == 3
 
 
+def test_calendar_from_first(parser):
+    args = parser.parse_args(["calendar", "--from-first"])
+    assert args.command == "calendar"
+    assert args.from_first
+
+
+def test_calendar_mutual_exclusion(parser):
+    with pytest.raises(SystemExit):
+        parser.parse_args(["calendar", "--from-first", "-m", "12"])
+
+
 def test_server_defaults(parser):
     args = parser.parse_args(["server"])
     assert args.command == "server"

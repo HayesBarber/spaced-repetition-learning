@@ -37,13 +37,7 @@ def handle(args, console: Console):
 
     if getattr(args, "from_first", False):
         earliest = get_earliest_date(list(counts.keys()))
-        if earliest:
-            months = calculate_months_from(earliest)
-        else:
-            months = 12
-            console.print(
-                "[yellow]No recorded dates found, defaulting to 12 months[/yellow]"
-            )
+        months = calculate_months_from(earliest)
     else:
         months = getattr(args, "months", 12)
 

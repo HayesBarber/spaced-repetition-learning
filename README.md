@@ -396,7 +396,7 @@ or using the shorthand:
 srl calendar -m 3
 ```
 
-Display from the first recorded SRL entry:
+or from the first recorded SRL entry:
 
 ```bash
 srl calendar --from-first

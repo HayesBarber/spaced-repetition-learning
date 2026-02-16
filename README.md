@@ -396,6 +396,12 @@ or using the shorthand:
 srl calendar -m 3
 ```
 
+Display from the first recorded SRL entry:
+
+```bash
+srl calendar --from-first
+```
+
 You can customize the colors used by `srl calendar`. Colors are configured by intensity level, where level 0 is the lowest activity and higher numbers represent stronger activity.
 
 Set one or more levels with:

@@ -18,7 +18,13 @@ def handle(args, console: Console):
 
     console.print(f"[green]Server listening on http://{args.host}:{args.port}[/green]")
 
-    while 1:
-        conn, addr = server.accept()
-        with conn:
-            console.print(f"Got request")
+    try:
+        while True:
+            conn, addr = server.accept()
+            with conn:
+                console.print(f"Got request")
+    except KeyboardInterrupt:
+        print("\nShutting down server...")
+    finally:
+        server.close()
+        print("Server closed")

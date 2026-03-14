@@ -61,6 +61,16 @@ def test_list_next_up_with_items(console):
     assert "Next Up Problems (1)" in output
     assert problem in output
 
+def test_list_next_up_is_numbered(console):
+    problem = "Formatting problem"
+    args_add = SimpleNamespace(action="add", name=problem)
+    nextup.handle(args=args_add, console=console)
+
+    args_list = SimpleNamespace(action="list")
+    nextup.handle(args=args_list, console=console)
+
+    output = console.export_text()
+    assert "1. Formatting problem" in output
 
 def test_list_next_up_empty(console):
     args = SimpleNamespace(action="list")
@@ -75,7 +85,7 @@ def test_remove_from_next_up(mock_data, console, load_json):
     args_add = SimpleNamespace(action="add", name=problem)
     nextup.handle(args=args_add, console=console)
 
-    args_remove = SimpleNamespace(action="remove", name=problem)
+    args_remove = SimpleNamespace(action="remove", name=problem, number=None)
     nextup.handle(args=args_remove, console=console)
 
     data = load_json(mock_data.NEXT_UP_FILE)
@@ -85,6 +95,34 @@ def test_remove_from_next_up(mock_data, console, load_json):
     assert "Removed" in output
     assert problem in output
 
+def test_remove_from_next_up_by_number(mock_data, console, load_json):
+    problem = "Removable by number problem"
+    args_add = SimpleNamespace(action="add", name=problem)
+    nextup.handle(args=args_add, console=console)
+
+    args_remove = SimpleNamespace(action="remove", name=None, number=1)
+    nextup.handle(args=args_remove, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    assert problem not in data
+
+    output = console.export_text()
+    assert "Removed" in output
+    assert problem in output
+
+def test_remove_from_next_up_by_number_out_of_range(mock_data, console, load_json):
+    problem = "Removable problem"
+    args_add = SimpleNamespace(action="add", name=problem)
+    nextup.handle(args=args_add, console=console)
+
+    args_remove = SimpleNamespace(action="remove", name=None, number=2)
+    nextup.handle(args=args_remove, console=console)
+
+    data = load_json(mock_data.NEXT_UP_FILE)
+    assert problem in data
+
+    output = console.export_text()
+    assert "Invalid problem number" in output
 
 def test_clear_next_up(mock_data, console, load_json):
     p1 = "Problem A"
@@ -99,7 +137,6 @@ def test_clear_next_up(mock_data, console, load_json):
 
     output = console.export_text()
     assert "Next Up queue cleared" in output
-
 
 def test_nextup_add_file_all_new(blind75_file, console, mock_data, load_json):
     args = SimpleNamespace(action="add", file=str(blind75_file))
@@ -359,7 +396,6 @@ def test_nextup_list_hides_urls_when_flag_disabled(console):
     assert "Next Up Problems (1)" in output
     assert problem in output
     assert "Open in Browser" not in output
-
 
 def test_nextup_list_mixed_urls_with_flag(console):
     problem_no_url = "Problem A"

@@ -10,15 +10,11 @@ authors = [{ name = "Hayes Barber" }]
 requires-python = ">=3.10"
 dependencies = [
     "rich",
-    "fastapi",
-    "uvicorn",
-    "pydantic",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "httpx",
 ]
 
 [project.scripts]

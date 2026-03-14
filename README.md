@@ -248,6 +248,12 @@ Remove a problem from the queue:
 srl nextup remove "Sliding Window Maximum"
 ```
 
+Remove a problem by number:
+
+```bash
+srl nextup remove -n 1
+```
+
 Clear the queue:
 
 ```bash

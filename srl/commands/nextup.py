@@ -31,6 +31,12 @@ def add_subparser(subparsers):
         help="Allow adding problems that are already mastered",
     )
     parser.add_argument(
+        "-n",
+        "--number",
+        type=int,
+        help="Remove by 1-based index from 'srl nextup list'",
+    )
+    parser.add_argument(
         "-u",
         "--url",
         nargs="?",
@@ -89,16 +95,16 @@ def handle(args, console: Console):
 
         if next_up:
             lines = []
-            for name in next_up:
+            for i, name in enumerate(next_up, start=1):
                 if url_requested:
                     if name[1]:
                         lines.append(
-                            f"• {name[0]}  [blue][link={name[1]}]Open in Browser[/link][/blue]"
+                            f"{i}. {name[0]}  [blue][link={name[1]}]Open in Browser[/link][/blue]"
                         )
                     else:
-                        lines.append(f"• {name[0]}")
+                        lines.append(f"{i}. {name[0]}")
                 else:
-                    lines.append(f"• {name}")
+                    lines.append(f"{i}. {name}")
 
             console.print(
                 Panel.fit(
@@ -111,6 +117,12 @@ def handle(args, console: Console):
         else:
             console.print("[yellow]Next Up queue is empty.[/yellow]")
     elif args.action == "remove":
+        if args.number is not None:
+            problems = get_next_up_problems()
+            if args.number < 1 or args.number > len(problems):
+                console.print(f"[red]Invalid problem number:[/red] {args.number}")
+                return
+            args.name = problems[args.number - 1]
         if not args.name:
             console.print(
                 "[bold red]Please provide a problem name to remove from Next Up.[/bold red]"

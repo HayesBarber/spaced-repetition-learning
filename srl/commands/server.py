@@ -24,7 +24,7 @@ def handle(args, console: Console):
             with conn:
                 console.print(f"Got request")
     except KeyboardInterrupt:
-        print("\nShutting down server...")
+        console.print("[yellow]\nShutting down server...[/yellow]")
     finally:
         server.close()
-        print("Server closed")
+        console.print("[green]Server closed[/green]")

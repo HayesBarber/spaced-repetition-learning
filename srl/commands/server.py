@@ -1,6 +1,5 @@
 import json
 from io import StringIO
-
 from rich.console import Console
 import socket
 

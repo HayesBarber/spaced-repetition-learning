@@ -429,15 +429,13 @@ Run an HTTP server that exposes the srl CLI via a simple JSON API.
 Usage:
 
 ```bash
-srl server [--host HOST] [--port PORT] [--reload] [--public]
+srl server [--host HOST] [--port PORT]
 ```
 
 Options:
 
 - --host: Host to bind to (default: 127.0.0.1)
 - --port: Port to listen on (default: 8080)
-- --reload: Enable auto-reload for development
-- --public: Alias to bind to 0.0.0.0
 
 Examples:
 
@@ -447,28 +445,55 @@ Examples:
   srl server
   ```
 
-- Bind publicly on port 80:
+- Start on a custom port:
+
   ```bash
-  srl server --public --port 80
+  srl server --port 3000
   ```
 
-What it exposes:
+- Bind to all interfaces:
 
-- POST /run — Execute CLI commands. Send JSON with either:
-  - { "cmd": "add \"Two Sum\" 3" } (single string command)
-  - { "argv": ["add", "Two Sum", "3"] } (argv-style array)
+  ```bash
+  srl server --host 0.0.0.0
+  ```
 
-Responses include "output" on success (captured console text) or "error" / help text on failure or invalid input.
+#### HTTP API
 
-A Dockerfile is included for convenience. Build and run the server with:
+Send POST requests to the server with JSON body containing an `argv` array:
 
 ```bash
-# build an image named "srl"
-docker build -t srl .
-
-# run locally, exposing the server on port 8080 and mounting your data dir
-docker run --rm -p 8080:8080 -v "$HOME/.srl:/root/.srl" srl
+curl -X POST http://127.0.0.1:8080 \
+  -H "Content-Type: application/json" \
+  -d '{"argv": ["list"]}'
 ```
+
+Response format:
+
+```json
+{
+  "status": "success",
+  "output": "...",
+  "error": null
+}
+```
+
+On error:
+
+```json
+{
+  "status": "error",
+  "output": "",
+  "error": "error message"
+}
+```
+
+The `argv` array should contain the command and its arguments. For example:
+
+- `{"argv": ["list"]}` — runs `srl list`
+- `{"argv": ["add", "Two Sum", "4"]}` — runs `srl add "Two Sum" 4`
+- `{"argv": ["ledger", "-c"]}` — runs `srl ledger -c`
+
+Note: The `server` command itself is not available via the HTTP API.
 
 ---
 

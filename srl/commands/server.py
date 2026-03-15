@@ -71,6 +71,13 @@ def execute_command(argv, console: Console):
             "error": "No command specified",
         }
 
+    if getattr(args, "command", None) == "server":
+        return {
+            "status": "error",
+            "output": "",
+            "error": "Cannot run server command from HTTP API",
+        }
+
     output = StringIO()
     capture_console = Console(file=output, force_terminal=False)
 

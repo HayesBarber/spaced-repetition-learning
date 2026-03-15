@@ -49,28 +49,6 @@ def parse_request(request_bytes):
     return argv, None
 
 
-def clean_output(text):
-    replacements = {
-        "\u2500": "-",  # ─
-        "\u2502": "|",  # │
-        "\u250c": "+",  # ┌
-        "\u2510": "+",  # ┐
-        "\u2514": "+",  # └
-        "\u2518": "+",  # ┘
-        "\u251c": "+",  # ├
-        "\u2524": "+",  # ┤
-        "\u252c": "+",  # ┬
-        "\u2534": "+",  # ┴
-        "\u256d": "(",  # ╭
-        "\u256e": ")",  # ╮
-        "\u2570": "L",  # ╰
-        "\u256f": "J",  # ╯
-    }
-    for unicode_char, ascii_char in replacements.items():
-        text = text.replace(unicode_char, ascii_char)
-    return text
-
-
 def execute_command(argv, console: Console):
     from srl.cli import build_parser
 
@@ -113,7 +91,7 @@ def execute_command(argv, console: Console):
 
     return {
         "status": "success",
-        "output": clean_output(output.getvalue()),
+        "output": output.getvalue(),
         "error": None,
     }
 

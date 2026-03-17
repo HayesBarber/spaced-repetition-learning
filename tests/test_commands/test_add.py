@@ -321,3 +321,66 @@ def test_move_problem_with_url_to_mastered(mock_data, console, load_json):
     mastered = load_json(mock_data.MASTERED_FILE)
     assert problem in mastered
     assert mastered[problem]["url"] == url
+
+def test_amend_replaces_last_rating(mock_data, console, load_json):
+    problem = "Replaces last entry"
+
+    args = SimpleNamespace(name=problem, rating=1, number=None, amend=False)
+    add.handle(args=args, console=console)
+
+    args = SimpleNamespace(name=problem, rating=5, number=None, amend=True)
+    add.handle(args=args, console=console)
+
+    progress = load_json(mock_data.PROGRESS_FILE)
+    assert len(progress[problem]["history"]) == 1
+    assert progress[problem]["history"][-1]["rating"] == 5
+
+def test_amend_preserves_original_date(mock_data, console, load_json, dump_json):
+    problem = "Preserves date"
+    original_date = "2025-11-14"
+
+    # Pre-populate with a known date
+    dump_json(mock_data.PROGRESS_FILE, {
+        problem: {"history": [{"rating": 1, "date": original_date}]}
+    })
+
+    args = SimpleNamespace(name=problem, rating=5, number=None, amend=True)
+    add.handle(args=args, console=console)
+
+    progress = load_json(mock_data.PROGRESS_FILE)
+    assert progress[problem]["history"][-1]["date"] == original_date
+
+def test_amend_on_nonexistent_problem_shows_error(mock_data, console, load_json):
+    problem = "Nonexistent problem"
+    args = SimpleNamespace(name=problem, rating=5, number=None, amend=True)
+    add.handle(args=args, console=console)
+
+    assert "not found in progress" in console.export_text()
+
+def test_amend_on_problem_with_no_history_shows_error(mock_data, console, load_json, dump_json):
+    problem = "No history"
+
+    # Problem exists in progress but has no attempts
+    dump_json(mock_data.PROGRESS_FILE, {problem: {"history": []}})
+
+    args = SimpleNamespace(name=problem, rating=5, number=None, amend=True)
+    add.handle(args=args, console=console)
+
+    assert "No attempts found" in console.export_text()
+
+def test_amend_with_number_flag(mock_data, console, load_json, backdate_problem):
+    problem = "Amend with number"
+
+    args = SimpleNamespace(name=problem, rating=4, number=None, amend=False)
+    add.handle(args=args, console=console)
+
+    # Make it due so -n 1 can find it
+    backdate_problem(problem, 5)
+
+    args = SimpleNamespace(name=None, rating=5, number=1, amend=True)
+    add.handle(args=args, console=console)
+
+    progress = load_json(mock_data.PROGRESS_FILE)
+    assert len(progress[problem]["history"]) == 1
+    assert progress[problem]["history"][-1]["rating"] == 5
+

@@ -94,6 +94,19 @@ You can also add an attempt by its number in the `srl list` output. This is usef
 srl add -n 1 3
 ```
 
+If you make a typo in the rating, use `--amend` to replace the last attempt instead of adding a new one. The original date is preserved.
+
+```bash
+srl add "Two Sum" 1        # Oops, meant 5
+srl add "Two Sum" 5 --amend  # Replaces the previous rating, keeps the date
+```
+
+`--amend` also works with `-n`:
+
+```bash
+srl add -n 1 5 --amend
+```
+
 ---
 
 ### Remove a Problem

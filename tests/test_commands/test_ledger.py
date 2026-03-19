@@ -195,3 +195,113 @@ def test_ledger_audit_failure_double_counting(console, mock_data, dump_json):
     assert (
         problem_occurrences == 3
     ), f"Expected 3 total occurrences of {problem} (2 initial + 1 after fail), got {problem_occurrences}"
+
+
+def test_ledger_filter_by_name_shows_focused_view(console, mock_data, dump_json):
+    progress_data = {
+        "two-sum": {"history": [{"rating": 3, "date": "2025-01-15"}]},
+        "valid-parentheses": {"history": [{"rating": 4, "date": "2025-01-14"}]},
+    }
+    dump_json(mock_data.PROGRESS_FILE, progress_data)
+
+    args = SimpleNamespace(name="two-sum")
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "two-sum" in output
+    assert "two-sum (1)" in output
+    assert "valid-parentheses" not in output
+
+
+def test_ledger_filter_by_name_finds_mastered_problem(console, mock_data, dump_json):
+    mastered_data = {
+        "merge-intervals": {"history": [{"rating": 5, "date": "2025-01-10"}]}
+    }
+    dump_json(mock_data.MASTERED_FILE, mastered_data)
+
+    args = SimpleNamespace(name="merge-intervals")
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "merge-intervals" in output
+    assert "merge-intervals (1)" in output
+
+
+def test_ledger_filter_by_name_not_found(console):
+    args = SimpleNamespace(name="nonexistent-problem")
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "No problem found matching" in output
+
+
+def test_ledger_filter_by_name_sorted_most_recent_first(console, mock_data, dump_json):
+    progress_data = {
+        "two-sum": {
+            "history": [
+                {"rating": 3, "date": "2025-01-10"},
+                {"rating": 4, "date": "2025-01-15"},
+                {"rating": 5, "date": "2025-01-20"},
+            ]
+        }
+    }
+    dump_json(mock_data.PROGRESS_FILE, progress_data)
+
+    args = SimpleNamespace(name="two-sum")
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+    lines = output.strip().split("\n")
+    date_lines = [line for line in lines if "2025-01-" in line]
+    assert "2025-01-20" in date_lines[0]
+    assert "2025-01-15" in date_lines[1]
+    assert "2025-01-10" in date_lines[2]
+
+
+def test_ledger_filter_by_name_includes_audit_attempts(console, mock_data, dump_json):
+    progress_data = {
+        "two-sum": {"history": [{"rating": 3, "date": "2025-01-10"}]}
+    }
+    dump_json(mock_data.PROGRESS_FILE, progress_data)
+
+    audit_data = {
+        "history": [
+            {"date": "2025-01-15", "problem": "two-sum", "result": "pass"},
+            {"date": "2025-01-16", "problem": "other-problem", "result": "pass"},
+        ]
+    }
+    dump_json(mock_data.AUDIT_FILE, audit_data)
+
+    args = SimpleNamespace(name="two-sum")
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "two-sum (2)" in output
+    assert "other-problem" not in output
+
+
+def test_ledger_filter_by_number(console, mock_data, dump_json):
+    progress_data = {
+        "two-sum": {"history": [{"rating": 1, "date": "2025-01-01"}]},
+    }
+    dump_json(mock_data.PROGRESS_FILE, progress_data)
+
+    args = SimpleNamespace(number=1)
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "two-sum" in output
+    assert "two-sum (1)" in output
+
+
+def test_ledger_filter_by_number_out_of_range(console, mock_data, dump_json):
+    progress_data = {
+        "two-sum": {"history": [{"rating": 1, "date": "2025-01-01"}]},
+    }
+    dump_json(mock_data.PROGRESS_FILE, progress_data)
+
+    args = SimpleNamespace(number=99)
+    ledger.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "Invalid problem number" in output

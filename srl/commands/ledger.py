@@ -7,12 +7,19 @@ from srl.storage import (
     MASTERED_FILE,
     AUDIT_FILE,
 )
-
+from srl.commands.list_ import get_due_problems
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser("ledger", help="Print a summary of all attempts")
     parser.add_argument(
         "-c", "--count", action="store_true", help="Show only the count of problems"
+    )
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument(
+        "name", nargs="?", type=str, help="Name of the problem to filter by"
+    )
+    group.add_argument(
+        "-n", "--number", type=int, help="Problem number from `srl list`"
     )
     parser.set_defaults(handler=handle)
     return parser
@@ -25,12 +32,27 @@ def handle(args, console: Console):
 
     all_attempts = []
 
+    name = getattr(args, "name", None)
+    number = getattr(args, "number", None)
+
+    # Resolve --number to an exact problem name (matches srl list output)
+    if number is not None:
+        due = get_due_problems()
+        if number < 1 or number > len(due):
+            console.print(f"[red]Invalid problem number:[/red] {number}")
+            return
+        name = due[number - 1]
+
     # Process progress and mastered problems
     for data, status in (
         (progress_data, "progress"),
         (mastered_data, "mastered"),
     ):
         for problem_url, problem_data in data.items():
+            if number is not None and problem_url != name:
+                continue
+            if name and number is None and name.lower() not in problem_url.lower():
+                continue
             for attempt in problem_data.get("history", []):
                 all_attempts.append(
                     {
@@ -46,6 +68,8 @@ def handle(args, console: Console):
         result = attempt["result"]
         if result == "fail":
             continue
+        if name and name.lower() not in attempt["problem"].lower():
+            continue
         all_attempts.append(
             {
                 "date": attempt["date"],
@@ -57,9 +81,35 @@ def handle(args, console: Console):
 
     all_attempts.sort(key=lambda x: x["date"])
 
+    if name and not all_attempts:
+        console.print(f"[red]No problem found matching '{name}'.[/red]")
+        return
+
     count_only = getattr(args, "count", False)
     if count_only:
         console.print(f"Total attempts: {len(all_attempts)}")
+    elif name and all_attempts:
+        focused_table = Table(
+            title=f"{name} ({len(all_attempts)})",
+            box=box.ROUNDED,
+        )
+        focused_table.add_column("Date", style="white")
+        focused_table.add_column("Rating", justify="center")
+        focused_table.add_column("Status", justify="center")
+
+        for attempt in reversed(all_attempts):
+            rating_color = "green" if attempt["rating"] >= 4 else "red"
+            rating_text = f"[{rating_color}]★ {attempt['rating']}[/{rating_color}]"
+            status_color = {
+                "progress": "yellow",
+                "mastered": "green",
+                "audit": "blue",
+            }.get(attempt["status"], "white")
+            status_text = f"[{status_color}]{attempt['status']}[/{status_color}]"
+
+            focused_table.add_row(attempt["date"], rating_text, status_text)
+
+        console.print(focused_table)
     elif all_attempts:
         timeline_table = Table(box=box.ROUNDED)
         timeline_table.add_column("Date", style="white")

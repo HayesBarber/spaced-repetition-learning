@@ -198,6 +198,15 @@ srl ledger
 
 Displays a table of all your attempts across in-progress, mastered, and audit categories, sorted by date.
 
+You can filter to a specific problem by name or by number from `srl list`:
+
+```bash
+srl ledger "Two Sum"
+srl ledger -n 1
+```
+
+This renders a focused view showing all attempts for that problem, sorted most recent first, with the title `Two Sum (3)` indicating the total attempt count.
+
 You can show the count of attempts by passing in the `-c` or `--count` flag.
 
 ```bash

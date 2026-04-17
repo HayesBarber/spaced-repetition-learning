@@ -38,6 +38,24 @@ def test_list_with_n(parser):
     assert args.n == 5
 
 
+def test_pause_command_default_days(parser):
+    args = parser.parse_args(["pause"])
+    assert args.command == "pause"
+    assert hasattr(args, "handler")
+
+
+def test_resume_command(parser):
+    args = parser.parse_args(["resume"])
+    assert args.command == "resume"
+    assert hasattr(args, "handler")
+
+
+def test_unpause_alias_command(parser):
+    args = parser.parse_args(["unpause"])
+    assert args.command == "unpause"
+    assert hasattr(args, "handler")
+
+
 def test_mastered_count_short_flag(parser):
     args = parser.parse_args(["mastered", "-c"])
     assert args.command == "mastered"

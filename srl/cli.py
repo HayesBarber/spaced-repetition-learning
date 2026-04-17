@@ -4,6 +4,8 @@ from srl.commands import (
     list_,
     mastered,
     inprogress,
+    pause,
+    resume,
     calendar,
     nextup,
     audit,
@@ -24,6 +26,8 @@ def build_parser() -> argparse.ArgumentParser:
     list_.add_subparser(subparsers)
     mastered.add_subparser(subparsers)
     inprogress.add_subparser(subparsers)
+    pause.add_subparser(subparsers)
+    resume.add_subparser(subparsers)
     calendar.add_subparser(subparsers)
     nextup.add_subparser(subparsers)
     audit.add_subparser(subparsers)

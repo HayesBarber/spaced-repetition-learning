@@ -156,6 +156,28 @@ If no problems are due today, it will fall back to showing problems from the Nex
 
 ---
 
+### Pause the Schedule
+
+If you want to take time off without letting overdue problems pile up, pause the schedule:
+
+```bash
+srl pause
+```
+
+This freezes your due schedule at the day you paused. Problems will not keep stacking up while you are away.
+
+When you come back, resume it explicitly:
+
+```bash
+srl resume
+```
+
+`srl unpause` is also available as an alias.
+
+Active work commands such as `srl add` automatically resume the schedule first, so the gap is treated as time off and your spacing is preserved without having to tell SRL how many days you were away.
+
+---
+
 ### View In-Progress Problems
 
 ```bash

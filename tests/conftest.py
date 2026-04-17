@@ -1,5 +1,6 @@
 import pytest
 import srl.commands
+import srl.pause_state
 from srl.utils import today
 from rich.console import Console
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ class Paths:
     NEXT_UP_FILE: pathlib.Path
     AUDIT_FILE: pathlib.Path
     CONFIG_FILE: pathlib.Path
+    PAUSE_FILE: pathlib.Path
 
 
 @pytest.fixture
@@ -52,6 +54,7 @@ def mock_data(tmp_path, monkeypatch):
         NEXT_UP_FILE=tmp_path / "next_up.json",
         AUDIT_FILE=tmp_path / "audit.json",
         CONFIG_FILE=tmp_path / "config.json",
+        PAUSE_FILE=tmp_path / "pause.json",
     )
 
     for name, path in vars(paths).items():
@@ -59,6 +62,8 @@ def mock_data(tmp_path, monkeypatch):
         for mod in vars(srl.commands).values():
             if hasattr(mod, name):
                 monkeypatch.setattr(f"{mod.__name__}.{name}", path)
+        if hasattr(srl.pause_state, name):
+            monkeypatch.setattr(f"srl.pause_state.{name}", path)
         monkeypatch.setattr(f"srl.storage.{name}", path)
 
     yield paths

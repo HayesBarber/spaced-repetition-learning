@@ -1,6 +1,7 @@
 from rich.console import Console
 from rich.panel import Panel
 from srl.utils import today
+from srl.pause_state import effective_today, get_paused_on, is_paused
 from srl.commands.audit import get_current_audit, random_audit, get_last_audit_date
 from datetime import datetime, timedelta
 import random
@@ -21,7 +22,13 @@ def add_subparser(subparsers):
 
 
 def handle(args, console: Console):
-    if should_audit() and not get_current_audit():
+    schedule_day = effective_today()
+
+    if is_paused():
+        console.print(
+            f"[yellow]Schedule paused since {get_paused_on().isoformat()}.[/yellow]"
+        )
+    elif should_audit() and not get_current_audit():
         problem = random_audit()
         if problem:
             console.print("[bold red]You have been randomly audited![/bold red]")
@@ -44,7 +51,7 @@ def handle(args, console: Console):
         console.print(
             Panel.fit(
                 "\n".join(lines),
-                title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(problems)})[/bold blue]",
+                title=f"[bold blue]Problems to Practice [{schedule_day.isoformat()}] ({len(problems)})[/bold blue]",
                 border_style="blue",
                 title_align="left",
             )
@@ -54,13 +61,17 @@ def handle(args, console: Console):
 
 
 def should_audit():
+    if is_paused():
+        return False
+
     cfg = Config.load()
+    schedule_day = effective_today()
 
     # Check max days without audit first
     if cfg.max_days_without_audit and cfg.max_days_without_audit > 0:
         last_audit_date = get_last_audit_date()
         if last_audit_date:
-            days_since_last = (today() - last_audit_date).days
+            days_since_last = (schedule_day - last_audit_date).days
             if days_since_last >= cfg.max_days_without_audit:
                 return True
 
@@ -76,6 +87,7 @@ def should_audit():
 def get_due_problems(limit=None, include_url=False) -> list[str]:
     data = load_json(PROGRESS_FILE)
     due = []
+    schedule_day = effective_today()
 
     for name, info in data.items():
         url = info.get("url", "")
@@ -85,7 +97,7 @@ def get_due_problems(limit=None, include_url=False) -> list[str]:
         last = history[-1]
         last_date = datetime.fromisoformat(last["date"]).date()
         due_date = last_date + timedelta(days=last["rating"])
-        if due_date <= today():
+        if due_date <= schedule_day:
             due.append((name, last_date, last["rating"], url))
 
     # Sort: older last attempt first, then lower rating

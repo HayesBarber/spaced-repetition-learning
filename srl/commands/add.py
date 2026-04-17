@@ -1,5 +1,6 @@
 from rich.console import Console
 from srl.utils import today
+from srl.pause_state import resume_schedule
 from srl.storage import (
     load_json,
     save_json,
@@ -27,6 +28,8 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     rating: int = args.rating
     url: str = getattr(args, "url", "")
+    name = None
+
     if hasattr(args, "number") and args.number is not None:
         problems = get_due_problems()
         if args.number > len(problems) or args.number <= 0:
@@ -34,7 +37,9 @@ def handle(args, console: Console):
             return
         name = problems[args.number - 1]
     else:
-        name: str = args.name
+        name = args.name
+
+    resume_schedule(console=console, auto=True)
 
     data = load_json(PROGRESS_FILE)
 

@@ -1,5 +1,6 @@
 from rich.console import Console
 from srl.utils import today
+from srl.pause_state import resume_schedule
 from datetime import datetime
 import random
 from srl.storage import (
@@ -47,6 +48,7 @@ def handle_default(args, console: Console):
 def handle_pass(args, console: Console):
     curr = get_current_audit()
     if curr:
+        resume_schedule(console=console, auto=True)
         audit_pass(curr)
         console.print("[green]Audit passed![/green]")
     else:
@@ -56,6 +58,7 @@ def handle_pass(args, console: Console):
 def handle_fail(args, console: Console):
     curr = get_current_audit()
     if curr:
+        resume_schedule(console=console, auto=True)
         audit_fail(curr, console)
         console.print("[red]Audit failed.[/red] Problem moved back to in-progress.")
     else:

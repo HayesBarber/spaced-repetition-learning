@@ -7,6 +7,7 @@ MASTERED_FILE = DATA_DIR / "problems_mastered.json"
 NEXT_UP_FILE = DATA_DIR / "next_up.json"
 AUDIT_FILE = DATA_DIR / "audit.json"
 CONFIG_FILE = DATA_DIR / "config.json"
+PAUSE_FILE = DATA_DIR / "pause.json"
 
 
 def ensure_data_dir():

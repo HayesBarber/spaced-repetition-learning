@@ -4,17 +4,34 @@ from datetime import date, timedelta
 
 
 def test_summary_handler(parser, console, mock_data, dump_json):
-    from srl.commands.summary import handle, get_total_attempts, print_audit_stats, print_calendar_from_first
+    from srl.commands.summary import (
+        handle,
+        get_total_attempts,
+        print_audit_stats,
+        print_calendar_from_first,
+    )
 
     today_str = date.today().isoformat()
     yesterday_str = (date.today() - timedelta(days=1)).isoformat()
 
     progress_data = {
-        "Problem 1": {"url": "http://example.com/1", "history": [{"date": today_str, "rating": 3}]},
-        "Problem 2": {"url": "http://example.com/2", "history": [{"date": today_str, "rating": 4}, {"date": yesterday_str, "rating": 5}]},
+        "Problem 1": {
+            "url": "http://example.com/1",
+            "history": [{"date": today_str, "rating": 3}],
+        },
+        "Problem 2": {
+            "url": "http://example.com/2",
+            "history": [
+                {"date": today_str, "rating": 4},
+                {"date": yesterday_str, "rating": 5},
+            ],
+        },
     }
     mastered_data = {
-        "Problem 3": {"url": "http://example.com/3", "history": [{"date": today_str, "rating": 5}]},
+        "Problem 3": {
+            "url": "http://example.com/3",
+            "history": [{"date": today_str, "rating": 5}],
+        },
     }
     audit_data = {
         "history": [
@@ -43,11 +60,23 @@ def test_get_total_attempts_with_data(dump_json, mock_data):
     today_str = date.today().isoformat()
 
     progress_data = {
-        "Problem 1": {"url": "http://example.com/1", "history": [{"date": today_str, "rating": 3}]},
-        "Problem 2": {"url": "http://example.com/2", "history": [{"date": today_str, "rating": 4}, {"date": today_str, "rating": 5}]},
+        "Problem 1": {
+            "url": "http://example.com/1",
+            "history": [{"date": today_str, "rating": 3}],
+        },
+        "Problem 2": {
+            "url": "http://example.com/2",
+            "history": [
+                {"date": today_str, "rating": 4},
+                {"date": today_str, "rating": 5},
+            ],
+        },
     }
     mastered_data = {
-        "Problem 3": {"url": "http://example.com/3", "history": [{"date": today_str, "rating": 5}]},
+        "Problem 3": {
+            "url": "http://example.com/3",
+            "history": [{"date": today_str, "rating": 5}],
+        },
     }
     audit_data = {
         "history": [
@@ -77,3 +106,4 @@ def test_summary_empty_data(parser, console, mock_data, dump_json):
     assert "Total Attempts: 0" in output
     assert "Total Mastered: 0" in output
     assert "Total In-Progress: 0" in output
+

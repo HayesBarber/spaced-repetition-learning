@@ -5,7 +5,12 @@ from srl.storage import (
     MASTERED_FILE,
     AUDIT_FILE,
 )
-from srl.commands.calendar import get_all_date_counts, calculate_months_from, get_earliest_date, render_activity
+from srl.commands.calendar import (
+    get_all_date_counts,
+    calculate_months_from,
+    get_earliest_date,
+    render_activity,
+)
 from srl.commands.config import Config
 from srl.commands.inprogress import get_in_progress
 from srl.commands.mastered import get_mastered_problems
@@ -89,4 +94,6 @@ def print_calendar_from_first(console: Console):
     render_activity(console, counts, colors, months)
     console.print("-" * 5)
     from srl.commands.calendar import render_legend
+
     render_legend(console, colors)
+

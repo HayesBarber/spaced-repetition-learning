@@ -110,7 +110,6 @@ def test_ledger_after_adding_progress_attempt(console):
     output = console.export_text()
     assert "two-sum" in output
     assert " 4 " in output
-    assert "progress" in output
 
 
 def test_ledger_count_flag_displays_count_only(console, mock_data, dump_json):
@@ -235,7 +234,7 @@ def test_ledger_filter_by_name_not_found(console):
     assert "No problem found matching" in output
 
 
-def test_ledger_filter_by_name_sorted_most_recent_first(console, mock_data, dump_json):
+def test_ledger_filter_by_name_sorted_oldest_first(console, mock_data, dump_json):
     progress_data = {
         "two-sum": {
             "history": [
@@ -253,9 +252,9 @@ def test_ledger_filter_by_name_sorted_most_recent_first(console, mock_data, dump
     output = console.export_text()
     lines = output.strip().split("\n")
     date_lines = [line for line in lines if "2025-01-" in line]
-    assert "2025-01-20" in date_lines[0]
+    assert "2025-01-10" in date_lines[0]
     assert "2025-01-15" in date_lines[1]
-    assert "2025-01-10" in date_lines[2]
+    assert "2025-01-20" in date_lines[2]
 
 
 def test_ledger_filter_by_name_includes_audit_attempts(console, mock_data, dump_json):

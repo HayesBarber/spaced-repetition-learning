@@ -25,6 +25,11 @@ def add_subparser(subparsers):
     return parser
 
 
+def format_rating(rating):
+    color = "green" if rating >= 4 else "red"
+    return f"[{color}]{rating}[/{color}]"
+
+
 def handle(args, console: Console):
     progress_data = load_json(PROGRESS_FILE)
     mastered_data = load_json(MASTERED_FILE)
@@ -95,19 +100,11 @@ def handle(args, console: Console):
         )
         focused_table.add_column("Date", style="white")
         focused_table.add_column("Rating", justify="center")
-        focused_table.add_column("Status", justify="center")
 
-        for attempt in reversed(all_attempts):
-            rating_color = "green" if attempt["rating"] >= 4 else "red"
-            rating_text = f"[{rating_color}]★ {attempt['rating']}[/{rating_color}]"
-            status_color = {
-                "progress": "yellow",
-                "mastered": "green",
-                "audit": "blue",
-            }.get(attempt["status"], "white")
-            status_text = f"[{status_color}]{attempt['status']}[/{status_color}]"
+        for attempt in all_attempts:
+            rating_text = format_rating(attempt["rating"])
 
-            focused_table.add_row(attempt["date"], rating_text, status_text)
+            focused_table.add_row(attempt["date"], rating_text)
 
         console.print(focused_table)
     elif all_attempts:
@@ -115,20 +112,12 @@ def handle(args, console: Console):
         timeline_table.add_column("Date", style="white")
         timeline_table.add_column("Problem", style="cyan")
         timeline_table.add_column("Rating", justify="center")
-        timeline_table.add_column("Status", justify="center")
 
         for attempt in all_attempts:
-            rating_color = "green" if attempt["rating"] >= 4 else "red"
-            rating_text = f"[{rating_color}]{attempt['rating']}[/{rating_color}]"
-            status_color = {
-                "progress": "yellow",
-                "mastered": "green",
-                "audit": "blue",
-            }.get(attempt["status"], "white")
-            status_text = f"[{status_color}]{attempt['status']}[/{status_color}]"
+            rating_text = format_rating(attempt["rating"])
 
             timeline_table.add_row(
-                attempt["date"], attempt["problem"], rating_text, status_text
+                attempt["date"], attempt["problem"], rating_text
             )
 
         console.print(timeline_table)

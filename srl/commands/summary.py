@@ -24,7 +24,7 @@ def add_subparser(subparsers):
 
 def handle(args, console: Console):
     console.print("[bold]Summary[/bold]")
-    console.print("=" * 40)
+    console.print(f"[dim]{'─' * 50}[/dim]")
 
     total_attempts = get_total_attempts()
     console.print(f"Total Attempts: {total_attempts}")
@@ -92,8 +92,7 @@ def print_calendar_from_first(console: Console):
     colors = Config.load().calendar_colors
 
     render_activity(console, counts, colors, months)
-    console.print("-" * 5)
+    console.print(f"[dim]{'─' * 5}[/dim]")
     from srl.commands.calendar import render_legend
 
     render_legend(console, colors)
-

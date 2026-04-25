@@ -42,7 +42,7 @@ def handle(args, console: Console):
         months = getattr(args, "months", 12)
 
     render_activity(console, counts, colors, months)
-    console.print("-" * 5)
+    console.print(f"[dim]{'─' * 5}[/dim]")
     render_legend(console, colors)
 
 

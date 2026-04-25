@@ -448,6 +448,23 @@ srl config --reset-colors
 
 ---
 
+### Summary Command
+
+The `summary` command displays a consolidated view of all your SRL statistics:
+
+```bash
+srl summary
+```
+
+This prints:
+- Total attempts across all problems
+- Total mastered problems count
+- Total in-progress problems count
+- Audit statistics (total, passed, failed, pass rate)
+- Calendar heatmap from your first recorded entry
+
+---
+
 ### Server Command
 
 Run an HTTP server that exposes the srl CLI via a simple JSON API.

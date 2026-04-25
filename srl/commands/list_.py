@@ -87,7 +87,12 @@ def format_problems(
     ]
 
 
-def get_due_problems(limit=None) -> list[tuple[str, str]]:
+def get_due_problems(limit: int | None = None) -> list[tuple[str, str]]:
+    """Return due problems as (name, url) tuples, sorted by oldest attempt first then lowest rating.
+
+    Args:
+        limit: Maximum number of problems to return.
+    """
     data = load_json(PROGRESS_FILE)
     due = []
 
@@ -110,8 +115,7 @@ def get_due_problems(limit=None) -> list[tuple[str, str]]:
     if not result:
         next_up = load_json(NEXT_UP_FILE)
         fallback = [
-            (prob, info.get("url", ""))
-            for prob, info in list(next_up.items())[: limit or 3]
+            (prob, info.get("url", "")) for prob, info in list(next_up.items())[:limit]
         ]
         return fallback
 

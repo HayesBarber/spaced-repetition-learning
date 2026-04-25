@@ -56,7 +56,7 @@ Create a venv or use `--system` for system wide installation
 1. Queue up problems
 
    ```bash
-   srl nextup add -f starter_data/neetcode_150.txt
+   srl nextup add -f starter_data/neetcode_150.csv
    ```
 2. View today’s work
 
@@ -237,18 +237,22 @@ If you want to add a problem that is already mastered, use the `--allow-mastered
 srl nextup add "Sliding Window Maximum" --allow-mastered
 ```
 
-You can also add multiple problems at once from a file (one problem per line) using the `-f` or `--file` flag. The same deduplication rules apply:
+You can also add multiple problems at once from a file using the `-f` or `--file` flag. Files should be in CSV format with `name,url` per line. The same deduplication rules apply:
 
 ```bash
-srl nextup add -f starter_data/blind_75.txt
+srl nextup add -f starter_data/blind_75.csv
 ```
 
-Starter data files are available in the `starter_data/` directory at the top level of the repo. For example:
+Example CSV format:
+```csv
+Two Sum,https://leetcode.com/problems/two-sum/description/
+Valid Parentheses,https://leetcode.com/problems/valid-parentheses/description/
+```
 
-***These files currently only contain links and will add the problems with the link as the problem name rather than utilizing the `-u` flag***
+Starter data files are available in the `starter_data/` directory:
 
-- [starter_data/blind_75.txt](starter_data/blind_75.txt)
-- [starter_data/neetcode_150.txt](starter_data/neetcode_150.txt)
+- [starter_data/blind_75.csv](starter_data/blind_75.csv)
+- [starter_data/neetcode_150.csv](starter_data/neetcode_150.csv)
 
 List problems in the queue:
 

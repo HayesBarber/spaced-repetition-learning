@@ -63,10 +63,14 @@ def handle(args, console: Console):
             for line in lines:
                 if not line:
                     continue
+                parts = line.split(",", 1)
+                name = parts[0].strip()
+                url = parts[1].strip() if len(parts) > 1 else ""
                 added = add_to_next_up(
-                    line,
+                    name,
                     console,
                     hasattr(args, "allow_mastered") and args.allow_mastered,
+                    url,
                 )
                 if added:
                     added_count += 1
@@ -133,6 +137,16 @@ def handle(args, console: Console):
         clear_next_up(console)
 
 
+def _create_name_lookup(json: dict[str, dict]) -> dict[str, str]:
+    """Maps lowercase names to actual stored names for error messages."""
+    return {key.lower(): key for key in json}
+
+
+def _create_url_set(json: dict[str, dict]) -> set[str]:
+    """Returns lowercase URLs from the json."""
+    return {v.get("url", "").lower() for v in json.values() if v.get("url")}
+
+
 def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
     """
     Add a problem to Next Up queue if not already present, in progress, or mastered.
@@ -142,22 +156,48 @@ def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
     in_progress = load_json(PROGRESS_FILE)
     mastered = load_json(MASTERED_FILE)
 
-    if name in next_up:
-        console.print(f'[yellow]"{name}" is already in the Next Up queue.[/yellow]')
+    next_up_names_lower = _create_name_lookup(next_up)
+    in_progress_names_lower = _create_name_lookup(in_progress)
+    mastered_names_lower = _create_name_lookup(mastered)
+
+    next_up_urls = _create_url_set(next_up)
+    in_progress_urls = _create_url_set(in_progress)
+    mastered_urls = _create_url_set(mastered)
+
+    name_lower = name.lower()
+    if name_lower in next_up_names_lower:
+        existing = next_up_names_lower[name_lower]
+        console.print(f'[yellow]"{existing}" is already in the Next Up queue.[/yellow]')
         return False
 
-    if name in in_progress:
-        console.print(f'[yellow]"{name}" is already in progress.[/yellow]')
+    if name_lower in in_progress_names_lower:
+        existing = in_progress_names_lower[name_lower]
+        console.print(f'[yellow]"{existing}" is already in progress.[/yellow]')
         return False
 
-    if name in mastered:
+    if name_lower in mastered_names_lower:
         if allow_mastered:
-            console.print(
-                f'[blue]"{name}" is mastered but will be added due to flag.[/blue]'
-            )
+            existing = mastered_names_lower[name_lower]
+            console.print(f'[blue]"{existing}" is mastered but will be added due to flag.[/blue]')
         else:
-            console.print(f'[yellow]"{name}" is already mastered.[/yellow]')
+            existing = mastered_names_lower[name_lower]
+            console.print(f'[yellow]"{existing}" is already mastered.[/yellow]')
             return False
+
+    if url:
+        url_lower = url.lower()
+        if url_lower in next_up_urls:
+            console.print(f'[yellow]A problem with that URL is already in the Next Up queue.[/yellow]')
+            return False
+        if url_lower in in_progress_urls:
+            console.print(f'[yellow]A problem with that URL is already in progress.[/yellow]')
+            return False
+        if url_lower in mastered_urls:
+            if allow_mastered:
+                console.print(f'[blue]A problem with that URL is mastered but will be added due to flag.[/blue]')
+            else:
+                console.print(f'[yellow]A problem with that URL is already mastered.[/yellow]')
+                return False
 
     next_up[name] = {"added": today().isoformat()}
     if url:

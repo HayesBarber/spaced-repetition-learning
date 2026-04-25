@@ -75,7 +75,9 @@ def should_audit():
     return random.random() < probability
 
 
-def format_problems(problems: list[tuple[str, str]], include_url: bool = False) -> list[str]:
+def format_problems(
+    problems: list[tuple[str, str]], include_url: bool = False
+) -> list[str]:
     if not include_url:
         return [name for name, _ in problems]
 
@@ -100,6 +102,7 @@ def get_due_problems(limit=None) -> list[tuple[str, str]]:
         if due_date <= today():
             due.append((name, url, last_date, last["rating"]))
 
+    # Sort: older last attempt first, then lower rating
     due.sort(key=lambda x: (x[2], x[3]))
 
     result = [(name, url) for name, url, _, _ in due[:limit]]

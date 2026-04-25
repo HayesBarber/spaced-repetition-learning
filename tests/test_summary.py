@@ -1,14 +1,9 @@
-import pytest
-from rich.console import Console
 from datetime import date, timedelta
 
 
 def test_summary_handler(parser, console, mock_data, dump_json):
     from srl.commands.summary import (
         handle,
-        get_total_attempts,
-        print_audit_stats,
-        print_calendar_from_first,
     )
 
     today_str = date.today().isoformat()

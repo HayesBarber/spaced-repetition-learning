@@ -73,7 +73,7 @@ def print_audit_stats(console: Console):
     failed = total - passed
     pass_rate = (passed / total * 100) if total > 0 else 0
 
-    console.print(f"[bold]Audit Stats:[/bold]")
+    console.print("[bold]Audit Stats:[/bold]")
     console.print(f"  Total: {total}")
     console.print(f"  Passed: {passed} ({pass_rate:.1f}%)")
     console.print(f"  Failed: {failed} ({100 - pass_rate:.1f}%)")

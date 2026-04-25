@@ -37,7 +37,8 @@ def handle(args, console: Console):
     title = "Summary"
     if from_date:
         title = f"Summary (since {from_date_str})"
-    console.print(f"[dim]── {title} {'─' * 50}[/dim]")
+    console.print(f"[bold]{title}[/bold]")
+    console.print(f"[dim]{'─' * 50}[/dim]")
 
     total_attempts = get_total_attempts(from_date)
     console.print(f"Total Attempts: {total_attempts}")
@@ -67,8 +68,7 @@ def get_total_attempts(from_date: date | None = None) -> int:
             history = problem_data.get("history", [])
             if from_date:
                 history = [
-                    h for h in history
-                    if date.fromisoformat(h["date"]) >= from_date
+                    h for h in history if date.fromisoformat(h["date"]) >= from_date
                 ]
             count += len(history)
 
@@ -110,8 +110,7 @@ def get_in_progress_filtered(from_date: date | None = None) -> list:
             result.append({"name": name, "url": info.get("url", "")})
         else:
             has_activity = any(
-                date.fromisoformat(h["date"]) >= from_date
-                for h in history
+                date.fromisoformat(h["date"]) >= from_date for h in history
             )
             if has_activity:
                 result.append({"name": name, "url": info.get("url", "")})
@@ -123,10 +122,7 @@ def print_audit_stats(console: Console, from_date: date | None = None):
     history = audit_data.get("history", [])
 
     if from_date:
-        history = [
-            h for h in history
-            if date.fromisoformat(h["date"]) >= from_date
-        ]
+        history = [h for h in history if date.fromisoformat(h["date"]) >= from_date]
 
     if not history:
         console.print("[bold]Audit Stats:[/bold] No audits yet.")
@@ -163,3 +159,4 @@ def print_calendar(console: Console, from_date: date | None = None):
     from srl.commands.calendar import render_legend
 
     render_legend(console, colors)
+

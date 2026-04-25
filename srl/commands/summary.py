@@ -130,7 +130,7 @@ def print_audit_stats(console: Console, from_date: date | None = None):
         history = [h for h in history if date.fromisoformat(h["date"]) >= from_date]
 
     if not history:
-        console.print("[bold]Audit Stats:[/bold] No audits yet.")
+        console.print("[bold]Audit Stats:[/bold] No audits yet")
         return
 
     total = len(history)

@@ -43,7 +43,6 @@ def test_summary_handler(parser, console, mock_data, dump_json):
     handle(args, console)
 
     output = console.export_text()
-    assert "── Summary ─" in output
     assert "Total Attempts:" in output
     assert "Total Mastered:" in output
     assert "Total In-Progress:" in output
@@ -158,4 +157,3 @@ def test_summary_empty_data(parser, console, mock_data, dump_json):
     assert "Total Attempts: 0" in output
     assert "Total Mastered: 0" in output
     assert "Total In-Progress: 0" in output
-

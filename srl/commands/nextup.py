@@ -187,16 +187,16 @@ def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
     if url:
         url_lower = url.lower()
         if url_lower in next_up_urls:
-            console.print(f'[yellow]A problem with that URL is already in the Next Up queue.[/yellow]')
+            console.print('[yellow]A problem with that URL is already in the Next Up queue.[/yellow]')
             return False
         if url_lower in in_progress_urls:
-            console.print(f'[yellow]A problem with that URL is already in progress.[/yellow]')
+            console.print('[yellow]A problem with that URL is already in progress.[/yellow]')
             return False
         if url_lower in mastered_urls:
             if allow_mastered:
-                console.print(f'[blue]A problem with that URL is mastered but will be added due to flag.[/blue]')
+                console.print('[blue]A problem with that URL is mastered but will be added due to flag.[/blue]')
             else:
-                console.print(f'[yellow]A problem with that URL is already mastered.[/yellow]')
+                console.print('[yellow]A problem with that URL is already mastered.[/yellow]')
                 return False
 
     next_up[name] = {"added": today().isoformat()}

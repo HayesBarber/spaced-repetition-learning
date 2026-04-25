@@ -260,3 +260,9 @@ def test_ledger_count_long_flag(parser):
     assert args.command == "ledger"
     assert hasattr(args, "handler")
     assert args.count is True
+
+
+def test_summary_command(parser):
+    args = parser.parse_args(["summary"])
+    assert args.command == "summary"
+    assert hasattr(args, "handler")

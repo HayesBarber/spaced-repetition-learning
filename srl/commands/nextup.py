@@ -63,10 +63,14 @@ def handle(args, console: Console):
             for line in lines:
                 if not line:
                     continue
+                parts = line.split(",", 1)
+                name = parts[0].strip()
+                url = parts[1].strip() if len(parts) > 1 else ""
                 added = add_to_next_up(
-                    line,
+                    name,
                     console,
                     hasattr(args, "allow_mastered") and args.allow_mastered,
+                    url,
                 )
                 if added:
                     added_count += 1

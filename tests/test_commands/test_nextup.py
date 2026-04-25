@@ -7,8 +7,8 @@ import pytest
 
 @pytest.fixture
 def blind75_file(tmp_path):
-    src = Path("starter_data/blind_75.txt")
-    dst = tmp_path / "blind_75.txt"
+    src = Path("starter_data/blind_75.csv")
+    dst = tmp_path / "blind_75.csv"
     shutil.copy(src, dst)
     return dst
 
@@ -61,6 +61,7 @@ def test_list_next_up_with_items(console):
     assert "Next Up Problems (1)" in output
     assert problem in output
 
+
 def test_list_next_up_is_numbered(console):
     problem = "Formatting problem"
     args_add = SimpleNamespace(action="add", name=problem)
@@ -71,6 +72,7 @@ def test_list_next_up_is_numbered(console):
 
     output = console.export_text()
     assert "1. Formatting problem" in output
+
 
 def test_list_next_up_empty(console):
     args = SimpleNamespace(action="list")
@@ -95,6 +97,7 @@ def test_remove_from_next_up(mock_data, console, load_json):
     assert "Removed" in output
     assert problem in output
 
+
 def test_remove_from_next_up_by_number(mock_data, console, load_json):
     problem = "Removable by number problem"
     args_add = SimpleNamespace(action="add", name=problem)
@@ -110,6 +113,7 @@ def test_remove_from_next_up_by_number(mock_data, console, load_json):
     assert "Removed" in output
     assert problem in output
 
+
 def test_remove_from_next_up_by_number_out_of_range(mock_data, console, load_json):
     problem = "Removable problem"
     args_add = SimpleNamespace(action="add", name=problem)
@@ -124,6 +128,7 @@ def test_remove_from_next_up_by_number_out_of_range(mock_data, console, load_jso
     output = console.export_text()
     assert "Invalid problem number" in output
 
+
 def test_clear_next_up(mock_data, console, load_json):
     p1 = "Problem A"
     p2 = "Problem B"
@@ -137,6 +142,7 @@ def test_clear_next_up(mock_data, console, load_json):
 
     output = console.export_text()
     assert "Next Up queue cleared" in output
+
 
 def test_nextup_add_file_all_new(blind75_file, console, mock_data, load_json):
     args = SimpleNamespace(action="add", file=str(blind75_file))
@@ -355,7 +361,7 @@ def test_nextup_add_problem_with_url(mock_data, console, load_json):
     problem = "Problem A"
     url = "https://example.com"
     args = SimpleNamespace(action="add", name=problem, url=url)
-    
+
     nextup.handle(args=args, console=console)
 
     data = load_json(mock_data.NEXT_UP_FILE)
@@ -374,7 +380,7 @@ def test_nextup_list_urls_with_flag(console):
     nextup.handle(args=args_add, console=console)
 
     # Note: empty str expected for url flag, not boolean
-    args_list= SimpleNamespace(action="list", url="") 
+    args_list = SimpleNamespace(action="list", url="")
     nextup.handle(args=args_list, console=console)
 
     output = console.export_text()
@@ -389,7 +395,7 @@ def test_nextup_list_hides_urls_when_flag_disabled(console):
     args_add = SimpleNamespace(action="add", name=problem, url=url)
     nextup.handle(args=args_add, console=console)
 
-    args_list= SimpleNamespace(action="list")
+    args_list = SimpleNamespace(action="list")
     nextup.handle(args=args_list, console=console)
 
     output = console.export_text()
@@ -397,22 +403,22 @@ def test_nextup_list_hides_urls_when_flag_disabled(console):
     assert problem in output
     assert "Open in Browser" not in output
 
+
 def test_nextup_list_mixed_urls_with_flag(console):
     problem_no_url = "Problem A"
     nextup.handle(
-        args=SimpleNamespace(action="add", name=problem_no_url),
-        console=console
+        args=SimpleNamespace(action="add", name=problem_no_url), console=console
     )
 
     problem_with_url = "Problem B"
     url = "https://example.com"
     nextup.handle(
         args=SimpleNamespace(action="add", name=problem_with_url, url=url),
-        console=console
+        console=console,
     )
 
     # Note: empty str expected for url flag, not boolean
-    args_list= SimpleNamespace(action="list", url="") 
+    args_list = SimpleNamespace(action="list", url="")
     nextup.handle(args=args_list, console=console)
 
     output = console.export_text()
@@ -420,4 +426,4 @@ def test_nextup_list_mixed_urls_with_flag(console):
     assert problem_no_url in output
     assert problem_with_url in output
     assert output.count("Open in Browser") == 1
-    
+

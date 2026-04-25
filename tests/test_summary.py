@@ -53,7 +53,6 @@ def test_summary_with_from_date(parser, console, mock_data, dump_json):
     from srl.commands.summary import handle
 
     today_str = date.today().isoformat()
-    yesterday_str = (date.today() - timedelta(days=1)).isoformat()
     last_week_str = (date.today() - timedelta(days=7)).isoformat()
 
     progress_data = {

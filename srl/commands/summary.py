@@ -13,7 +13,6 @@ from srl.commands.calendar import (
     render_activity,
 )
 from srl.commands.config import Config
-from srl.commands.inprogress import get_in_progress
 from srl.commands.mastered import get_mastered_problems as get_all_mastered_problems
 
 

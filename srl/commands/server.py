@@ -56,7 +56,7 @@ def execute_command(argv, console: Console):
 
     try:
         args = parser.parse_args(argv)
-    except (Exception, SystemExit) as e:
+    except (Exception, SystemExit):
         return {
             "status": "error",
             "output": "",
@@ -82,7 +82,7 @@ def execute_command(argv, console: Console):
 
     try:
         args.handler(args, capture_console)
-    except Exception as e:
+    except Exception:
         return {
             "status": "error",
             "output": "",

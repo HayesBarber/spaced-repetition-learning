@@ -469,15 +469,6 @@ You can filter all statistics to show only activity since a specific date:
 srl summary --from-date 2026-01-01
 ```
 
-This filters:
-- Total attempts to only those since the date
-- Total mastered to problems mastered since the date
-- Total in-progress to problems with activity since the date
-- Audit stats to only audits since the date
-- Calendar shows from that date instead of from first entry
-
-Date format: `YYYY-MM-DD` (ISO format)
-
 ---
 
 ### Server Command

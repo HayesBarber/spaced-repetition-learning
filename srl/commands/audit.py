@@ -1,4 +1,6 @@
 from rich.console import Console
+from rich.table import Table
+from rich import box
 from srl.utils import today
 from datetime import datetime
 import random
@@ -83,7 +85,12 @@ def handle_history(args, console: Console):
 
     console.print("[bold]Audit History[/bold]")
 
-    sorted_history = sorted(history, key=lambda x: x.get("date", ""), reverse=True)
+    sorted_history = sorted(history, key=lambda x: x.get("date", ""))
+
+    history_table = Table(box=box.ROUNDED)
+    history_table.add_column("Date", style="white")
+    history_table.add_column("Problem", style="cyan")
+    history_table.add_column("Result", justify="center")
 
     for entry in sorted_history:
         date_str = entry.get("date", "Unknown date")
@@ -97,7 +104,9 @@ def handle_history(args, console: Console):
         else:
             result_str = "[yellow]UNKNOWN[/yellow]"
 
-        console.print(f"{date_str}  {problem:<20} {result_str}")
+        history_table.add_row(date_str, problem, result_str)
+
+    console.print(history_table)
 
 
 def get_current_audit():

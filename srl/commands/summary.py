@@ -89,9 +89,8 @@ def get_total_attempts(from_date: date | None = None) -> int:
 
 
 def get_mastered_problems(from_date: date | None = None) -> list:
-    all_mastered = get_all_mastered_problems()
     if from_date is None:
-        return all_mastered
+        return get_all_mastered_problems()
 
     mastered = []
     data = load_json(MASTERED_FILE)

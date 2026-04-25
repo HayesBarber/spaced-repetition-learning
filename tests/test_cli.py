@@ -266,3 +266,10 @@ def test_summary_command(parser):
     args = parser.parse_args(["summary"])
     assert args.command == "summary"
     assert hasattr(args, "handler")
+
+
+def test_summary_from_date(parser):
+    args = parser.parse_args(["summary", "--from-date", "2024-01-15"])
+    assert args.command == "summary"
+    assert hasattr(args, "handler")
+    assert args.from_date == "2024-01-15"

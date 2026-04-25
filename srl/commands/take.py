@@ -37,22 +37,10 @@ def handle(args, console: Console):
     index: int = abs(args.index)
     problem = None
     url = None
-    due_problems = list_.get_due_problems(None, url_requested)
+    due_problems = list_.get_due_problems()
 
     if due_problems and 0 < index <= len(due_problems):
-        has_url = due_problems[index - 1].endswith("[/link][/blue]")
-        if not has_url:
-            problem = due_problems[index - 1]
-        elif has_url:
-            raw_markup = due_problems[index - 1]
-            url_start = raw_markup.find("[link=") + len("[link=")
-            url_end = raw_markup.find("]Open")
-            name_end = url_end - 2 # -2 for double space delimiter between name and hyperlink
-            
-            problem = raw_markup[:name_end]
-            url = raw_markup[url_start:url_end]
-        
-        # NOTE: if url_requested and not has_url, url will stay None, and "None" will be printed
+        problem, url = due_problems[index - 1]
 
     if not problem:
         return
@@ -67,4 +55,7 @@ def handle(args, console: Console):
             SimpleNamespace(name=problem, rating=args.rating), console
         )
     else:
-        console.print(url if url_requested else problem)
+        if url_requested:
+            console.print(url if url else "None")
+        else:
+            console.print(problem)

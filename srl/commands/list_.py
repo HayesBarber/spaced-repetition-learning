@@ -32,19 +32,21 @@ def handle(args, console: Console):
             return
 
     include_url = getattr(args, "url", False)
-    problems = get_due_problems(getattr(args, "n", None), include_url)
+    problems = get_due_problems(getattr(args, "n", None))
+    formatted = format_problems(problems, include_url)
+    names = [name for name, _ in problems]
     masters = mastery_candidates()
 
-    if problems:
+    if formatted:
         lines = []
-        for i, p in enumerate(problems):
-            mark = " [magenta]*[/magenta]" if p in masters else ""
+        for i, p in enumerate(formatted):
+            mark = " [magenta]*[/magenta]" if names[i] in masters else ""
             lines.append(f"{i + 1}. {p}{mark}")
 
         console.print(
             Panel.fit(
                 "\n".join(lines),
-                title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(problems)})[/bold blue]",
+                title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(formatted)})[/bold blue]",
                 border_style="blue",
                 title_align="left",
             )
@@ -73,7 +75,17 @@ def should_audit():
     return random.random() < probability
 
 
-def get_due_problems(limit=None, include_url=False) -> list[str]:
+def format_problems(problems: list[tuple[str, str]], include_url: bool = False) -> list[str]:
+    if not include_url:
+        return [name for name, _ in problems]
+
+    return [
+        f"{name}  [blue][link={url}]Open in Browser[/link][/blue]" if url else name
+        for name, url in problems
+    ]
+
+
+def get_due_problems(limit=None) -> list[tuple[str, str]]:
     data = load_json(PROGRESS_FILE)
     due = []
 
@@ -86,30 +98,21 @@ def get_due_problems(limit=None, include_url=False) -> list[str]:
         last_date = datetime.fromisoformat(last["date"]).date()
         due_date = last_date + timedelta(days=last["rating"])
         if due_date <= today():
-            due.append((name, last_date, last["rating"], url))
+            due.append((name, url))
 
-    # Sort: older last attempt first, then lower rating
-    due.sort(key=lambda x: (x[1], x[2]))
+    due.sort(key=lambda x: x[1])
 
-    if not include_url:
-        due_names = [name for name, _, _, _ in due[:limit]]
-    else:
-        due_names = [
-            f"{name}  [blue][link={url}]Open in Browser[/link][/blue]" if url else name
-            for name, _, _, url in due[:limit]
-        ]
+    result = due[:limit]
 
-    if not due_names:
+    if not result:
         next_up = load_json(NEXT_UP_FILE)
         fallback = [
-            f"{prob}  [blue][link={info.get('url')}]Open in Browser[/link][/blue]"
-            if info.get("url")
-            else prob
+            (prob, info.get("url", ""))
             for prob, info in list(next_up.items())[: limit or 3]
         ]
         return fallback
 
-    return due_names
+    return result
 
 
 def mastery_candidates() -> set[str]:

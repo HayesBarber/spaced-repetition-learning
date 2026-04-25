@@ -49,5 +49,5 @@ def handle(args, console: Console):
         console.print("[bold green]No problems available to pick from.[/bold green]")
         return
 
-    choice = random.choice(problems)
+    choice = random.choice(problems)[0]
     console.print(f"[bold blue]Random problem:[/bold blue] [cyan]{choice}[/cyan]")

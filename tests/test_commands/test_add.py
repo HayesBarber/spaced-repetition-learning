@@ -226,7 +226,7 @@ def test_add_by_number_case_insensitive(
     original_get_due_problems = get_due_problems
 
     def mock_get_due_problems():
-        return [problem_upper]
+            return [(problem_upper, "")]
 
     add.get_due_problems = mock_get_due_problems
 

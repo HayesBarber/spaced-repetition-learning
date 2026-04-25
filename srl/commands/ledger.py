@@ -46,7 +46,7 @@ def handle(args, console: Console):
         if number < 1 or number > len(due):
             console.print(f"[red]Invalid problem number:[/red] {number}")
             return
-        name = due[number - 1]
+        name = due[number - 1][0]
 
     # Process progress and mastered problems
     for data, status in (

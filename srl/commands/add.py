@@ -32,7 +32,7 @@ def handle(args, console: Console):
         if args.number > len(problems) or args.number <= 0:
             console.print(f"[bold red]Invalid problem number: {args.number}[/bold red]")
             return
-        name = problems[args.number - 1]
+        name = problems[args.number - 1][0]
     else:
         name: str = args.name
 

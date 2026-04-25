@@ -463,6 +463,12 @@ This prints:
 - Audit statistics (total, passed, failed, pass rate)
 - Calendar heatmap from your first recorded entry
 
+You can filter all statistics to show only activity since a specific date:
+
+```bash
+srl summary --from-date 2026-01-01
+```
+
 ---
 
 ### Server Command

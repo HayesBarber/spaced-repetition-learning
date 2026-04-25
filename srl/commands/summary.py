@@ -36,7 +36,9 @@ def handle(args, console: Console):
             from_date = date.fromisoformat(from_date_str)
         except ValueError:
             console.print(f"[red]Invalid date format: {from_date_str}[/red]")
-            console.print("[yellow]Use ISO format: YYYY-MM-DD (e.g., 2024-01-15)[/yellow]")
+            console.print(
+                "[yellow]Use ISO format: YYYY-MM-DD (e.g., 2024-01-15)[/yellow]"
+            )
             return
 
     title = "Summary"
@@ -164,4 +166,3 @@ def print_calendar(console: Console, from_date: date | None = None):
     from srl.commands.calendar import render_legend
 
     render_legend(console, colors)
-

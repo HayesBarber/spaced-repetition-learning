@@ -427,3 +427,105 @@ def test_nextup_list_mixed_urls_with_flag(console):
     assert problem_with_url in output
     assert output.count("Open in Browser") == 1
 
+
+def test_add_to_next_up_url_already_in_next_up(
+    mock_data, console, dump_json, load_json
+):
+    # Existing problem with URL in next_up
+    existing_problem = "Existing Problem"
+    existing_url = "https://example.com/1"
+    next_up_file = mock_data.NEXT_UP_FILE
+    dump_json(next_up_file, {existing_problem: {"url": existing_url}})
+
+    # Try to add a new problem with the same URL
+    new_problem = "New Problem"
+    args = SimpleNamespace(action="add", name=new_problem, url=existing_url)
+    nextup.handle(args=args, console=console)
+
+    # Should not add
+    data = load_json(next_up_file)
+    assert new_problem not in data
+    output = console.export_text()
+    assert "A problem with that URL is already in the Next Up queue" in output
+
+
+def test_add_to_next_up_url_already_in_progress(
+    mock_data, console, dump_json, load_json
+):
+    # Existing problem with URL in progress
+    existing_problem = "In Progress Problem"
+    existing_url = "https://example.com/2"
+    progress_file = mock_data.PROGRESS_FILE
+    dump_json(progress_file, {existing_problem: {"url": existing_url}})
+
+    # Try to add a new problem with the same URL
+    new_problem = "New Problem"
+    args = SimpleNamespace(action="add", name=new_problem, url=existing_url)
+    nextup.handle(args=args, console=console)
+
+    # Should not add
+    next_up_file = mock_data.NEXT_UP_FILE
+    data = load_json(next_up_file)
+    assert new_problem not in data
+    output = console.export_text()
+    assert "A problem with that URL is already in progress" in output
+
+
+def test_add_to_next_up_url_already_in_mastered(
+    mock_data, console, dump_json, load_json
+):
+    # Existing problem with URL in mastered
+    existing_problem = "Mastered Problem"
+    existing_url = "https://example.com/3"
+    mastered_file = mock_data.MASTERED_FILE
+    dump_json(mastered_file, {existing_problem: {"url": existing_url}})
+
+    # Try to add a new problem with the same URL
+    new_problem = "New Problem"
+    args = SimpleNamespace(action="add", name=new_problem, url=existing_url)
+    nextup.handle(args=args, console=console)
+
+    # Should not add
+    next_up_file = mock_data.NEXT_UP_FILE
+    data = load_json(next_up_file)
+    assert new_problem not in data
+    output = console.export_text()
+    assert "A problem with that URL is already mastered" in output
+
+
+def test_add_to_next_up_url_already_in_mastered_allow_mastered(
+    mock_data, console, dump_json, load_json
+):
+    # Existing problem with URL in mastered
+    existing_problem = "Mastered Problem"
+    existing_url = "https://example.com/4"
+    mastered_file = mock_data.MASTERED_FILE
+    dump_json(mastered_file, {existing_problem: {"url": existing_url}})
+
+    # Try to add a new problem with the same URL and allow_mastered flag
+    new_problem = "New Problem"
+    args = SimpleNamespace(
+        action="add", name=new_problem, url=existing_url, allow_mastered=True
+    )
+    nextup.handle(args=args, console=console)
+
+    # Should add because we passed allow_mastered
+    next_up_file = mock_data.NEXT_UP_FILE
+    data = load_json(next_up_file)
+    assert new_problem in data
+    output = console.export_text()
+    assert "A problem with that URL is mastered but will be added due to flag" in output
+
+
+def test_remove_from_next_up_not_found(mock_data, console, load_json):
+    # Try to remove a problem that doesn't exist
+    args = SimpleNamespace(action="remove", name="NonExistent Problem", number=None)
+    nextup.handle(args=args, console=console)
+
+    # Should not delete anything
+    data = load_json(mock_data.NEXT_UP_FILE)
+    assert data == {}
+
+    output = console.export_text()
+    assert '"NonExistent Problem" not found in the Next Up queue' in output
+

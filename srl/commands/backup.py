@@ -1,7 +1,9 @@
 import io
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 from rich.console import Console
+from rich.table import Table
 import tarfile
 
 from srl.storage import DATA_DIR, BACKUP_DIR
@@ -17,6 +19,117 @@ STORAGE_FILES = [
 ]
 
 
+def _format_size(size: int) -> str:
+    for unit in ["B", "KB", "MB", "GB"]:
+        if size < 1024:
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} TB"
+
+
+def _parse_timestamp_from_name(name: str) -> datetime | None:
+    import re
+    match = re.search(r"backup-(\d{4}-\d{2}-\d{2}T\d{6})", name)
+    if not match:
+        match = re.search(r"backup-(\d{8}T\d{6})", name)
+    if match:
+        ts = match.group(1)
+        if "-" in ts:
+            try:
+                return datetime.strptime(ts, "%Y-%m-%dT%H%M%S").replace(tzinfo=timezone.utc)
+            except ValueError:
+                pass
+    return None
+
+
+def list_handle(args, console: Console):
+    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+
+    backups = sorted(BACKUP_DIR.glob("backup-*.tar.gz"))
+
+    if not backups:
+        console.print("[yellow]No backups found.[/yellow]")
+        return
+
+    table = Table(title="Backups", show_header=True)
+    table.add_column("Filename", style="cyan")
+    table.add_column("Created", style="green")
+    table.add_column("Size", justify="right", style="magenta")
+
+    for archive in backups:
+        ts = _parse_timestamp_from_name(archive.name)
+        if ts:
+            created = ts.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            created = "unknown"
+
+        size = _format_size(archive.stat().st_size)
+        table.add_row(archive.name, created, size)
+
+    console.print(table)
+
+
+def _get_archive_members(tar: tarfile.TarFile) -> set[str]:
+    return set(tar.getnames())
+
+
+def _read_manifest(tar: tarfile.TarFile) -> dict | None:
+    manifest_file = tar.extractfile("manifest.json")
+    if manifest_file is None:
+        return None
+    return json.loads(manifest_file.read().decode())
+
+
+def verify_handle(args, console: Console):
+    file_arg = getattr(args, "file", None)
+    if not file_arg:
+        console.print("[red]Error: No backup file specified.[/red]")
+        return
+
+    backup_path = Path(file_arg)
+    if not backup_path.exists():
+        resolved = BACKUP_DIR / file_arg
+        if resolved.exists():
+            backup_path = resolved
+        else:
+            console.print(f"[red]Error: Backup file not found: {file_arg}[/red]")
+            return
+
+    try:
+        with tarfile.open(backup_path, "r:gz") as tar:
+            members = _get_archive_members(tar)
+
+            if "manifest.json" not in members:
+                console.print("[red]Error: manifest.json not found in archive.[/red]")
+                return
+
+            manifest = _read_manifest(tar)
+            if manifest is None:
+                console.print("[red]Error: Failed to parse manifest.json (invalid JSON).[/red]")
+                return
+
+            if "schema_version" not in manifest:
+                console.print("[red]Error: manifest.json missing schema_version.[/red]")
+                return
+
+            for fname in manifest.get("files", []):
+                if fname not in members:
+                    console.print(f"[red]Error: Referenced file not in archive: {fname}[/red]")
+                    return
+
+            console.print(f"[green]Backup verified successfully: {backup_path.name}[/green]")
+            console.print(f"  Schema version: {manifest['schema_version']}")
+            console.print(f"  Created: {manifest.get('created_at', 'unknown')}")
+            console.print(f"  Files: {len(manifest.get('files', []))}")
+
+    except tarfile.TarError:
+        console.print("[red]Error: Cannot open archive (corrupt or invalid).[/red]")
+        return
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        return
+
+
 def prune_old_backups():
     max_backups = Config.load().backup.get("max_backups", 10)
     if max_backups <= 0:
@@ -29,7 +142,16 @@ def prune_old_backups():
 
 
 def add_subparser(subparsers):
-    parser = subparsers.add_parser("backup", help="Create backup archive")
+    parser = subparsers.add_parser("backup", help="Backup commands")
+    subparsers2 = parser.add_subparsers(dest="backup_subcommand")
+
+    list_parser = subparsers2.add_parser("list", help="List all backups")
+    list_parser.set_defaults(handler=list_handle)
+
+    verify_parser = subparsers2.add_parser("verify", help="Verify a backup archive")
+    verify_parser.add_argument("file", help="Backup file (filename or path)")
+    verify_parser.set_defaults(handler=verify_handle)
+
     parser.set_defaults(handler=handle)
     return parser
 

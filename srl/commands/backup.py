@@ -5,6 +5,7 @@ from rich.console import Console
 import tarfile
 
 from srl.storage import DATA_DIR, BACKUP_DIR
+from srl.commands.config import Config
 
 
 STORAGE_FILES = [
@@ -14,6 +15,15 @@ STORAGE_FILES = [
     "audit.json",
     "config.json",
 ]
+
+
+def prune_old_backups():
+    max_backups = Config.load().backup.get("max_backups", 10)
+    backups = sorted(BACKUP_DIR.glob("backup-*.tar.gz"))
+
+    if len(backups) > max_backups:
+        for old_backup in backups[:-max_backups]:
+            old_backup.unlink()
 
 
 def add_subparser(subparsers):
@@ -57,6 +67,7 @@ def handle(args, console: Console):
             tarinfo.size = len(manifest_data)
             tar.addfile(tarinfo, io.BytesIO(manifest_data))
 
+        prune_old_backups()
         console.print(f"[green]Backup created: {filename}[/green]")
 
     except Exception:

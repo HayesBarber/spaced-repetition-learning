@@ -34,7 +34,9 @@ class Config:
                 int(k): v for k, v in raw["calendar_colors"].items()
             }
 
-        return cls(**raw)
+        known_fields = set(cls.__dataclass_fields__)
+        filtered = {k: v for k, v in raw.items() if k in known_fields}
+        return cls(**filtered)
 
     def save(self):
         save_json(CONFIG_FILE, self.__dict__)

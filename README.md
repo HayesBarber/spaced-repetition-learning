@@ -546,6 +546,24 @@ Note: The `server` command itself is not available via the HTTP API.
 
 ---
 
+### Backup Command
+
+Create a backup archive of all your SRL storage data:
+
+```bash
+srl backup
+```
+
+This creates a `tar.gz` archive in `~/.srl/backups/` with:
+- All storage files (`problems_in_progress.json`, `problems_mastered.json`, `next_up.json`, `audit.json`, `config.json`)
+- A `manifest.json` containing schema version, creation timestamp, and list of included files
+
+Filename format: `backup-YYYY-MM-DDTHHMMSS.tar.gz`
+
+If multiple backups are created within the same second, a counter suffix is added: `backup-2026-04-26T120000-1.tar.gz`
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and testing instructions.

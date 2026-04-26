@@ -1,5 +1,9 @@
 # Contributing
 
+## Opening an Issue First
+
+Before submitting a PR, please **open a GitHub issue** to discuss the proposed change and get alignment. This helps avoid wasted effort on changes that may not align with the project's direction.
+
 ## Development Setup
 
 1. Clone the repository:

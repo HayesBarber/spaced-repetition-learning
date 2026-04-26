@@ -19,6 +19,8 @@ STORAGE_FILES = [
 
 def prune_old_backups():
     max_backups = Config.load().backup.get("max_backups", 10)
+    if max_backups <= 0:
+        max_backups = 10
     backups = sorted(BACKUP_DIR.glob("backup-*.tar.gz"))
 
     if len(backups) > max_backups:

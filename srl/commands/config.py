@@ -129,7 +129,7 @@ def handle(args, console: Console):
             else:
                 updated.append(f"max days without audit to [cyan]{max_days}[/cyan]")
 
-        if max_backups is not None and max_backups >= 0:
+        if max_backups is not None and max_backups > 0:
             cfg.backup["max_backups"] = max_backups
             updated.append(f"max backups to [cyan]{max_backups}[/cyan]")
 

@@ -105,3 +105,77 @@ def test_backup_handles_empty_storage(test_dirs, console, monkeypatch):
 
         assert manifest["schema_version"] == 1
         assert manifest["files"] == []
+
+
+def test_prune_respects_max_backups(test_dirs, console, monkeypatch):
+    tmp_path, data_dir, backup_dir = test_dirs
+    _patch_backup_modules(monkeypatch, data_dir, backup_dir)
+
+    for i in range(4):
+        (backup_dir / f"backup-2026-01-{i+1:02d}T000000.tar.gz").touch()
+
+    monkeypatch.setattr("srl.commands.backup.Config.load", lambda: type("Config", (), {"backup": {"max_backups": 2}})())
+
+    backup.handle(SimpleNamespace(), console)
+
+    remaining = list(backup_dir.glob("backup-*.tar.gz"))
+    assert len(remaining) == 2
+
+
+def test_prune_keeps_newest_backup(test_dirs, console, monkeypatch):
+    tmp_path, data_dir, backup_dir = test_dirs
+    _patch_backup_modules(monkeypatch, data_dir, backup_dir)
+
+    for i in range(2):
+        (backup_dir / f"backup-2026-01-{i+1:02d}T000000.tar.gz").touch()
+
+    monkeypatch.setattr("srl.commands.backup.Config.load", lambda: type("Config", (), {"backup": {"max_backups": 1}})())
+
+    backup.handle(SimpleNamespace(), console)
+
+    remaining = list(backup_dir.glob("backup-*.tar.gz"))
+    assert len(remaining) == 1
+
+
+def test_prune_no_op_under_limit(test_dirs, console, monkeypatch):
+    tmp_path, data_dir, backup_dir = test_dirs
+    _patch_backup_modules(monkeypatch, data_dir, backup_dir)
+
+    for i in range(3):
+        (backup_dir / f"backup-2026-01-{i+1:02d}T000000.tar.gz").touch()
+
+    monkeypatch.setattr("srl.commands.backup.Config.load", lambda: type("Config", (), {"backup": {"max_backups": 10}})())
+
+    backup.handle(SimpleNamespace(), console)
+
+    remaining = list(backup_dir.glob("backup-*.tar.gz"))
+    assert len(remaining) == 4
+
+
+def test_prune_handles_zero_max_backups(test_dirs, console, monkeypatch):
+    tmp_path, data_dir, backup_dir = test_dirs
+    _patch_backup_modules(monkeypatch, data_dir, backup_dir)
+
+    (backup_dir / "backup-2026-01-01T000000.tar.gz").touch()
+
+    monkeypatch.setattr("srl.commands.backup.Config.load", lambda: type("Config", (), {"backup": {"max_backups": 0}})())
+
+    backup.handle(SimpleNamespace(), console)
+
+    remaining = list(backup_dir.glob("backup-*.tar.gz"))
+    assert len(remaining) == 2
+
+
+def test_prune_uses_default_when_not_configured(test_dirs, console, monkeypatch):
+    tmp_path, data_dir, backup_dir = test_dirs
+    _patch_backup_modules(monkeypatch, data_dir, backup_dir)
+
+    for i in range(12):
+        (backup_dir / f"backup-2026-01-{i+1:02d}T000000.tar.gz").touch()
+
+    monkeypatch.setattr("srl.commands.backup.Config.load", lambda: type("Config", (), {"backup": {}})())
+
+    backup.handle(SimpleNamespace(), console)
+
+    remaining = list(backup_dir.glob("backup-*.tar.gz"))
+    assert len(remaining) == 10

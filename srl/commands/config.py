@@ -14,6 +14,7 @@ class Config:
     calendar_colors: dict[int, str] = field(
         default_factory=lambda: Config.default_calendar_colors()
     )
+    backup: dict = field(default_factory=lambda: {"max_backups": 10})
 
     @staticmethod
     def default_calendar_colors() -> dict[int, str]:
@@ -33,7 +34,9 @@ class Config:
                 int(k): v for k, v in raw["calendar_colors"].items()
             }
 
-        return cls(**raw)
+        known_fields = set(cls.__dataclass_fields__)
+        filtered = {k: v for k, v in raw.items() if k in known_fields}
+        return cls(**filtered)
 
     def save(self):
         save_json(CONFIG_FILE, self.__dict__)
@@ -56,6 +59,11 @@ def add_subparser(subparsers):
         "--max-days-without-audit",
         type=int,
         help="Maximum days without audit (0 to disable, default: 7)",
+    )
+    parser.add_argument(
+        "--max-backups",
+        type=int,
+        help="Maximum number of backups to retain",
     )
     parser.add_argument(
         "--get", action="store_true", help="Display current configuration"
@@ -106,6 +114,7 @@ def handle(args, console: Console):
     else:
         probability: float | None = getattr(args, "audit_probability", None)
         max_days: int | None = getattr(args, "max_days_without_audit", None)
+        max_backups: int | None = getattr(args, "max_backups", None)
 
         updated = []
 
@@ -119,6 +128,10 @@ def handle(args, console: Console):
                 updated.append("max days without audit to [cyan]disabled[/cyan]")
             else:
                 updated.append(f"max days without audit to [cyan]{max_days}[/cyan]")
+
+        if max_backups is not None and max_backups > 0:
+            cfg.backup["max_backups"] = max_backups
+            updated.append(f"max backups to [cyan]{max_backups}[/cyan]")
 
         if updated:
             cfg.save()

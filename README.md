@@ -368,6 +368,12 @@ Set to 0 to disable the max days check and rely solely on probability:
 srl config --max-days-without-audit 0
 ```
 
+Configure the maximum number of backups to retain for `srl backup` (default is 10):
+
+```bash
+srl config --max-backups 5
+```
+
 To view the current config:
 
 ```bash

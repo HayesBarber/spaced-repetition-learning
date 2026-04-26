@@ -241,3 +241,60 @@ def test_set_both_audit_probability_and_max_days(mock_data, console, load_json):
     output = console.export_text()
     assert "audit probability" in output
     assert "max days without audit" in output
+
+
+def test_set_max_backups(mock_data, console, load_json):
+    args = SimpleNamespace(
+        audit_probability=None,
+        max_days_without_audit=None,
+        max_backups=5,
+        get=False,
+        set_color=None,
+        reset_colors=False,
+    )
+    config.handle(args, console)
+
+    data = load_json(mock_data.CONFIG_FILE)
+    assert data["backup"]["max_backups"] == 5
+
+    output = console.export_text()
+    assert "max backups" in output
+    assert "5" in output
+
+
+def test_config_get_includes_backup(console):
+    args = SimpleNamespace(
+        audit_probability=None,
+        max_days_without_audit=None,
+        max_backups=None,
+        get=True,
+        set_color=None,
+        reset_colors=False,
+    )
+    config.handle(args, console)
+
+    output = console.export_text().strip()
+    data = json.loads(output)
+
+    assert "backup" in data
+    assert data["backup"]["max_backups"] == 10
+
+
+def test_config_load_filters_unknown_fields(mock_data, dump_json):
+    raw = {
+        "audit_probability": 0.42,
+        "unknown_field": "should be ignored",
+    }
+    dump_json(mock_data.CONFIG_FILE, raw)
+
+    cfg = Config.load()
+
+    assert cfg.audit_probability == 0.42
+
+
+def test_config_backup_defaults(mock_data, dump_json):
+    dump_json(mock_data.CONFIG_FILE, {})
+
+    cfg = Config.load()
+
+    assert cfg.backup == {"max_backups": 10}

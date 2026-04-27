@@ -161,7 +161,7 @@ def restore_handle(args, console: Console):
         console.print("[yellow]Restore cancelled.[/yellow]")
         return
 
-    console.print("Create a backup of current state before restoring? [y/N]: ", end="")
+    console.print("Create a backup of current state before restoring? (Recommended) [y/N]: ", end="")
     if input().strip().lower() in ("y", "yes"):
         handle(args, console)
 

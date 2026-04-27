@@ -568,6 +568,36 @@ Filename format: `backup-YYYY-MM-DDTHHMMSS.tar.gz`
 
 If multiple backups are created within the same second, a counter suffix is added: `backup-2026-04-26T120000-1.tar.gz`
 
+#### List Backups
+
+```bash
+srl backup list
+```
+
+Displays all available backups with their creation timestamp and size.
+
+#### Verify a Backup
+
+```bash
+srl backup verify <archive>
+```
+
+Verifies that a backup archive is valid (can be opened, has a valid manifest, and all referenced files are present in the archive).
+
+#### Restore from Backup
+
+```bash
+srl backup restore <archive>
+```
+
+Restores SRL state from a backup archive. You will be prompted to confirm the overwrite and asked whether to create a backup of the current state first.
+
+To skip all prompts and automatically create a pre-restore backup:
+
+```bash
+srl backup restore <archive> -y
+```
+
 ---
 
 ## Contributing

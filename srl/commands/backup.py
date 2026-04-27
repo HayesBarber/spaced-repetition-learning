@@ -141,6 +141,69 @@ def prune_old_backups():
             old_backup.unlink()
 
 
+def restore_handle(args, console: Console):
+    file_arg = getattr(args, "file", None)
+    if not file_arg:
+        console.print("[red]Error: No backup file specified.[/red]")
+        return
+
+    backup_path = Path(file_arg)
+    if not backup_path.exists():
+        resolved = BACKUP_DIR / file_arg
+        if resolved.exists():
+            backup_path = resolved
+        else:
+            console.print(f"[red]Error: Backup file not found: {file_arg}[/red]")
+            return
+
+    auto_yes = getattr(args, "yes", False)
+    if auto_yes:
+        handle(args, console)
+    else:
+        console.print("This will overwrite current SRL state. Continue? [y/N]: ", end="")
+        if input().strip().lower() not in ("y", "yes"):
+            console.print("[yellow]Restore cancelled.[/yellow]")
+            return
+
+        console.print("Create a backup of current state before restoring? [y/N]: ", end="")
+        if input().strip().lower() in ("y", "yes"):
+            handle(args, console)
+
+    try:
+        with tarfile.open(backup_path, "r:gz") as tar:
+            members = _get_archive_members(tar)
+
+            if "manifest.json" not in members:
+                console.print("[red]Error: manifest.json not found in archive.[/red]")
+                return
+
+            manifest = _read_manifest(tar)
+            if manifest is None:
+                console.print("[red]Error: Failed to parse manifest.json (invalid JSON).[/red]")
+                return
+
+            if "schema_version" not in manifest:
+                console.print("[red]Error: manifest.json missing schema_version.[/red]")
+                return
+
+            for fname in manifest.get("files", []):
+                if fname not in members:
+                    console.print(f"[red]Error: Referenced file not in archive: {fname}[/red]")
+                    return
+
+            tar.extractall(DATA_DIR, filter="data")
+
+            console.print(f"[green]Restore complete: {backup_path.name}[/green]")
+            console.print(f"  Restored {len(manifest.get('files', []))} files.")
+
+    except tarfile.TarError:
+        console.print("[red]Error: Cannot open archive (corrupt or invalid).[/red]")
+        return
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        return
+
+
 def add_subparser(subparsers):
     parser = subparsers.add_parser("backup", help="Backup commands")
     subparsers2 = parser.add_subparsers(dest="backup_subcommand")
@@ -151,6 +214,11 @@ def add_subparser(subparsers):
     verify_parser = subparsers2.add_parser("verify", help="Verify a backup archive")
     verify_parser.add_argument("file", help="Backup file (filename or path)")
     verify_parser.set_defaults(handler=verify_handle)
+
+    restore_parser = subparsers2.add_parser("restore", help="Restore from a backup")
+    restore_parser.add_argument("file", help="Backup file (filename or path)")
+    restore_parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation and create a backup before restoring")
+    restore_parser.set_defaults(handler=restore_handle)
 
     parser.set_defaults(handler=handle)
     return parser

@@ -200,3 +200,178 @@ class TestVerify:
 
         output = _get_output(console)
         assert "not found" in output
+
+
+class TestRestore:
+    def test_declines_restore(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        (data_dir / "problems_in_progress.json").write_text('{"foo": 1}')
+        (data_dir / "problems_mastered.json").write_text('{"bar": 2}')
+        archive = _create_archive(backup_dir, "backup-2026-01-01T000000.tar.gz", [
+            (data_dir / "problems_in_progress.json", "problems_in_progress.json"),
+            (data_dir / "problems_mastered.json", "problems_mastered.json"),
+        ])
+
+        monkeypatch.setattr("builtins.input", lambda: "n")
+
+        args = SimpleNamespace(file=str(archive))
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "Restore cancelled" in output
+
+    def test_successful_restore(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        (data_dir / "problems_in_progress.json").write_text('{"foo": 1}')
+        (data_dir / "problems_mastered.json").write_text('{"bar": 2}')
+        archive = _create_archive(backup_dir, "backup-2026-01-01T000000.tar.gz", [
+            (data_dir / "problems_in_progress.json", "problems_in_progress.json"),
+            (data_dir / "problems_mastered.json", "problems_mastered.json"),
+        ])
+
+        args = SimpleNamespace(file=str(archive), yes=True)
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "Restore complete" in output
+
+    def test_cancels_at_backup_prompt(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        (data_dir / "problems_in_progress.json").write_text('{"foo": 1}')
+        archive = _create_archive(backup_dir, "backup-2026-01-01T000000.tar.gz", [
+            (data_dir / "problems_in_progress.json", "problems_in_progress.json"),
+        ])
+
+        responses = iter(["y", "n"])
+        monkeypatch.setattr("builtins.input", lambda: next(responses))
+
+        args = SimpleNamespace(file=str(archive))
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "Restore cancelled" not in output
+        assert "Restore complete" in output
+
+    def test_creates_pre_restore_backup(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        (data_dir / "problems_in_progress.json").write_text('{"foo": 1}')
+        archive = _create_archive(backup_dir, "backup-2026-01-01T000000.tar.gz", [
+            (data_dir / "problems_in_progress.json", "problems_in_progress.json"),
+        ])
+
+        args = SimpleNamespace(file=str(archive), yes=True)
+        backup.restore_handle(args, console)
+
+        backups = sorted(backup_dir.glob("backup-*.tar.gz"))
+        assert len(backups) == 2
+
+    def test_corrupt_archive(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        (data_dir / "problems_in_progress.json").write_text('{"original": true}')
+        corrupt = backup_dir / "corrupt.tar.gz"
+        corrupt.write_bytes(b"not a tar file")
+
+        args = SimpleNamespace(file=str(corrupt), yes=True)
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "Error" in output
+        assert "Cannot open archive" in output
+        assert (data_dir / "problems_in_progress.json").read_text() == '{"original": true}'
+
+    def test_missing_manifest(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        (data_dir / "problems_in_progress.json").write_text('{"original": true}')
+        path = backup_dir / "no-manifest.tar.gz"
+        with tarfile.open(path, "w:gz") as tar:
+            info = tarfile.TarInfo(name="somefile.json")
+            info.size = 0
+            tar.addfile(info, io.BytesIO(b""))
+
+        args = SimpleNamespace(file=str(path), yes=True)
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "manifest.json not found" in output
+        assert (data_dir / "problems_in_progress.json").read_text() == '{"original": true}'
+
+    def test_invalid_json_in_manifest(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        (data_dir / "problems_in_progress.json").write_text('{"original": true}')
+        path = backup_dir / "bad-manifest.tar.gz"
+        with tarfile.open(path, "w:gz") as tar:
+            data = b"{no}"
+            info = tarfile.TarInfo(name="manifest.json")
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+
+        args = SimpleNamespace(file=str(path), yes=True)
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "Error" in output and "Expecting" in output
+        assert (data_dir / "problems_in_progress.json").read_text() == '{"original": true}'
+
+    def test_missing_schema_version(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        (data_dir / "problems_in_progress.json").write_text('{"original": true}')
+        manifest = {"created_at": "2026-01-01T00:00:00+00:00", "files": []}
+        path = backup_dir / "no-schema.tar.gz"
+        with tarfile.open(path, "w:gz") as tar:
+            data = json.dumps(manifest).encode()
+            info = tarfile.TarInfo(name="manifest.json")
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+
+        args = SimpleNamespace(file=str(path), yes=True)
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "schema_version" in output
+        assert (data_dir / "problems_in_progress.json").read_text() == '{"original": true}'
+
+    def test_referenced_file_missing(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        (data_dir / "problems_in_progress.json").write_text('{"original": true}')
+        manifest = {"schema_version": 1, "created_at": "2026-01-01T00:00:00+00:00", "files": ["missing.json"]}
+        path = backup_dir / "missing-file.tar.gz"
+        with tarfile.open(path, "w:gz") as tar:
+            data = json.dumps(manifest).encode()
+            info = tarfile.TarInfo(name="manifest.json")
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+
+        args = SimpleNamespace(file=str(path), yes=True)
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "Referenced file not in archive" in output
+        assert (data_dir / "problems_in_progress.json").read_text() == '{"original": true}'
+
+    def test_file_not_found(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        args = SimpleNamespace(file="nonexistent.tar.gz")
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "not found" in output

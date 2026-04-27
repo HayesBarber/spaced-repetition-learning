@@ -156,14 +156,18 @@ def restore_handle(args, console: Console):
             console.print(f"[red]Error: Backup file not found: {file_arg}[/red]")
             return
 
-    console.print("This will overwrite current SRL state. Continue? [y/N]: ", end="", markup=False)
-    if input().strip().lower() not in ("y", "yes"):
-        console.print("[yellow]Restore cancelled.[/yellow]")
-        return
-
-    console.print("Create a backup of current state before restoring? (Recommended) [y/N]: ", end="", markup=False)
-    if input().strip().lower() in ("y", "yes"):
+    auto_yes = getattr(args, "yes", False)
+    if auto_yes:
         handle(args, console)
+    else:
+        console.print("This will overwrite current SRL state. Continue? [y/N]: ", end="")
+        if input().strip().lower() not in ("y", "yes"):
+            console.print("[yellow]Restore cancelled.[/yellow]")
+            return
+
+        console.print("Create a backup of current state before restoring? [y/N]: ", end="")
+        if input().strip().lower() in ("y", "yes"):
+            handle(args, console)
 
     try:
         with tarfile.open(backup_path, "r:gz") as tar:
@@ -213,6 +217,7 @@ def add_subparser(subparsers):
 
     restore_parser = subparsers2.add_parser("restore", help="Restore from a backup")
     restore_parser.add_argument("file", help="Backup file (filename or path)")
+    restore_parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation and create a backup before restoring")
     restore_parser.set_defaults(handler=restore_handle)
 
     parser.set_defaults(handler=handle)

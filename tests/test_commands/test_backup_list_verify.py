@@ -233,10 +233,7 @@ class TestRestore:
             (data_dir / "problems_mastered.json", "problems_mastered.json"),
         ])
 
-        responses = iter(["y", "n"])
-        monkeypatch.setattr("builtins.input", lambda: next(responses))
-
-        args = SimpleNamespace(file=str(archive))
+        args = SimpleNamespace(file=str(archive), yes=True)
         backup.restore_handle(args, console)
 
         output = _get_output(console)
@@ -270,10 +267,7 @@ class TestRestore:
             (data_dir / "problems_in_progress.json", "problems_in_progress.json"),
         ])
 
-        responses = iter(["y", "y"])
-        monkeypatch.setattr("builtins.input", lambda: next(responses))
-
-        args = SimpleNamespace(file=str(archive))
+        args = SimpleNamespace(file=str(archive), yes=True)
         backup.restore_handle(args, console)
 
         backups = sorted(backup_dir.glob("backup-*.tar.gz"))
@@ -287,10 +281,7 @@ class TestRestore:
         corrupt = backup_dir / "corrupt.tar.gz"
         corrupt.write_bytes(b"not a tar file")
 
-        responses = ["y", "y"]
-        monkeypatch.setattr("builtins.input", lambda: responses.pop(0))
-
-        args = SimpleNamespace(file=str(corrupt))
+        args = SimpleNamespace(file=str(corrupt), yes=True)
         backup.restore_handle(args, console)
 
         output = _get_output(console)
@@ -309,10 +300,7 @@ class TestRestore:
             info.size = 0
             tar.addfile(info, io.BytesIO(b""))
 
-        responses = ["y", "y"]
-        monkeypatch.setattr("builtins.input", lambda: responses.pop(0))
-
-        args = SimpleNamespace(file=str(path))
+        args = SimpleNamespace(file=str(path), yes=True)
         backup.restore_handle(args, console)
 
         output = _get_output(console)
@@ -331,10 +319,7 @@ class TestRestore:
             info.size = len(data)
             tar.addfile(info, io.BytesIO(data))
 
-        responses = ["y", "y"]
-        monkeypatch.setattr("builtins.input", lambda: responses.pop(0))
-
-        args = SimpleNamespace(file=str(path))
+        args = SimpleNamespace(file=str(path), yes=True)
         backup.restore_handle(args, console)
 
         output = _get_output(console)
@@ -354,10 +339,7 @@ class TestRestore:
             info.size = len(data)
             tar.addfile(info, io.BytesIO(data))
 
-        responses = ["y", "y"]
-        monkeypatch.setattr("builtins.input", lambda: responses.pop(0))
-
-        args = SimpleNamespace(file=str(path))
+        args = SimpleNamespace(file=str(path), yes=True)
         backup.restore_handle(args, console)
 
         output = _get_output(console)
@@ -377,10 +359,7 @@ class TestRestore:
             info.size = len(data)
             tar.addfile(info, io.BytesIO(data))
 
-        responses = ["y", "y"]
-        monkeypatch.setattr("builtins.input", lambda: responses.pop(0))
-
-        args = SimpleNamespace(file=str(path))
+        args = SimpleNamespace(file=str(path), yes=True)
         backup.restore_handle(args, console)
 
         output = _get_output(console)

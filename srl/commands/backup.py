@@ -156,12 +156,12 @@ def restore_handle(args, console: Console):
             console.print(f"[red]Error: Backup file not found: {file_arg}[/red]")
             return
 
-    console.print("This will overwrite current SRL state. Continue? [y/N]: ", end="")
+    console.print("This will overwrite current SRL state. Continue? [y/N]: ", end="", markup=False)
     if input().strip().lower() not in ("y", "yes"):
         console.print("[yellow]Restore cancelled.[/yellow]")
         return
 
-    console.print("Create a backup of current state before restoring? (Recommended) [y/N]: ", end="")
+    console.print("Create a backup of current state before restoring? (Recommended) [y/N]: ", end="", markup=False)
     if input().strip().lower() in ("y", "yes"):
         handle(args, console)
 

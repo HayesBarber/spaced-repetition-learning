@@ -375,3 +375,41 @@ class TestRestore:
 
         output = _get_output(console)
         assert "not found" in output
+
+    def test_keyboard_interrupt_at_first_prompt(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        archive = _create_archive(backup_dir, "backup-2026-01-01T000000.tar.gz")
+
+        def raise_interrupt():
+            raise KeyboardInterrupt()
+
+        monkeypatch.setattr("builtins.input", raise_interrupt)
+
+        args = SimpleNamespace(file=str(archive))
+        backup.restore_handle(args, console)
+
+        assert "Restore cancelled" in _get_output(console)
+
+    def test_keyboard_interrupt_at_second_prompt(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        archive = _create_archive(backup_dir, "backup-2026-01-01T000000.tar.gz")
+
+        responses = iter(["y", KeyboardInterrupt()])
+
+        def input_side_effect():
+            val = next(responses)
+            if isinstance(val, BaseException):
+                raise val
+            return val
+
+        monkeypatch.setattr("builtins.input", input_side_effect)
+
+        args = SimpleNamespace(file=str(archive))
+        backup.restore_handle(args, console)
+
+        output = _get_output(console)
+        assert "Restore cancelled" in output

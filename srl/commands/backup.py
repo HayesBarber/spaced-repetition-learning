@@ -160,14 +160,18 @@ def restore_handle(args, console: Console):
     if auto_yes:
         handle(args, console)
     else:
-        console.print("This will overwrite current SRL state. Continue? [y/N]: ", end="")
-        if input().strip().lower() not in ("y", "yes"):
-            console.print("[yellow]Restore cancelled.[/yellow]")
-            return
+        try:
+            console.print("This will overwrite current SRL state. Continue? [y/N]: ", end="")
+            if input().strip().lower() not in ("y", "yes"):
+                console.print("[yellow]Restore cancelled.[/yellow]")
+                return
 
-        console.print("Create a backup of current state before restoring? [y/N]: ", end="")
-        if input().strip().lower() in ("y", "yes"):
-            handle(args, console)
+            console.print("Create a backup of current state before restoring? [y/N]: ", end="")
+            if input().strip().lower() in ("y", "yes"):
+                handle(args, console)
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Restore cancelled.[/yellow]")
+            return
 
     try:
         with tarfile.open(backup_path, "r:gz") as tar:

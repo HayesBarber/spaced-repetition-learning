@@ -3,6 +3,8 @@ from io import StringIO
 from rich.console import Console
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
+from srl.commands.backup import resolve_backup_path, verify_handle, prune_old_backups
+from types import SimpleNamespace
 
 
 def add_subparser(subparsers):
@@ -110,8 +112,18 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
             return
 
         data = self.rfile.read(length)
+        filename, archive_path = resolve_backup_path()
+        with open(archive_path, "wb") as f:
+            f.write(data)
 
-        # todo -- verify and save data then prune using backup.py functionality
+        verify_args = SimpleNamespace(file=str(archive_path))
+        if verify_handle(verify_args, self.server.console):
+            self._send_error("Bad data")
+            if archive_path.exists():
+                archive_path.unlink()
+            return
+
+        prune_old_backups()
 
         self._send_success()
 
@@ -136,7 +148,8 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
     def log_message(self, format, *args):
-        self.server.console.print(f"Got request from {self.client_address}")
+        message = format % args
+        self.server.console.print(f"{self.client_address} - {message}")
 
     def handle_404(self):
         self.send_response(404)

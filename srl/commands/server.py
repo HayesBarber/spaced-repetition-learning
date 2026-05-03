@@ -111,7 +111,7 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
 
         data = self.rfile.read(length)
 
-        # todo save data
+        # todo -- verify and save data then prune using backup.py functionality
 
         self._send_success()
 

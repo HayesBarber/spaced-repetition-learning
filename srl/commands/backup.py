@@ -11,7 +11,6 @@ import tarfile
 from srl.storage import DATA_DIR, BACKUP_DIR
 from srl.commands.config import Config
 
-
 STORAGE_FILES = [
     "problems_in_progress.json",
     "problems_mastered.json",
@@ -87,11 +86,12 @@ def _read_manifest(tar: tarfile.TarFile) -> dict | None:
     return json.loads(manifest_file.read().decode())
 
 
-def verify_handle(args, console: Console):
+def verify_handle(args, console: Console) -> int:
+    """Returns 0 if valid, non-zero otherwise"""
     file_arg = getattr(args, "file", None)
     if not file_arg:
         console.print("[red]Error: No backup file specified.[/red]")
-        return
+        return -1
 
     backup_path = Path(file_arg)
     if not backup_path.exists():
@@ -100,7 +100,7 @@ def verify_handle(args, console: Console):
             backup_path = resolved
         else:
             console.print(f"[red]Error: Backup file not found: {file_arg}[/red]")
-            return
+            return -1
 
     try:
         with tarfile.open(backup_path, "r:gz") as tar:
@@ -108,25 +108,25 @@ def verify_handle(args, console: Console):
 
             if "manifest.json" not in members:
                 console.print("[red]Error: manifest.json not found in archive.[/red]")
-                return
+                return -1
 
             manifest = _read_manifest(tar)
             if manifest is None:
                 console.print(
                     "[red]Error: Failed to parse manifest.json (invalid JSON).[/red]"
                 )
-                return
+                return -1
 
             if "schema_version" not in manifest:
                 console.print("[red]Error: manifest.json missing schema_version.[/red]")
-                return
+                return -1
 
             for fname in manifest.get("files", []):
                 if fname not in members:
                     console.print(
                         f"[red]Error: Referenced file not in archive: {fname}[/red]"
                     )
-                    return
+                    return -1
 
             console.print(
                 f"[green]Backup verified successfully: {backup_path.name}[/green]"
@@ -137,10 +137,12 @@ def verify_handle(args, console: Console):
 
     except tarfile.TarError:
         console.print("[red]Error: Cannot open archive (corrupt or invalid).[/red]")
-        return
+        return -1
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
-        return
+        return -1
+
+    return 0
 
 
 def prune_old_backups():

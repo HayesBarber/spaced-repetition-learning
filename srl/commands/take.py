@@ -39,8 +39,6 @@ def handle(args, console: Console):
     url = None
     due_problems = list_.get_due_problems()
 
-    console.stderr = True
-
     if due_problems and 0 < index <= len(due_problems):
         problem, url = due_problems[index - 1]
 

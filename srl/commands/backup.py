@@ -280,6 +280,22 @@ def replicate_backup(filename, console: Console):
         console.print(f"[yellow]Error during replication: {e}[/yellow]")
 
 
+def resolve_backup_path():
+    """Returns a valid filename, archive_path"""
+    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%S")
+    base_filename = f"backup-{timestamp}"
+    archive_path = BACKUP_DIR / f"{base_filename}.tar.gz"
+    counter = 1
+    while archive_path.exists():
+        archive_path = BACKUP_DIR / f"{base_filename}-{counter}.tar.gz"
+        counter += 1
+
+    filename = archive_path.name
+
+    return filename, archive_path
+
+
 def add_subparser(subparsers):
     parser = subparsers.add_parser("backup", help="Backup commands")
     subparsers2 = parser.add_subparsers(dest="backup_subcommand")
@@ -306,17 +322,7 @@ def add_subparser(subparsers):
 
 
 def handle(args, console: Console):
-    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%S")
-    base_filename = f"backup-{timestamp}"
-    archive_path = BACKUP_DIR / f"{base_filename}.tar.gz"
-    counter = 1
-    while archive_path.exists():
-        archive_path = BACKUP_DIR / f"{base_filename}-{counter}.tar.gz"
-        counter += 1
-
-    filename = archive_path.name
+    filename, archive_path = resolve_backup_path()
 
     try:
         files_to_backup = []

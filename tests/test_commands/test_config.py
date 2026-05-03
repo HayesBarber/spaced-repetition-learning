@@ -297,4 +297,9 @@ def test_config_backup_defaults(mock_data, dump_json):
 
     cfg = Config.load()
 
-    assert cfg.backup == {"max_backups": 10}
+    assert cfg.backup == {
+        "max_backups": 10,
+        "replication_remote_host": "",
+        "replication_remote_port": 8080,
+        "replication_enabled": False,
+    }

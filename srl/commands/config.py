@@ -14,7 +14,14 @@ class Config:
     calendar_colors: dict[int, str] = field(
         default_factory=lambda: Config.default_calendar_colors()
     )
-    backup: dict = field(default_factory=lambda: {"max_backups": 10})
+    backup: dict = field(
+        default_factory=lambda: {
+            "max_backups": 10,
+            "replication_remote_host": "",
+            "replication_remote_port": 8080,
+            "replication_enabled": False,
+        }
+    )
 
     @staticmethod
     def default_calendar_colors() -> dict[int, str]:

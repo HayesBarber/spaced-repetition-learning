@@ -102,10 +102,6 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         self.server.console.print(f"Got request from {self.client_address}")
 
-    def do_GET(self):
-        self.send_response(405)
-        self.end_headers()
-
 
 def handle(args, console: Console):
     server = HTTPServer((args.host, args.port), SRLRequestHandler)

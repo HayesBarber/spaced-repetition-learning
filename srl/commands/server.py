@@ -13,7 +13,7 @@ def add_subparser(subparsers):
     return parser
 
 
-def execute_command(argv, console: Console):
+def execute_command(argv, console: Console) -> dict:
     from srl.cli import build_parser
 
     parser = build_parser()
@@ -66,6 +66,7 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
 
         routes = {
             "/": self.handle_root,
+            "/backup": self.handle_backup,
         }
 
         handler = routes.get(path, self.handle_404)
@@ -95,13 +96,27 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
             return
 
         result = execute_command(argv, console)
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.end_headers()
-        self.wfile.write(json.dumps(result).encode("utf-8"))
+        self._send_success(result)
 
-    def _send_error(self, error_msg):
-        self.send_response(400)
+    def handle_backup(self):
+        content_type = self.headers.get("Content-Type")
+        if content_type != "application/gzip":
+            self._send_error("Expected application/gzip", code=415)
+            return
+
+        length = int(self.headers.get("Content-Length", 0))
+        if length <= 0:
+            self._send_error("Missing body")
+            return
+
+        data = self.rfile.read(length)
+
+        # todo save data
+
+        self._send_success()
+
+    def _send_error(self, error_msg: str, code: int = 400):
+        self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(
@@ -109,6 +124,16 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
                 "utf-8"
             )
         )
+
+    def _send_success(self, result: dict | None = None):
+        if result is not None:
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode("utf-8"))
+        else:
+            self.send_response(200)
+            self.end_headers()
 
     def log_message(self, format, *args):
         self.server.console.print(f"Got request from {self.client_address}")

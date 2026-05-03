@@ -3,6 +3,9 @@ import json
 import tarfile
 from types import SimpleNamespace
 import time
+import urllib.request
+import urllib.error
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -667,3 +670,257 @@ class TestRestore:
 
         output = _get_output(console)
         assert "Restore cancelled" in output
+
+
+class TestReplicateBackup:
+    def test_replication_disabled_returns_early(self, test_dirs, console, monkeypatch):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        mock_config = type(
+            "Config",
+            (),
+            {"backup": {"replication_enabled": False}},
+        )()
+
+        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+
+        mock_urlopen = MagicMock()
+        monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
+
+        backup.replicate_backup("backup-test.tar.gz", console)
+
+        mock_urlopen.assert_not_called()
+        output = _get_output(console)
+        assert output == ""
+
+    def test_replication_enabled_no_host_shows_warning(
+        self, test_dirs, console, monkeypatch
+    ):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        mock_config = type(
+            "Config",
+            (),
+            {"backup": {"replication_enabled": True, "replication_remote_host": ""}},
+        )()
+
+        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+
+        backup.replicate_backup("backup-test.tar.gz", console)
+
+        output = _get_output(console)
+        assert "Remote host not configured" in output
+
+    def test_replication_backup_file_not_found(self, test_dirs, console, monkeypatch):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        mock_config = type(
+            "Config",
+            (),
+            {
+                "backup": {
+                    "replication_enabled": True,
+                    "replication_remote_host": "localhost",
+                    "replication_remote_port": 8080,
+                }
+            },
+        )()
+
+        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+
+        backup.replicate_backup("nonexistent-backup.tar.gz", console)
+
+        output = _get_output(console)
+        assert "Backup file not found" in output
+
+    def test_replication_success(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        mock_config = type(
+            "Config",
+            (),
+            {
+                "backup": {
+                    "replication_enabled": True,
+                    "replication_remote_host": "localhost",
+                    "replication_remote_port": 8080,
+                }
+            },
+        )()
+
+        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+
+        test_archive = backup_dir / "backup-test.tar.gz"
+        test_archive.write_bytes(b"fake tar data")
+
+        class MockResponse:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+        mock_urlopen = MagicMock(return_value=MockResponse())
+        monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
+
+        backup.replicate_backup("backup-test.tar.gz", console)
+
+        mock_urlopen.assert_called_once()
+        call_args = mock_urlopen.call_args
+        req = call_args[0][0]
+        assert req.method == "POST"
+        assert "http://localhost:8080/backup" in req.full_url
+        assert req.get_header("Content-type") == "application/gzip"
+
+        output = _get_output(console)
+        assert "Backup replicated to remote" in output
+
+    def test_replication_non_200_response(
+        self, test_dirs, console, monkeypatch, tmp_path
+    ):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        mock_config = type(
+            "Config",
+            (),
+            {
+                "backup": {
+                    "replication_enabled": True,
+                    "replication_remote_host": "localhost",
+                    "replication_remote_port": 8080,
+                }
+            },
+        )()
+
+        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+
+        test_archive = backup_dir / "backup-test.tar.gz"
+        test_archive.write_bytes(b"fake tar data")
+
+        class MockResponse:
+            status = 500
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+        mock_urlopen = MagicMock(return_value=MockResponse())
+        monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
+
+        backup.replicate_backup("backup-test.tar.gz", console)
+
+        output = _get_output(console)
+        assert "Remote replication failed" in output
+        assert "500" in output
+
+    def test_replication_connection_error(
+        self, test_dirs, console, monkeypatch, tmp_path
+    ):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        mock_config = type(
+            "Config",
+            (),
+            {
+                "backup": {
+                    "replication_enabled": True,
+                    "replication_remote_host": "localhost",
+                    "replication_remote_port": 8080,
+                }
+            },
+        )()
+
+        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+
+        test_archive = backup_dir / "backup-test.tar.gz"
+        test_archive.write_bytes(b"fake tar data")
+
+        mock_urlopen = MagicMock(
+            side_effect=urllib.error.URLError(reason="Connection refused")
+        )
+        monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
+
+        backup.replicate_backup("backup-test.tar.gz", console)
+
+        output = _get_output(console)
+        assert "Failed to connect to remote server" in output
+        assert "Connection refused" in output
+
+    def test_replication_generic_error(self, test_dirs, console, monkeypatch, tmp_path):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        mock_config = type(
+            "Config",
+            (),
+            {
+                "backup": {
+                    "replication_enabled": True,
+                    "replication_remote_host": "localhost",
+                    "replication_remote_port": 8080,
+                }
+            },
+        )()
+
+        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+
+        test_archive = backup_dir / "backup-test.tar.gz"
+        test_archive.write_bytes(b"fake tar data")
+
+        mock_urlopen = MagicMock(side_effect=Exception("Unexpected error"))
+        monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
+
+        backup.replicate_backup("backup-test.tar.gz", console)
+
+        output = _get_output(console)
+        assert "Error during replication" in output
+        assert "Unexpected error" in output
+
+    def test_handle_calls_replicate_after_backup(
+        self, test_dirs, console, monkeypatch, tmp_path
+    ):
+        tmp_path, data_dir, backup_dir = test_dirs
+        _patch(monkeypatch, data_dir, backup_dir)
+
+        for fname in [
+            "problems_in_progress.json",
+            "problems_mastered.json",
+            "next_up.json",
+            "audit.json",
+            "config.json",
+        ]:
+            (data_dir / fname).write_text("{}")
+
+        mock_config = type(
+            "Config",
+            (),
+            {
+                "backup": {
+                    "replication_enabled": True,
+                    "replication_remote_host": "localhost",
+                    "replication_remote_port": 8080,
+                }
+            },
+        )()
+
+        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+
+        mock_replicate = MagicMock()
+        monkeypatch.setattr("srl.commands.backup.replicate_backup", mock_replicate)
+
+        backup.handle(SimpleNamespace(), console)
+
+        mock_replicate.assert_called_once()
+        call_args = mock_replicate.call_args
+        assert "backup-" in call_args[0][0]
+        assert call_args[0][1] == console

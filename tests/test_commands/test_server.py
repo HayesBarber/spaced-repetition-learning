@@ -18,9 +18,9 @@ def test_server_ledger_command(console):
     for _ in range(20):
         conn = HTTPConnection("127.0.0.1", 8765, timeout=1)
         try:
-            conn.request("GET", "/")
+            conn.request("POST", "/test")
             resp = conn.getresponse()
-            if resp.status in (405,):
+            if resp.status == 404:
                 break
         except (ConnectionRefusedError, OSError):
             pass

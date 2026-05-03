@@ -2,6 +2,7 @@ import json
 from io import StringIO
 from rich.console import Console
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse
 
 
 def add_subparser(subparsers):
@@ -61,6 +62,16 @@ def execute_command(argv, console: Console):
 
 class SRLRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
+        path = urlparse(self.path).path
+
+        routes = {
+            "/": self.handle_root,
+        }
+
+        handler = routes.get(path, self.handle_404)
+        handler()
+
+    def handle_root(self):
         console = self.server.console
         content_length = int(self.headers.get("Content-Length", 0))
         body = (
@@ -101,6 +112,10 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         self.server.console.print(f"Got request from {self.client_address}")
+
+    def handle_404(self):
+        self.send_response(404)
+        self.end_headers()
 
 
 def handle(args, console: Console):

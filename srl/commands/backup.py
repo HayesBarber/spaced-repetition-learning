@@ -238,6 +238,7 @@ def replicate_backup(filename, console: Console):
     remote_host = backup_cfg.get("replication_remote_host")
     remote_port = backup_cfg.get("replication_remote_port", 8080)
     if not remote_host:
+        console.stderr = True
         console.print("[yellow]Remote host not configured for replication[/yellow]")
         return
 
@@ -245,6 +246,7 @@ def replicate_backup(filename, console: Console):
     archive_path = BACKUP_DIR / filename
 
     if not archive_path.exists():
+        console.stderr = True
         console.print("[yellow]Backup file not found for replication[/yellow]")
         return
 
@@ -262,14 +264,17 @@ def replicate_backup(filename, console: Console):
                     f"[green]Backup replicated to remote: {remote_host}:{remote_port}[/green]"
                 )
             else:
+                console.stderr = True
                 console.print(
                     f"[yellow]Remote replication failed with status {response.status}[/yellow]"
                 )
     except urllib.error.URLError as e:
+        console.stderr = True
         console.print(
             f"[yellow]Failed to connect to remote server: {e.reason}[/yellow]"
         )
     except Exception as e:
+        console.stderr = True
         console.print(f"[yellow]Error during replication: {e}[/yellow]")
 
 

@@ -303,3 +303,139 @@ def test_config_backup_defaults(mock_data, dump_json):
         "replication_remote_port": 8080,
         "replication_enabled": False,
     }
+
+
+def test_set_replication_remote_host(mock_data, console, load_json):
+    args = SimpleNamespace(
+        audit_probability=None,
+        max_days_without_audit=None,
+        max_backups=None,
+        replication_remote_host="example.com",
+        replication_remote_port=None,
+        replication_enabled=None,
+        get=False,
+        set_color=None,
+        reset_colors=False,
+    )
+    config.handle(args, console)
+
+    data = load_json(mock_data.CONFIG_FILE)
+    assert data["backup"]["replication_remote_host"] == "example.com"
+
+    output = console.export_text()
+    assert "replication remote host" in output
+    assert "example.com" in output
+
+
+def test_set_replication_remote_port(mock_data, console, load_json):
+    args = SimpleNamespace(
+        audit_probability=None,
+        max_days_without_audit=None,
+        max_backups=None,
+        replication_remote_host=None,
+        replication_remote_port=9090,
+        replication_enabled=None,
+        get=False,
+        set_color=None,
+        reset_colors=False,
+    )
+    config.handle(args, console)
+
+    data = load_json(mock_data.CONFIG_FILE)
+    assert data["backup"]["replication_remote_port"] == 9090
+
+    output = console.export_text()
+    assert "replication remote port" in output
+    assert "9090" in output
+
+
+def test_enable_replication(mock_data, console, load_json):
+    args = SimpleNamespace(
+        audit_probability=None,
+        max_days_without_audit=None,
+        max_backups=None,
+        replication_remote_host=None,
+        replication_remote_port=None,
+        replication_enabled=True,
+        get=False,
+        set_color=None,
+        reset_colors=False,
+    )
+    config.handle(args, console)
+
+    data = load_json(mock_data.CONFIG_FILE)
+    assert data["backup"]["replication_enabled"] is True
+
+    output = console.export_text()
+    assert "replication" in output
+    assert "enabled" in output
+
+
+def test_disable_replication(mock_data, console, load_json):
+    args = SimpleNamespace(
+        audit_probability=None,
+        max_days_without_audit=None,
+        max_backups=None,
+        replication_remote_host=None,
+        replication_remote_port=None,
+        replication_enabled=False,
+        get=False,
+        set_color=None,
+        reset_colors=False,
+    )
+    config.handle(args, console)
+
+    data = load_json(mock_data.CONFIG_FILE)
+    assert data["backup"]["replication_enabled"] is False
+
+    output = console.export_text()
+    assert "replication" in output
+    assert "disabled" in output
+
+
+def test_set_multiple_replication_settings(mock_data, console, load_json):
+    args = SimpleNamespace(
+        audit_probability=None,
+        max_days_without_audit=None,
+        max_backups=None,
+        replication_remote_host="backup.server.com",
+        replication_remote_port=12345,
+        replication_enabled=True,
+        get=False,
+        set_color=None,
+        reset_colors=False,
+    )
+    config.handle(args, console)
+
+    data = load_json(mock_data.CONFIG_FILE)
+    assert data["backup"]["replication_remote_host"] == "backup.server.com"
+    assert data["backup"]["replication_remote_port"] == 12345
+    assert data["backup"]["replication_enabled"] is True
+
+    output = console.export_text()
+    assert "replication remote host" in output
+    assert "replication remote port" in output
+    assert "enabled" in output
+
+
+def test_config_get_includes_replication_settings(console):
+    args = SimpleNamespace(
+        audit_probability=None,
+        max_days_without_audit=None,
+        max_backups=None,
+        replication_remote_host=None,
+        replication_remote_port=None,
+        replication_enabled=None,
+        get=True,
+        set_color=None,
+        reset_colors=False,
+    )
+    config.handle(args, console)
+
+    output = console.export_text().strip()
+    data = json.loads(output)
+
+    assert "backup" in data
+    assert data["backup"]["replication_remote_host"] == ""
+    assert data["backup"]["replication_remote_port"] == 8080
+    assert data["backup"]["replication_enabled"] is False

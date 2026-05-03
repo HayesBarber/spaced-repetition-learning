@@ -16,6 +16,8 @@ class Paths:
     NEXT_UP_FILE: pathlib.Path
     AUDIT_FILE: pathlib.Path
     CONFIG_FILE: pathlib.Path
+    BACKUP_DIR: pathlib.Path
+    DATA_DIR: pathlib.Path
 
 
 @pytest.fixture
@@ -46,16 +48,24 @@ def today_string():
 
 @pytest.fixture(autouse=True)
 def mock_data(tmp_path, monkeypatch):
+    data_dir = tmp_path / "data"
+    backup_dir = tmp_path / "backups"
+    data_dir.mkdir()
+    backup_dir.mkdir()
+
     paths = Paths(
-        PROGRESS_FILE=tmp_path / "problems_in_progress.json",
-        MASTERED_FILE=tmp_path / "problems_mastered.json",
-        NEXT_UP_FILE=tmp_path / "next_up.json",
-        AUDIT_FILE=tmp_path / "audit.json",
-        CONFIG_FILE=tmp_path / "config.json",
+        PROGRESS_FILE=data_dir / "problems_in_progress.json",
+        MASTERED_FILE=data_dir / "problems_mastered.json",
+        NEXT_UP_FILE=data_dir / "next_up.json",
+        AUDIT_FILE=data_dir / "audit.json",
+        CONFIG_FILE=data_dir / "config.json",
+        BACKUP_DIR=backup_dir,
+        DATA_DIR=data_dir,
     )
 
     for name, path in vars(paths).items():
-        path.write_text("{}")
+        if name not in ("BACKUP_DIR", "DATA_DIR"):
+            path.write_text("{}")
         for mod in vars(srl.commands).values():
             if hasattr(mod, name):
                 monkeypatch.setattr(f"{mod.__name__}.{name}", path)

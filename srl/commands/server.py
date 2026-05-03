@@ -83,8 +83,12 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
             else ""
         )
 
+        if not body:
+            self._send_error("Missing body")
+            return
+
         try:
-            data = json.loads(body) if body else {}
+            data = json.loads(body)
         except json.JSONDecodeError:
             self._send_error("Invalid JSON")
             return
@@ -98,7 +102,10 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
             return
 
         result = execute_command(argv, console)
-        self._send_success(result)
+        if result["status"] == "error":
+            self._send_error(result["error"])
+        else:
+            self._send_success(result)
 
     def handle_backup(self):
         content_type = self.headers.get("Content-Type")

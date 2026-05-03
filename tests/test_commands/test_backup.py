@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import time
 import urllib.request
 import urllib.error
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -13,12 +13,9 @@ from srl.commands import backup
 
 
 @pytest.fixture
-def test_dirs(tmp_path):
-    data_dir = tmp_path / "data"
-    backup_dir = tmp_path / "backups"
-    data_dir.mkdir()
-    backup_dir.mkdir()
-    return tmp_path, data_dir, backup_dir
+def test_dirs(mock_data):
+    tmp_path = mock_data.DATA_DIR.parent.parent
+    return tmp_path, mock_data.DATA_DIR, mock_data.BACKUP_DIR
 
 
 def _patch(monkeypatch, data_dir, backup_dir):
@@ -115,6 +112,18 @@ def test_backup_multiple_runs_unique_names(test_dirs, console, monkeypatch):
 def test_backup_handles_empty_storage(test_dirs, console, monkeypatch):
     tmp_path, data_dir, backup_dir = test_dirs
     _patch(monkeypatch, data_dir, backup_dir)
+
+    # Remove JSON files to simulate empty storage
+    for fname in [
+        "problems_in_progress.json",
+        "problems_mastered.json",
+        "next_up.json",
+        "audit.json",
+        "config.json",
+    ]:
+        fpath = data_dir / fname
+        if fpath.exists():
+            fpath.unlink()
 
     backup.handle(SimpleNamespace(), console)
 

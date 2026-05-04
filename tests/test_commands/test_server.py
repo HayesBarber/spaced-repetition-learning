@@ -2,14 +2,15 @@ import json
 import threading
 import time
 import socket
+import tarfile
+import io
 from types import SimpleNamespace
-from pathlib import Path
+from datetime import datetime, timezone
 
 from http.server import HTTPServer
 from http.client import HTTPConnection
 
 from srl.commands import server
-from srl.commands.backup import resolve_backup_path, prune_old_backups
 
 
 def _get_available_port():
@@ -56,9 +57,13 @@ def _post_backup(port, body, content_type="application/gzip", content_length=Non
     conn.request("POST", "/backup", body=body, headers=headers)
     resp = conn.getresponse()
     status = resp.status
-    data = resp.read().decode("utf-8")
+    data = b""
+    try:
+        data = resp.read()
+    except (ConnectionResetError, OSError):
+        pass
     conn.close()
-    return status, data
+    return status, data.decode("utf-8")
 
 
 def test_server_ledger_command(console):
@@ -109,3 +114,40 @@ def test_server_backup_bad_data(console, mock_data):
 
     backups = list(mock_data.BACKUP_DIR.glob("backup-*.tar.gz"))
     assert len(backups) == 0, "Backup file should be deleted after bad data"
+
+
+def _create_valid_backup():
+    """Create a valid gzip tar backup with manifest."""
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w:gz") as tar:
+        manifest = {
+            "schema_version": 1,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "files": [],
+        }
+        manifest_data = json.dumps(manifest).encode()
+        manifest_info = tarfile.TarInfo(name="manifest.json")
+        manifest_info.size = len(manifest_data)
+        tar.addfile(manifest_info, io.BytesIO(manifest_data))
+    return buffer.getvalue()
+
+
+def test_server_backup_success_and_prunes(console, mock_data, monkeypatch):
+    port = _start_server(console)
+
+    called_prune = False
+
+    def mock_prune():
+        nonlocal called_prune
+        called_prune = True
+
+    monkeypatch.setattr("srl.commands.server.prune_old_backups", mock_prune)
+
+    valid_backup = _create_valid_backup()
+    status, data = _post_backup(port, valid_backup)
+
+    assert status == 200
+    assert called_prune, "prune_old_backups should be called on successful backup"
+
+    backups = list(mock_data.BACKUP_DIR.glob("backup-*.tar.gz"))
+    assert len(backups) == 1, "Valid backup file should be saved"

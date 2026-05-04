@@ -279,6 +279,8 @@ def replicate_backup(filename, console: Console):
         console.stderr = True
         console.print(f"[yellow]Error during replication: {e}[/yellow]")
 
+    console.stderr = False
+
 
 def resolve_backup_path():
     """Returns a valid filename, archive_path"""

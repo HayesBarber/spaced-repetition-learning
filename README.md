@@ -374,6 +374,14 @@ Configure the maximum number of backups to retain for `srl backup` (default is 1
 srl config --max-backups 5
 ```
 
+Configure backup replication:
+
+```bash
+srl config --replication-remote-host 192.168.1.100
+srl config --replication-remote-port 3000
+srl config --replication-enabled
+```
+
 To view the current config:
 
 ```bash
@@ -550,6 +558,16 @@ The `argv` array should contain the command and its arguments. For example:
 
 Note: The `server` command itself is not available via the HTTP API.
 
+#### Backup Replication Endpoint
+
+The server exposes a `/backup` endpoint for receiving replicated backups:
+
+- **Method**: POST
+- **Content-Type**: `application/gzip`
+- **Body**: Raw gzip backup archive data
+
+When a backup is replicated from another SRL instance, it is saved to the local backup directory and verified automatically.
+
 ---
 
 ### Backup Command
@@ -597,6 +615,28 @@ To skip all prompts and automatically create a pre-restore backup:
 ```bash
 srl backup restore <archive> -y
 ```
+
+#### Backup Replication
+
+Automatically replicate backups to a remote SRL server for offsite storage.
+
+Configure replication:
+
+```bash
+# Set remote server host
+srl config --replication-remote-host 192.168.1.100
+
+# Set remote server port (default: 8080)
+srl config --replication-remote-port 3000
+
+# Enable replication
+srl config --replication-enabled
+
+# Disable replication
+srl config --replication-disabled
+```
+
+When replication is enabled, running `srl backup` will automatically send the backup to the configured remote server's `/backup` endpoint. The remote server must be running `srl server` to accept replicated backups.
 
 ---
 

@@ -177,14 +177,14 @@ def restore_handle(args, console: Console):
     else:
         try:
             console.print(
-                "This will overwrite current SRL state. Continue? [y/N]: ", end=""
+                "This will overwrite current SRL state. Continue? (y/N): ", end=""
             )
             if input().strip().lower() not in ("y", "yes"):
                 console.print("[yellow]Restore cancelled.[/yellow]")
                 return
 
             console.print(
-                "Create a backup of current state before restoring? [y/N]: ", end=""
+                "Create a backup of current state before restoring? (y/N): ", end=""
             )
             if input().strip().lower() in ("y", "yes"):
                 handle(args, console)
@@ -278,6 +278,8 @@ def replicate_backup(filename, console: Console):
     except Exception as e:
         console.stderr = True
         console.print(f"[yellow]Error during replication: {e}[/yellow]")
+
+    console.stderr = False
 
 
 def resolve_backup_path():

@@ -1,7 +1,10 @@
 import json
 from io import StringIO
 from rich.console import Console
-import socket
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse
+from srl.commands.backup import resolve_backup_path, verify_handle, prune_old_backups
+from types import SimpleNamespace
 
 
 def add_subparser(subparsers):
@@ -12,44 +15,7 @@ def add_subparser(subparsers):
     return parser
 
 
-def parse_request(request_bytes):
-    try:
-        request_str = request_bytes.decode("utf-8")
-    except UnicodeDecodeError:
-        return None, "Invalid UTF-8"
-
-    header_body = request_str.split("\r\n\r\n", 1)
-    if len(header_body) < 2:
-        return None, "Missing body"
-
-    headers = header_body[0]
-    body = header_body[1]
-
-    content_length = 0
-    for line in headers.split("\r\n"):
-        if line.lower().startswith("content-length:"):
-            content_length = int(line.split(":", 1)[1].strip())
-            break
-
-    if content_length > 0 and len(body) < content_length:
-        return None, "Incomplete body"
-
-    try:
-        data = json.loads(body)
-    except json.JSONDecodeError:
-        return None, "Invalid JSON"
-
-    if "argv" not in data:
-        return None, "Missing argv"
-
-    argv = data["argv"]
-    if not isinstance(argv, list):
-        return None, "argv must be a list"
-
-    return argv, None
-
-
-def execute_command(argv, console: Console):
+def execute_command(argv, console: Console) -> dict:
     from srl.cli import build_parser
 
     parser = build_parser()
@@ -96,50 +62,115 @@ def execute_command(argv, console: Console):
     }
 
 
-def build_response(data):
-    body = json.dumps(data)
-    body_bytes = body.encode("utf-8")
-    response = (
-        b"HTTP/1.1 200 OK\r\n"
-        b"Content-Type: application/json\r\n"
-        b"Content-Length: " + str(len(body_bytes)).encode("utf-8") + b"\r\n"
-        b"\r\n" + body_bytes
-    )
-    return response
+class SRLRequestHandler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        path = urlparse(self.path).path
+
+        routes = {
+            "/": self.handle_root,
+            "/backup": self.handle_backup,
+        }
+
+        handler = routes.get(path, self.handle_404)
+        handler()
+
+    def handle_root(self):
+        console = self.server.console
+        content_length = int(self.headers.get("Content-Length", 0))
+        body = (
+            self.rfile.read(content_length).decode("utf-8")
+            if content_length > 0
+            else ""
+        )
+
+        if not body:
+            self._send_error("Missing body")
+            return
+
+        try:
+            data = json.loads(body)
+        except json.JSONDecodeError:
+            self._send_error("Invalid JSON")
+            return
+
+        if "argv" not in data:
+            self._send_error("Missing argv")
+            return
+        argv = data["argv"]
+        if not isinstance(argv, list):
+            self._send_error("argv must be a list")
+            return
+
+        result = execute_command(argv, console)
+        if result["status"] == "error":
+            self._send_error(result["error"])
+        else:
+            self._send_success(result)
+
+    def handle_backup(self):
+        content_type = self.headers.get("Content-Type")
+        if content_type != "application/gzip":
+            self._send_error("Expected application/gzip", code=415)
+            return
+
+        length = int(self.headers.get("Content-Length", 0))
+        if length <= 0:
+            self._send_error("Missing body")
+            return
+
+        data = self.rfile.read(length)
+        filename, archive_path = resolve_backup_path()
+        with open(archive_path, "wb") as f:
+            f.write(data)
+
+        verify_args = SimpleNamespace(file=str(archive_path))
+        if verify_handle(verify_args, self.server.console):
+            self._send_error("Bad data")
+            if archive_path.exists():
+                archive_path.unlink()
+            return
+
+        prune_old_backups()
+
+        self._send_success()
+
+    def _send_error(self, error_msg: str, code: int = 400):
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(
+            json.dumps({"status": "error", "output": "", "error": error_msg}).encode(
+                "utf-8"
+            )
+        )
+
+    def _send_success(self, result: dict | None = None):
+        if result is not None:
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode("utf-8"))
+        else:
+            self.send_response(200)
+            self.end_headers()
+
+    def log_message(self, format, *args):
+        message = format % args
+        self.server.console.print(f"{self.client_address} - {message}")
+
+    def handle_404(self):
+        self.send_response(404)
+        self.end_headers()
 
 
 def handle(args, console: Console):
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind((args.host, args.port))
-    server.listen()
-
+    server = HTTPServer((args.host, args.port), SRLRequestHandler)
+    server.console = console
     console.print(f"[green]Server listening on http://{args.host}:{args.port}[/green]")
-
     try:
-        while 1:
-            conn, addr = server.accept()
-            with conn:
-                console.print(f"Got request from {addr}")
-
-                request_data = conn.recv(4096)
-
-                argv, error = parse_request(request_data)
-
-                if error:
-                    result = {
-                        "status": "error",
-                        "output": "",
-                        "error": error,
-                    }
-                else:
-                    result = execute_command(argv, console)
-
-                response = build_response(result)
-                conn.sendall(response)
-
+        server.serve_forever()
     except KeyboardInterrupt:
         console.print("[yellow]\nShutting down server...[/yellow]")
     finally:
-        server.close()
+        server.server_close()
         console.print("[green]Server closed[/green]")

@@ -14,7 +14,14 @@ class Config:
     calendar_colors: dict[int, str] = field(
         default_factory=lambda: Config.default_calendar_colors()
     )
-    backup: dict = field(default_factory=lambda: {"max_backups": 10})
+    backup: dict = field(
+        default_factory=lambda: {
+            "max_backups": 10,
+            "replication_remote_host": "",
+            "replication_remote_port": 8080,
+            "replication_enabled": False,
+        }
+    )
 
     @staticmethod
     def default_calendar_colors() -> dict[int, str]:
@@ -66,6 +73,28 @@ def add_subparser(subparsers):
         help="Maximum number of backups to retain",
     )
     parser.add_argument(
+        "--replication-remote-host",
+        type=str,
+        help="Set replication remote host",
+    )
+    parser.add_argument(
+        "--replication-remote-port",
+        type=int,
+        help="Set replication remote port",
+    )
+    parser.add_argument(
+        "--replication-enabled",
+        action="store_true",
+        dest="replication_enabled",
+        help="Enable replication",
+    )
+    parser.add_argument(
+        "--replication-disabled",
+        action="store_false",
+        dest="replication_enabled",
+        help="Disable replication",
+    )
+    parser.add_argument(
         "--get", action="store_true", help="Display current configuration"
     )
     parser.add_argument(
@@ -115,6 +144,9 @@ def handle(args, console: Console):
         probability: float | None = getattr(args, "audit_probability", None)
         max_days: int | None = getattr(args, "max_days_without_audit", None)
         max_backups: int | None = getattr(args, "max_backups", None)
+        host: str | None = getattr(args, "replication_remote_host", None)
+        port: int | None = getattr(args, "replication_remote_port", None)
+        enabled: bool | None = getattr(args, "replication_enabled", None)
 
         updated = []
 
@@ -132,6 +164,19 @@ def handle(args, console: Console):
         if max_backups is not None and max_backups > 0:
             cfg.backup["max_backups"] = max_backups
             updated.append(f"max backups to [cyan]{max_backups}[/cyan]")
+
+        if host is not None:
+            cfg.backup["replication_remote_host"] = host
+            updated.append(f"replication remote host to [cyan]{host}[/cyan]")
+
+        if port is not None:
+            cfg.backup["replication_remote_port"] = port
+            updated.append(f"replication remote port to [cyan]{port}[/cyan]")
+
+        if enabled is not None:
+            cfg.backup["replication_enabled"] = enabled
+            state = "enabled" if enabled else "disabled"
+            updated.append(f"replication [cyan]{state}[/cyan]")
 
         if updated:
             cfg.save()

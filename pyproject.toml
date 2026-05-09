@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "srl"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Spaced repetition learning CLI tool"
 authors = [{ name = "Hayes Barber" }]
 requires-python = ">=3.10"
@@ -22,3 +22,7 @@ srl = "srl.main:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
+
+[tool.setuptools_scm]
+write_to = "srl/_version.py"
+

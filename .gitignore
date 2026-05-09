@@ -10,6 +10,7 @@ env/
 
 # Build directory
 build/
+dist/
 
 # IDE or editor-specific files
 .vscode/
@@ -21,3 +22,7 @@ build/
 .env
 *.egg-info/
 .coverage
+
+# cli version
+srl/_version.py
+

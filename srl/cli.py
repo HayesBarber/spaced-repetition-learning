@@ -18,8 +18,18 @@ from srl.commands import (
 )
 
 
+def get_version() -> str:
+    try:
+        from srl._version import version
+
+        return version
+    except Exception:
+        return "unknown"
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="srl")
+    parser.add_argument("-v", "--version", action="version", version=get_version())
     subparsers = parser.add_subparsers(dest="command")
 
     add.add_subparser(subparsers)

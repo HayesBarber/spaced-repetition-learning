@@ -44,7 +44,7 @@ def handle(args, console: Console):
             )
             return
 
-    target_num: int = getattr(args, "n", None)
+    target_num: int | None = getattr(args, "n", None)
     problems = get_due_problems(target_num)
     if not problems:
         console.print("[bold green]No problems due today or in Next Up.[/bold green]")

@@ -26,7 +26,7 @@ def add_subparser(subparsers):
         type=int,
         default=DEFAULT_NUM,
         dest="n",
-        help="Target number of problems to list, filling from the Nextup Queue as needed",
+        help="Target number of problems to list, prioritizing due problems then Nextup Queue",
     )
 
     parser.set_defaults(handler=handle)

@@ -185,13 +185,27 @@ def audit_fail(curr, console: Console):
     log_audit_attempt(curr, "fail")
 
 
-def random_audit():
+def random_audit(with_url=False):
+    """Select and persist a random mastered problem for audit.
+
+    Args:
+        with_url: If ``True``, return ``(problem, url)`` instead of just the
+            problem name.
+
+    Returns:
+        A random mastered problem, or ``None`` if no mastered problems exist.
+    """
     data_mastered = load_json(MASTERED_FILE)
     mastered = list(data_mastered)
     if not mastered:
+        if with_url:
+            return None, None
         return None
     problem: str = random.choice(mastered)
+    url = data_mastered[problem].get("url", None)
     audit_data = load_json(AUDIT_FILE)
     audit_data["current_audit"] = problem
     save_json(AUDIT_FILE, audit_data)
+    if with_url:
+        return problem, url
     return problem

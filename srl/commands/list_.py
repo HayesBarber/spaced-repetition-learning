@@ -13,46 +13,58 @@ from srl.commands.config import Config
 
 
 def add_subparser(subparsers):
-    parser = subparsers.add_parser("list", help="List due problems")
-    parser.add_argument("-n", type=int, default=None, help="Max number of problems")
-    parser.add_argument("-u", "--url", action="store_true", help="Include problem URLs")
+    parser = subparsers.add_parser(
+        "list",
+        help="List due problems, supplementing from the Nextup Queue as needed",
+    )
+
+    parser.add_argument(
+        "-n",
+        "--num",
+        type=int,
+        default=None,
+        dest="n",
+        help="Target number of problems to list, prioritizing due problems then Nextup Queue",
+    )
+
     parser.set_defaults(handler=handle)
+
     return parser
 
 
 def handle(args, console: Console):
     if should_audit() and not get_current_audit():
-        problem = random_audit()
+        problem, problem_url = random_audit(with_url=True)
         if problem:
             console.print("[bold red]You have been randomly audited![/bold red]")
-            console.print(f"[yellow]Audit problem:[/yellow] [cyan]{problem}[/cyan]")
+            display = format_problem(problem, problem_url)
+            console.print(f"[yellow]Audit problem:[/yellow] [cyan]{display}[/cyan]")
             console.print(
                 "Run [green]srl audit pass[/green] or [red]fail[/red] when done"
             )
             return
 
-    include_url = getattr(args, "url", False)
-    problems = get_due_problems(getattr(args, "n", None))
-    formatted = format_problems(problems, include_url)
-    names = [name for name, _ in problems]
-    masters = mastery_candidates()
-
-    if formatted:
-        lines = []
-        for i, p in enumerate(formatted):
-            mark = " [magenta]*[/magenta]" if names[i] in masters else ""
-            lines.append(f"{i + 1}. {p}{mark}")
-
-        console.print(
-            Panel.fit(
-                "\n".join(lines),
-                title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(formatted)})[/bold blue]",
-                border_style="blue",
-                title_align="left",
-            )
-        )
-    else:
+    target_num: int | None = getattr(args, "n", None)
+    problems = get_due_problems(target_num)
+    if not problems:
         console.print("[bold green]No problems due today or in Next Up.[/bold green]")
+        return
+
+    masters = mastery_candidates()
+    lines = []
+    for i, (name, url) in enumerate(problems):
+        mark = " [magenta]*[/magenta]" if name in masters else ""
+        display = format_problem(name, url)
+        lines.append(f"{i + 1}. {display}{mark}")
+
+    console.print(
+        Panel.fit(
+            "\n".join(lines),
+            title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(problems)})[/bold blue]",
+            border_style="blue",
+            title_align="left",
+        )
+    )
 
 
 def should_audit():
@@ -75,23 +87,23 @@ def should_audit():
     return random.random() < probability
 
 
-def format_problems(
-    problems: list[tuple[str, str]], include_url: bool = False
-) -> list[str]:
-    if not include_url:
-        return [name for name, _ in problems]
+def format_problem(problem: str, problem_url: str | None):
+    """Returns "problem (url)" if url is present, otherwise "problem" """
+    if problem_url:
+        return f"{problem} ([blue]{problem_url}[/blue])"
 
-    return [
-        f"{name}  [blue][link={url}]Open in Browser[/link][/blue]" if url else name
-        for name, url in problems
-    ]
+    return problem
 
 
 def get_due_problems(limit: int | None = None) -> list[tuple[str, str]]:
-    """Return due problems as (name, url) tuples, sorted by oldest attempt first then lowest rating.
+    """Return problems as ``(name, url)`` tuples.
+
+    Due problems are returned first, sorted by oldest attempt then lowest rating.
+    Remaining slots are filled from the Nextup Queue.
 
     Args:
-        limit: Maximum number of problems to return.
+        limit: Maximum number of problems to return. If ``None``, returns all due
+            problems, or all Nextup Queue problems if no due problems exist.
     """
     data = load_json(PROGRESS_FILE)
     due = []
@@ -112,14 +124,26 @@ def get_due_problems(limit: int | None = None) -> list[tuple[str, str]]:
 
     result = [(name, url) for name, url, _, _ in due[:limit]]
 
-    if not result:
-        next_up = load_json(NEXT_UP_FILE)
-        fallback = [
-            (prob, info.get("url", "")) for prob, info in list(next_up.items())[:limit]
-        ]
-        return fallback
+    if limit is None:
+        if result:
+            return result
 
-    return result
+        next_up = load_json(NEXT_UP_FILE)
+
+        return [(prob, info.get("url", "")) for prob, info in next_up.items()]
+
+    if len(result) >= limit:
+        return result
+
+    next_up = load_json(NEXT_UP_FILE)
+
+    remaining = limit - len(result)
+
+    supplement = [
+        (prob, info.get("url", "")) for prob, info in list(next_up.items())[:remaining]
+    ]
+
+    return result + supplement
 
 
 def mastery_candidates() -> set[str]:

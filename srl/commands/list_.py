@@ -17,7 +17,7 @@ DEFAULT_NUM = 5
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         "list",
-        help="List due problems or fall back to the Nextup Queue",
+        help="List due problems, supplementing from the Nextup Queue as needed",
     )
 
     parser.add_argument(

@@ -11,8 +11,6 @@ from srl.storage import (
 )
 from srl.commands.config import Config
 
-DEFAULT_NUM = 5
-
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
@@ -24,7 +22,7 @@ def add_subparser(subparsers):
         "-n",
         "--num",
         type=int,
-        default=DEFAULT_NUM,
+        default=None,
         dest="n",
         help="Target number of problems to list, prioritizing due problems then Nextup Queue",
     )
@@ -46,7 +44,7 @@ def handle(args, console: Console):
             )
             return
 
-    target_num: int = getattr(args, "n", DEFAULT_NUM)
+    target_num: int = getattr(args, "n", None)
     problems = get_due_problems(target_num)
     if not problems:
         console.print("[bold green]No problems due today or in Next Up.[/bold green]")

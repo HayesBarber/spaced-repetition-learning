@@ -11,12 +11,44 @@ from srl.storage import (
 )
 from srl.commands.config import Config
 
+DEFAULT_NUM = 5
+
 
 def add_subparser(subparsers):
-    parser = subparsers.add_parser("list", help="List due problems")
-    parser.add_argument("-n", type=int, default=None, help="Max number of problems")
-    parser.add_argument("-u", "--url", action="store_true", help="Include problem URLs")
+    parser = subparsers.add_parser(
+        "list",
+        help="List due problems or fall back to the Nextup Queue",
+    )
+
+    parser.add_argument(
+        "-n",
+        "--num",
+        type=int,
+        default=DEFAULT_NUM,
+        help="Target number of problems to list, filling from the Nextup Queue as needed",
+    )
+
+    url_group = parser.add_mutually_exclusive_group()
+
+    url_group.add_argument(
+        "--raw-urls",
+        dest="url_format",
+        action="store_const",
+        const="raw",
+        default="markdown",
+        help="Show raw URLs instead of Markdown links",
+    )
+
+    url_group.add_argument(
+        "--no-urls",
+        dest="url_format",
+        action="store_const",
+        const="none",
+        help="Omit URLs from output",
+    )
+
     parser.set_defaults(handler=handle)
+
     return parser
 
 
@@ -31,28 +63,30 @@ def handle(args, console: Console):
             )
             return
 
-    include_url = getattr(args, "url", False)
-    problems = get_due_problems(getattr(args, "n", None))
+    target_num: int = getattr(args, "num", DEFAULT_NUM)
+    problems = get_due_problems(target_num)
+    if not problems:
+        console.print("[bold green]No problems due today or in Next Up.[/bold green]")
+        return
+
+    include_url = True
     formatted = format_problems(problems, include_url)
     names = [name for name, _ in problems]
     masters = mastery_candidates()
 
-    if formatted:
-        lines = []
-        for i, p in enumerate(formatted):
-            mark = " [magenta]*[/magenta]" if names[i] in masters else ""
-            lines.append(f"{i + 1}. {p}{mark}")
+    lines = []
+    for i, p in enumerate(formatted):
+        mark = " [magenta]*[/magenta]" if names[i] in masters else ""
+        lines.append(f"{i + 1}. {p}{mark}")
 
-        console.print(
-            Panel.fit(
-                "\n".join(lines),
-                title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(formatted)})[/bold blue]",
-                border_style="blue",
-                title_align="left",
-            )
+    console.print(
+        Panel.fit(
+            "\n".join(lines),
+            title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(formatted)})[/bold blue]",
+            border_style="blue",
+            title_align="left",
         )
-    else:
-        console.print("[bold green]No problems due today or in Next Up.[/bold green]")
+    )
 
 
 def should_audit():
@@ -88,10 +122,14 @@ def format_problems(
 
 
 def get_due_problems(limit: int | None = None) -> list[tuple[str, str]]:
-    """Return due problems as (name, url) tuples, sorted by oldest attempt first then lowest rating.
+    """Return problems as ``(name, url)`` tuples.
+
+    Due problems are returned first, sorted by oldest attempt then lowest rating.
+    Remaining slots are filled from the Nextup Queue.
 
     Args:
-        limit: Maximum number of problems to return.
+        limit: Maximum number of problems to return. If ``None``, returns all due
+            problems, or all Nextup Queue problems if no due problems exist.
     """
     data = load_json(PROGRESS_FILE)
     due = []
@@ -112,14 +150,26 @@ def get_due_problems(limit: int | None = None) -> list[tuple[str, str]]:
 
     result = [(name, url) for name, url, _, _ in due[:limit]]
 
-    if not result:
-        next_up = load_json(NEXT_UP_FILE)
-        fallback = [
-            (prob, info.get("url", "")) for prob, info in list(next_up.items())[:limit]
-        ]
-        return fallback
+    if limit is None:
+        if result:
+            return result
 
-    return result
+        next_up = load_json(NEXT_UP_FILE)
+
+        return [(prob, info.get("url", "")) for prob, info in next_up.items()]
+
+    if len(result) >= limit:
+        return result
+
+    next_up = load_json(NEXT_UP_FILE)
+
+    remaining = limit - len(result)
+
+    supplement = [
+        (prob, info.get("url", "")) for prob, info in list(next_up.items())[:remaining]
+    ]
+
+    return result + supplement
 
 
 def mastery_candidates() -> set[str]:

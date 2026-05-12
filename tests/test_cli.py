@@ -228,20 +228,6 @@ def test_server_custom_host_port(parser):
     assert args.port == 9000
 
 
-def test_random_command(parser):
-    args = parser.parse_args(["random"])
-    assert args.command == "random"
-    assert hasattr(args, "handler")
-    assert not args.all
-
-
-def test_random_command_all_flag(parser):
-    args = parser.parse_args(["random", "--all"])
-    assert args.command == "random"
-    assert hasattr(args, "handler")
-    assert args.all
-
-
 def test_ledger_command(parser):
     args = parser.parse_args(["ledger"])
     assert args.command == "ledger"

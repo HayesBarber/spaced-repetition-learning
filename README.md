@@ -320,32 +320,6 @@ This displays a list of your audit attempts along with summary statistics includ
 
 ---
 
-### Random command
-
-A convenient helper was added to pick a single problem at random from your data.
-
-- srl random
-
-  Picks a random problem from the set of problems that are due today (same logic as `srl list`). If there are no problems due, this falls back to the `Next Up` queue.
-
-  ```bash
-  srl random
-  ```
-
-  Use this when you want a quick, random practice item from today's due list.
-
-- srl random --all
-
-  Picks a random problem from every problem you have stored: in-progress problems, mastered problems, and items in the Next Up queue. This is useful when you want a completely random review across your whole dataset.
-
-  ```bash
-  srl random --all
-  ```
-
-  If no problems exist in your data directory, the command prints a friendly message.
-
----
-
 ### Update Configuration
 
 You can set configuration values such as the audit probability (default is 0.1):

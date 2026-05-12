@@ -108,33 +108,13 @@ def test_list_indicate_mastered(console, backdate_problem, monkeypatch):
     assert f"1. {problem} *" in output
 
 
-def test_list_displays_url_with_flag(console, monkeypatch, backdate_problem):
+def test_list_displays_url(console, monkeypatch, backdate_problem):
     monkeypatch.setattr(list_, "should_audit", lambda: False)
 
     problem = "Due Problem"
     url = "https://example.com/"
 
     # Add problem with rating=1, then backdate it so it's due
-    args = SimpleNamespace(name=problem, rating=1, url=url)
-    add.handle(args=args, console=console)
-    backdate_problem(problem, 2)
-
-    args = SimpleNamespace(url=True)
-    list_.handle(args=args, console=console)
-
-    output = console.export_text()
-    assert "Problems to Practice" in output
-    assert "(1)" in output
-    assert problem in output
-    assert "Open in Browser" in output
-
-
-def test_list_hides_url_without_flag(console, monkeypatch, backdate_problem):
-    monkeypatch.setattr(list_, "should_audit", lambda: False)
-
-    problem = "Due Problem"
-    url = "https://example.com"
-
     args = SimpleNamespace(name=problem, rating=1, url=url)
     add.handle(args=args, console=console)
     backdate_problem(problem, 2)
@@ -146,7 +126,7 @@ def test_list_hides_url_without_flag(console, monkeypatch, backdate_problem):
     assert "Problems to Practice" in output
     assert "(1)" in output
     assert problem in output
-    assert "Open in Browser" not in output
+    assert url in output
 
 
 def test_list_missing_url_not_displayed(console, monkeypatch, backdate_problem):
@@ -158,14 +138,13 @@ def test_list_missing_url_not_displayed(console, monkeypatch, backdate_problem):
     add.handle(args=args, console=console)
     backdate_problem(problem, 2)
 
-    args = SimpleNamespace(url=True)
+    args = SimpleNamespace()
     list_.handle(args=args, console=console)
 
     output = console.export_text()
     assert "Problems to Practice" in output
     assert "(1)" in output
     assert problem in output
-    assert "Open in Browser" not in output
 
 
 def test_list_with_mixed_urls(console, monkeypatch, backdate_problem):
@@ -185,41 +164,13 @@ def test_list_with_mixed_urls(console, monkeypatch, backdate_problem):
     add.handle(args=args, console=console)
     backdate_problem(problem_without_url, 2)
 
-    args = SimpleNamespace(url=True)
+    args = SimpleNamespace()
     list_.handle(args=args, console=console)
 
     output = console.export_text()
     assert problem_with_url in output
     assert problem_without_url in output
-    assert output.count("Open in Browser") == 1
-
-
-def test_list_empty_with_url_flag(console, monkeypatch):
-    monkeypatch.setattr(list_, "should_audit", lambda: False)
-
-    args = SimpleNamespace(url=True)
-    list_.handle(args=args, console=console)
-
-    output = console.export_text()
-    assert "No problems due today or in Next Up" in output
-
-
-def test_list_with_nextup_fallback_with_url_flag(console, monkeypatch):
-    monkeypatch.setattr(list_, "should_audit", lambda: False)
-
-    problem = "Next Up Problem"
-    url = "https://example.com"
-    args = SimpleNamespace(action="add", name=problem, url=url)
-    nextup.handle(args=args, console=console)
-
-    args = SimpleNamespace(n=None, url=True)
-    list_.handle(args=args, console=console)
-
-    output = console.export_text()
-    assert problem in output
-    assert "Open in Browser" in output
-    assert "Problems to Practice" in output
-    assert "No problems due" not in output
+    assert url in output
 
 
 def test_should_audit_max_days_threshold_breached(monkeypatch, mock_data, dump_json):

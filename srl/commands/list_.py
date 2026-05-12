@@ -25,6 +25,7 @@ def add_subparser(subparsers):
         "--num",
         type=int,
         default=DEFAULT_NUM,
+        dest="n",
         help="Target number of problems to list, filling from the Nextup Queue as needed",
     )
 
@@ -45,7 +46,7 @@ def handle(args, console: Console):
             )
             return
 
-    target_num: int = getattr(args, "num", DEFAULT_NUM)
+    target_num: int = getattr(args, "n", DEFAULT_NUM)
     problems = get_due_problems(target_num)
     if not problems:
         console.print("[bold green]No problems due today or in Next Up.[/bold green]")

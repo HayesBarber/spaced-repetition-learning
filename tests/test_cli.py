@@ -35,7 +35,7 @@ def test_add_invalid_rating(parser):
 def test_list_with_n(parser):
     args = parser.parse_args(["list", "-n", "5"])
     assert args.command == "list"
-    assert args.num == 5
+    assert args.n == 5
 
 
 def test_mastered_count_short_flag(parser):

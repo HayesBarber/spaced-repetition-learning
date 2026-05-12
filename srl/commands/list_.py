@@ -28,25 +28,6 @@ def add_subparser(subparsers):
         help="Target number of problems to list, filling from the Nextup Queue as needed",
     )
 
-    url_group = parser.add_mutually_exclusive_group()
-
-    url_group.add_argument(
-        "--raw-urls",
-        dest="url_format",
-        action="store_const",
-        const="raw",
-        default="markdown",
-        help="Show raw URLs instead of Markdown links",
-    )
-
-    url_group.add_argument(
-        "--no-urls",
-        dest="url_format",
-        action="store_const",
-        const="none",
-        help="Omit URLs from output",
-    )
-
     parser.set_defaults(handler=handle)
 
     return parser
@@ -54,10 +35,11 @@ def add_subparser(subparsers):
 
 def handle(args, console: Console):
     if should_audit() and not get_current_audit():
-        problem = random_audit()
+        problem, problem_url = random_audit(with_url=True)
         if problem:
             console.print("[bold red]You have been randomly audited![/bold red]")
-            console.print(f"[yellow]Audit problem:[/yellow] [cyan]{problem}[/cyan]")
+            display = format_problem(problem, problem_url)
+            console.print(f"[yellow]Audit problem:[/yellow] [cyan]{display}[/cyan]")
             console.print(
                 "Run [green]srl audit pass[/green] or [red]fail[/red] when done"
             )
@@ -69,20 +51,17 @@ def handle(args, console: Console):
         console.print("[bold green]No problems due today or in Next Up.[/bold green]")
         return
 
-    include_url = True
-    formatted = format_problems(problems, include_url)
-    names = [name for name, _ in problems]
     masters = mastery_candidates()
-
     lines = []
-    for i, p in enumerate(formatted):
-        mark = " [magenta]*[/magenta]" if names[i] in masters else ""
-        lines.append(f"{i + 1}. {p}{mark}")
+    for i, (name, url) in enumerate(problems):
+        mark = " [magenta]*[/magenta]" if name in masters else ""
+        display = format_problem(name, url)
+        lines.append(f"{i + 1}. {display}{mark}")
 
     console.print(
         Panel.fit(
             "\n".join(lines),
-            title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(formatted)})[/bold blue]",
+            title=f"[bold blue]Problems to Practice [{today().isoformat()}] ({len(problems)})[/bold blue]",
             border_style="blue",
             title_align="left",
         )
@@ -109,16 +88,12 @@ def should_audit():
     return random.random() < probability
 
 
-def format_problems(
-    problems: list[tuple[str, str]], include_url: bool = False
-) -> list[str]:
-    if not include_url:
-        return [name for name, _ in problems]
+def format_problem(problem: str, problem_url: str | None):
+    """Returns "problem (url)" if url is present, otherwise "problem" """
+    if problem_url:
+        return f"{problem} ({problem_url})"
 
-    return [
-        f"{name}  [blue][link={url}]Open in Browser[/link][/blue]" if url else name
-        for name, url in problems
-    ]
+    return problem
 
 
 def get_due_problems(limit: int | None = None) -> list[tuple[str, str]]:

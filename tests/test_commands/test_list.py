@@ -40,6 +40,30 @@ def test_list_with_limit(console, monkeypatch, backdate_problem):
         assert f"problem {i}" not in output
 
 
+def test_list_with_limit_supplements_nextup(console, monkeypatch, backdate_problem):
+    monkeypatch.setattr(list_, "should_audit", lambda: False)
+    num_due = 3
+    for i in range(num_due):
+        problem = f"problem {i}"
+        args = SimpleNamespace(name=problem, rating=1)
+        add.handle(args=args, console=console)
+        backdate_problem(problem, 2)
+
+    nextup_problem = "Next Up Problem"
+    args = SimpleNamespace(action="add", name=nextup_problem)
+    nextup.handle(args=args, console=console)
+
+    num_expected = 4
+    args = SimpleNamespace(n=num_expected)
+    list_.handle(args=args, console=console)
+
+    output = console.export_text()
+    for i in range(num_due):
+        assert f"problem {i}" in output
+    assert nextup_problem in output
+    assert "No problems due" not in output
+
+
 def test_list_with_next_up_fallback(console, monkeypatch):
     monkeypatch.setattr(list_, "should_audit", lambda: False)
 

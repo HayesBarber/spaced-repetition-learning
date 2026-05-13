@@ -1,7 +1,6 @@
 from rich.console import Console
-from rich.panel import Panel
-from srl.utils import today
 from srl.commands.list_ import format_problem
+from srl.utils import today
 from srl.storage import (
     load_json,
     save_json,
@@ -9,79 +8,6 @@ from srl.storage import (
     PROGRESS_FILE,
     MASTERED_FILE,
 )
-
-
-def add_subparser(subparsers):
-    parser = subparsers.add_parser(
-        "nextup",
-        help="Manage the Nextup Queue",
-    )
-
-    nextup_subparsers = parser.add_subparsers(required=True)
-
-    # add
-    add_parser = nextup_subparsers.add_parser(
-        "add",
-        help="Add problem(s) to the queue",
-    )
-    add_parser.add_argument(
-        "name",
-        nargs="?",
-        help="Problem name to add",
-    )
-    add_parser.add_argument(
-        "-f",
-        "--file",
-        help="Path to a file with one problem per line: 'name' or 'name,url'",
-    )
-    add_parser.add_argument(
-        "--allow-mastered",
-        action="store_true",
-        help="Allow problems that are already mastered",
-    )
-    add_parser.add_argument(
-        "-u",
-        "--url",
-        nargs="?",
-        const="",
-        default=None,
-        help="URL to the problem",
-    )
-    add_parser.set_defaults(handler=handle_add)
-
-    # list
-    list_parser = nextup_subparsers.add_parser(
-        "list",
-        help="List queued problems",
-    )
-    list_parser.set_defaults(handler=handle_list)
-
-    # remove
-    remove_parser = nextup_subparsers.add_parser(
-        "remove",
-        help="Remove a problem from the queue",
-    )
-    remove_parser.add_argument(
-        "name",
-        nargs="?",
-        help="Problem name to remove",
-    )
-    remove_parser.add_argument(
-        "-n",
-        "--number",
-        type=int,
-        help="Remove by 1-based index from 'srl nextup list'",
-    )
-    remove_parser.set_defaults(handler=handle_remove)
-
-    # clear
-    clear_parser = nextup_subparsers.add_parser(
-        "clear",
-        help="Clear the queue",
-    )
-    clear_parser.set_defaults(handler=handle_clear)
-
-    return parser
 
 
 def handle_add(args, console: Console):
@@ -148,62 +74,6 @@ def parse_problem_line(line: str) -> tuple[str, str]:
     url = parts[1].strip() if len(parts) > 1 else ""
 
     return name, url
-
-
-def handle_list(args, console: Console):
-    next_up = get_next_up_problems()
-
-    if not next_up:
-        console.print("[yellow]Next Up queue is empty.[/yellow]")
-        return
-
-    lines = []
-    for i, (name, url) in enumerate(next_up, start=1):
-        display = format_problem(name, url)
-        lines.append(f"{i}. {display}")
-
-    console.print(
-        Panel.fit(
-            "\n".join(lines),
-            title=f"[bold cyan]Next Up Problems ({len(next_up)})[/bold cyan]",
-            border_style="cyan",
-            title_align="left",
-        )
-    )
-
-
-def handle_remove(args, console: Console):
-    name = args.name
-    if args.number is not None:
-        problems = get_next_up_problems()
-        if args.number < 1 or args.number > len(problems):
-            console.print(f"[red]Invalid problem number:[/red] {args.number}")
-            return
-        name = problems[args.number - 1][0]
-
-    if not name:
-        console.print(
-            "[bold red]Please provide a problem name to remove from Next Up.[/bold red]"
-        )
-    else:
-        remove_from_next_up(name, console)
-
-
-def handle_clear(args, console: Console):
-    save_json(NEXT_UP_FILE, {})
-    console.print("[green]Next Up queue cleared.[/green]")
-
-
-# Keeping for now for testing backwards compat
-def handle(args, console: Console):
-    if args.action == "add":
-        handle_add(args, console)
-    elif args.action == "list":
-        handle_list(args, console)
-    elif args.action == "remove":
-        handle_remove(args, console)
-    elif args.action == "clear":
-        handle_clear(args, console)
 
 
 def _create_name_lookup(json: dict[str, dict]) -> dict[str, str]:
@@ -284,28 +154,3 @@ def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
 
     save_json(NEXT_UP_FILE, next_up)
     return True
-
-
-def get_next_up_problems() -> list[tuple[str, str]]:
-    """
-    returns a list of tuples (name, url)
-    """
-    data = load_json(NEXT_UP_FILE)
-    res = []
-
-    for name, info in data.items():
-        res.append((name, info.get("url", "")))
-
-    return res
-
-
-def remove_from_next_up(name: str, console: Console):
-    data = load_json(NEXT_UP_FILE)
-
-    if name not in data:
-        console.print(f'[yellow]"{name}" not found in the Next Up queue.[/yellow]')
-        return
-
-    del data[name]
-    save_json(NEXT_UP_FILE, data)
-    console.print(f"[green]Removed[/green] [bold]{name}[/bold] from Next Up Queue")

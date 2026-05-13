@@ -17,10 +17,7 @@ def add_subparser(subparsers):
         help="Manage the next-up problem queue",
     )
 
-    nextup_subparsers = parser.add_subparsers(
-        dest="action",
-        required=True,
-    )
+    nextup_subparsers = parser.add_subparsers(required=True)
 
     # add
     add_parser = nextup_subparsers.add_parser(
@@ -28,15 +25,10 @@ def add_subparser(subparsers):
         help="Add problems to the queue",
     )
     add_parser.add_argument("name", nargs="?")
-    add_parser.add_argument(
-        "-f",
-        "--file",
-        help="Path to file containing problem names",
-    )
+    add_parser.add_argument("-f", "--file")
     add_parser.add_argument(
         "--allow-mastered",
         action="store_true",
-        help="Allow mastered problems",
     )
     add_parser.add_argument(
         "-u",
@@ -44,14 +36,15 @@ def add_subparser(subparsers):
         nargs="?",
         const="",
         default=None,
-        help="Problem URL",
     )
+    add_parser.set_defaults(handler=handle_add)
 
     # list
-    nextup_subparsers.add_parser(
+    list_parser = nextup_subparsers.add_parser(
         "list",
         help="List queued problems",
     )
+    list_parser.set_defaults(handler=handle_list)
 
     # remove
     remove_parser = nextup_subparsers.add_parser(
@@ -63,99 +56,116 @@ def add_subparser(subparsers):
         "-n",
         "--number",
         type=int,
-        help="1-based index from `srl nextup list`",
     )
+    remove_parser.set_defaults(handler=handle_remove)
 
     # clear
-    nextup_subparsers.add_parser(
+    clear_parser = nextup_subparsers.add_parser(
         "clear",
         help="Clear the queue",
     )
+    clear_parser.set_defaults(handler=handle_clear)
 
-    parser.set_defaults(handler=handle)
     return parser
 
 
-def handle(args, console: Console):
-    if args.action == "add":
-        if hasattr(args, "file") and args.file:
-            try:
-                with open(args.file, "r") as f:
-                    lines = [line.strip() for line in f.readlines()]
-            except FileNotFoundError:
-                console.print(f"[bold red]File not found:[/bold red] {args.file}")
-                return
-
-            added_count = 0
-            for line in lines:
-                if not line:
-                    continue
-                parts = line.split(",", 1)
-                name = parts[0].strip()
-                url = parts[1].strip() if len(parts) > 1 else ""
-                added = add_to_next_up(
-                    name,
-                    console,
-                    hasattr(args, "allow_mastered") and args.allow_mastered,
-                    url,
-                )
-                if added:
-                    added_count += 1
-
-            console.print(
-                f"[green]Added {added_count} problems from file[/green] [bold]{args.file}[/bold] to Next Up Queue"
-            )
-        else:
-            if not args.name:
-                console.print(
-                    "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
-                )
-            else:
-                add_to_next_up(
-                    args.name,
-                    console,
-                    hasattr(args, "allow_mastered") and args.allow_mastered,
-                    getattr(args, "url", ""),
-                )
-                console.print(
-                    f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
-                )
-    elif args.action == "list":
-        next_up = get_next_up_problems()
-
-        if not next_up:
-            console.print("[yellow]Next Up queue is empty.[/yellow]")
+def handle_add(args, console: Console):
+    if hasattr(args, "file") and args.file:
+        try:
+            with open(args.file, "r") as f:
+                lines = [line.strip() for line in f.readlines()]
+        except FileNotFoundError:
+            console.print(f"[bold red]File not found:[/bold red] {args.file}")
             return
 
-        lines = []
-        for i, (name, url) in enumerate(next_up, start=1):
-            display = format_problem(name, url)
-            lines.append(f"{i}. {display}")
+        added_count = 0
+        for line in lines:
+            if not line:
+                continue
+            parts = line.split(",", 1)
+            name = parts[0].strip()
+            url = parts[1].strip() if len(parts) > 1 else ""
+            added = add_to_next_up(
+                name,
+                console,
+                hasattr(args, "allow_mastered") and args.allow_mastered,
+                url,
+            )
+            if added:
+                added_count += 1
 
         console.print(
-            Panel.fit(
-                "\n".join(lines),
-                title=f"[bold cyan]Next Up Problems ({len(next_up)})[/bold cyan]",
-                border_style="cyan",
-                title_align="left",
-            )
+            f"[green]Added {added_count} problems from file[/green] [bold]{args.file}[/bold] to Next Up Queue"
         )
-    elif args.action == "remove":
-        if args.number is not None:
-            problems = get_next_up_problems()
-            if args.number < 1 or args.number > len(problems):
-                console.print(f"[red]Invalid problem number:[/red] {args.number}")
-                return
-            args.name = problems[args.number - 1][0]
+    else:
         if not args.name:
             console.print(
-                "[bold red]Please provide a problem name to remove from Next Up.[/bold red]"
+                "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
             )
         else:
-            remove_from_next_up(args.name, console)
+            add_to_next_up(
+                args.name,
+                console,
+                hasattr(args, "allow_mastered") and args.allow_mastered,
+                getattr(args, "url", ""),
+            )
+            console.print(
+                f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
+            )
+
+
+def handle_list(args, console: Console):
+    next_up = get_next_up_problems()
+
+    if not next_up:
+        console.print("[yellow]Next Up queue is empty.[/yellow]")
+        return
+
+    lines = []
+    for i, (name, url) in enumerate(next_up, start=1):
+        display = format_problem(name, url)
+        lines.append(f"{i}. {display}")
+
+    console.print(
+        Panel.fit(
+            "\n".join(lines),
+            title=f"[bold cyan]Next Up Problems ({len(next_up)})[/bold cyan]",
+            border_style="cyan",
+            title_align="left",
+        )
+    )
+
+
+def handle_remove(args, console: Console):
+    if args.number is not None:
+        problems = get_next_up_problems()
+        if args.number < 1 or args.number > len(problems):
+            console.print(f"[red]Invalid problem number:[/red] {args.number}")
+            return
+        args.name = problems[args.number - 1][0]
+    if not args.name:
+        console.print(
+            "[bold red]Please provide a problem name to remove from Next Up.[/bold red]"
+        )
+    else:
+        remove_from_next_up(args.name, console)
+
+
+def handle_clear(args, console: Console):
+    save_json(NEXT_UP_FILE, {})
+    console.print("[green]Next Up queue cleared.[/green]")
+
+
+# Keeping for now for testing backwards compat
+def handle(args, console: Console):
+    if args.action == "add":
+        handle_add(args, console)
+    elif args.action == "list":
+        handle_list(args, console)
+    elif args.action == "remove":
+        handle_remove(args, console)
     elif args.action == "clear":
-        save_json(NEXT_UP_FILE, {})
-        console.print("[green]Next Up queue cleared.[/green]")
+        handle_clear(args, console)
 
 
 def _create_name_lookup(json: dict[str, dict]) -> dict[str, str]:

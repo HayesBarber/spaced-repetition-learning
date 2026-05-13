@@ -55,14 +55,14 @@ def test_mastered_count_long_flag(parser):
 def test_nextup_add(parser):
     args = parser.parse_args(["nextup", "add", "Binary Search"])
     assert args.command == "nextup"
-    assert args.action == "add"
+    assert args.handler
     assert args.name == "Binary Search"
 
 
 def test_nextup_add_with_file_short_flag(parser):
     args = parser.parse_args(["nextup", "add", "-f", "problems.txt"])
     assert args.command == "nextup"
-    assert args.action == "add"
+    assert args.handler
     assert args.file == "problems.txt"
     assert args.name is None
 
@@ -70,7 +70,7 @@ def test_nextup_add_with_file_short_flag(parser):
 def test_nextup_add_with_file_long_flag(parser):
     args = parser.parse_args(["nextup", "add", "--file", "problems.txt"])
     assert args.command == "nextup"
-    assert args.action == "add"
+    assert args.handler
     assert args.file == "problems.txt"
     assert args.name is None
 
@@ -78,13 +78,13 @@ def test_nextup_add_with_file_long_flag(parser):
 def test_nextup_list(parser):
     args = parser.parse_args(["nextup", "list"])
     assert args.command == "nextup"
-    assert args.action == "list"
+    assert args.handler
 
 
 def test_nextup_add_allow_mastered_flag_short(parser):
     args = parser.parse_args(["nextup", "add", "Binary Search", "--allow-mastered"])
     assert args.command == "nextup"
-    assert args.action == "add"
+    assert args.handler
     assert args.name == "Binary Search"
     assert args.allow_mastered
 
@@ -94,7 +94,7 @@ def test_nextup_add_allow_mastered_flag_file(parser):
         ["nextup", "add", "-f", "problems.txt", "--allow-mastered"]
     )
     assert args.command == "nextup"
-    assert args.action == "add"
+    assert args.handler
     assert args.file == "problems.txt"
     assert args.allow_mastered
 

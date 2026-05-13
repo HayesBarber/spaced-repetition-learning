@@ -14,7 +14,7 @@ from srl.storage import (
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         "nextup",
-        help="Manage the next-up problem queue",
+        help="Manage the Nextup Queue",
     )
 
     nextup_subparsers = parser.add_subparsers(required=True)
@@ -22,13 +22,22 @@ def add_subparser(subparsers):
     # add
     add_parser = nextup_subparsers.add_parser(
         "add",
-        help="Add problems to the queue",
+        help="Add problem(s) to the queue",
     )
-    add_parser.add_argument("name", nargs="?")
-    add_parser.add_argument("-f", "--file")
+    add_parser.add_argument(
+        "name",
+        nargs="?",
+        help="Problem name to add",
+    )
+    add_parser.add_argument(
+        "-f",
+        "--file",
+        help="Path to a file containing problems",
+    )
     add_parser.add_argument(
         "--allow-mastered",
         action="store_true",
+        help="Allow problems that are already mastered",
     )
     add_parser.add_argument(
         "-u",
@@ -36,6 +45,7 @@ def add_subparser(subparsers):
         nargs="?",
         const="",
         default=None,
+        help="URL to the problem",
     )
     add_parser.set_defaults(handler=handle_add)
 
@@ -51,11 +61,16 @@ def add_subparser(subparsers):
         "remove",
         help="Remove a problem from the queue",
     )
-    remove_parser.add_argument("name", nargs="?")
+    remove_parser.add_argument(
+        "name",
+        nargs="?",
+        help="Problem name to remove",
+    )
     remove_parser.add_argument(
         "-n",
         "--number",
         type=int,
+        help="Remove by 1-based index from 'srl nextup list'",
     )
     remove_parser.set_defaults(handler=handle_remove)
 

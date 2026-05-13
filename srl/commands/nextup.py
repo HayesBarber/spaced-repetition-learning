@@ -12,40 +12,66 @@ from srl.storage import (
 
 
 def add_subparser(subparsers):
-    parser = subparsers.add_parser("nextup", help="Next up problem queue")
-    parser.add_argument(
-        "action",
-        choices=["add", "list", "remove", "clear"],
-        help="Add, remove, list, or clear next-up problems",
+    parser = subparsers.add_parser(
+        "nextup",
+        help="Manage the next-up problem queue",
     )
-    parser.add_argument(
-        "name", nargs="?", help="Problem name (only needed for 'add' or 'remove')"
+
+    nextup_subparsers = parser.add_subparsers(
+        dest="action",
+        required=True,
     )
-    parser.add_argument(
+
+    # add
+    add_parser = nextup_subparsers.add_parser(
+        "add",
+        help="Add problems to the queue",
+    )
+    add_parser.add_argument("name", nargs="?")
+    add_parser.add_argument(
         "-f",
         "--file",
-        help="Path to a file containing problem names (one per line)",
+        help="Path to file containing problem names",
     )
-    parser.add_argument(
+    add_parser.add_argument(
         "--allow-mastered",
         action="store_true",
-        help="Allow adding problems that are already mastered",
+        help="Allow mastered problems",
     )
-    parser.add_argument(
-        "-n",
-        "--number",
-        type=int,
-        help="Remove by 1-based index from 'srl nextup list'",
-    )
-    parser.add_argument(
+    add_parser.add_argument(
         "-u",
         "--url",
         nargs="?",
-        type=str,
         const="",
         default=None,
-        help="URL to the problem for 'add'",
+        help="Problem URL",
     )
+
+    # list
+    nextup_subparsers.add_parser(
+        "list",
+        help="List queued problems",
+    )
+
+    # remove
+    remove_parser = nextup_subparsers.add_parser(
+        "remove",
+        help="Remove a problem from the queue",
+    )
+    remove_parser.add_argument("name", nargs="?")
+    remove_parser.add_argument(
+        "-n",
+        "--number",
+        type=int,
+        help="1-based index from `srl nextup list`",
+    )
+
+    # clear
+    nextup_subparsers.add_parser(
+        "clear",
+        help="Clear the queue",
+    )
+
     parser.set_defaults(handler=handle)
     return parser
 

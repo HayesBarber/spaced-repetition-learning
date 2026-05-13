@@ -79,7 +79,6 @@ def test_nextup_list(parser):
     args = parser.parse_args(["nextup", "list"])
     assert args.command == "nextup"
     assert args.action == "list"
-    assert args.name is None
 
 
 def test_nextup_add_allow_mastered_flag_short(parser):

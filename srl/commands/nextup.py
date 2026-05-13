@@ -32,7 +32,7 @@ def add_subparser(subparsers):
     add_parser.add_argument(
         "-f",
         "--file",
-        help="Path to a file containing problems",
+        help="Path to a file with one problem per line: 'name' or 'name,url'",
     )
     add_parser.add_argument(
         "--allow-mastered",

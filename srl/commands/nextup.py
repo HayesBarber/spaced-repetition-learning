@@ -173,18 +173,20 @@ def handle_list(args, console: Console):
 
 
 def handle_remove(args, console: Console):
+    name = args.name
     if args.number is not None:
         problems = get_next_up_problems()
         if args.number < 1 or args.number > len(problems):
             console.print(f"[red]Invalid problem number:[/red] {args.number}")
             return
-        args.name = problems[args.number - 1][0]
-    if not args.name:
+        name = problems[args.number - 1][0]
+
+    if not name:
         console.print(
             "[bold red]Please provide a problem name to remove from Next Up.[/bold red]"
         )
     else:
-        remove_from_next_up(args.name, console)
+        remove_from_next_up(name, console)
 
 
 def handle_clear(args, console: Console):

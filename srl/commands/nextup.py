@@ -85,48 +85,69 @@ def add_subparser(subparsers):
 
 
 def handle_add(args, console: Console):
-    if hasattr(args, "file") and args.file:
-        try:
-            with open(args.file, "r") as f:
-                lines = [line.strip() for line in f.readlines()]
-        except FileNotFoundError:
-            console.print(f"[bold red]File not found:[/bold red] {args.file}")
-            return
+    file = getattr(args, "file", None)
+    allow_mastered = getattr(args, "allow_mastered", False)
+    url = getattr(args, "url", "") or ""
 
-        added_count = 0
-        for line in lines:
-            if not line:
-                continue
-            parts = line.split(",", 1)
-            name = parts[0].strip()
-            url = parts[1].strip() if len(parts) > 1 else ""
-            added = add_to_next_up(
-                name,
-                console,
-                hasattr(args, "allow_mastered") and args.allow_mastered,
-                url,
-            )
-            if added:
-                added_count += 1
+    if file:
+        handle_add_file(file, allow_mastered, console)
+        return
 
+    if not args.name:
         console.print(
-            f"[green]Added {added_count} problems from file[/green] [bold]{args.file}[/bold] to Next Up Queue"
+            "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
         )
-    else:
-        if not args.name:
-            console.print(
-                "[bold red]Please provide a problem name to add to Next Up.[/bold red]"
-            )
-        else:
-            add_to_next_up(
-                args.name,
-                console,
-                hasattr(args, "allow_mastered") and args.allow_mastered,
-                getattr(args, "url", ""),
-            )
-            console.print(
-                f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
-            )
+        return
+
+    add_to_next_up(
+        args.name,
+        console,
+        allow_mastered,
+        url,
+    )
+
+    console.print(f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue")
+
+
+def handle_add_file(path: str, allow_mastered: bool, console: Console):
+    try:
+        with open(path, "r") as f:
+            lines = [line.strip() for line in f]
+    except FileNotFoundError:
+        console.print(f"[bold red]File not found:[/bold red] {path}")
+        return
+
+    added_count = 0
+
+    for line in lines:
+        if not line:
+            continue
+
+        name, url = parse_problem_line(line)
+
+        added = add_to_next_up(
+            name,
+            console,
+            allow_mastered,
+            url,
+        )
+
+        if added:
+            added_count += 1
+
+    console.print(
+        f"[green]Added {added_count} problems from file[/green] "
+        f"[bold]{path}[/bold] to Next Up Queue"
+    )
+
+
+def parse_problem_line(line: str) -> tuple[str, str]:
+    parts = line.split(",", 1)
+
+    name = parts[0].strip()
+    url = parts[1].strip() if len(parts) > 1 else ""
+
+    return name, url
 
 
 def handle_list(args, console: Console):

@@ -1,6 +1,7 @@
 from rich.console import Console
 from rich.panel import Panel
 from srl.utils import today
+from srl.commands.list_ import format_problem
 from srl.storage import (
     load_json,
     save_json,
@@ -43,7 +44,7 @@ def add_subparser(subparsers):
         type=str,
         const="",
         default=None,
-        help="URL to the problem for 'add' or include URLs in output for 'list'",
+        help="URL to the problem for 'add'",
     )
     parser.set_defaults(handler=handle)
     return parser
@@ -94,39 +95,32 @@ def handle(args, console: Console):
                     f"[green]Added[/green] [bold]{args.name}[/bold] to Next Up Queue"
                 )
     elif args.action == "list":
-        url_requested = isinstance(getattr(args, "url", None), str)
-        next_up = get_next_up_problems(include_urls=url_requested)
+        next_up = get_next_up_problems()
 
-        if next_up:
-            lines = []
-            for i, name in enumerate(next_up, start=1):
-                if url_requested:
-                    if name[1]:
-                        lines.append(
-                            f"{i}. {name[0]}  [blue][link={name[1]}]Open in Browser[/link][/blue]"
-                        )
-                    else:
-                        lines.append(f"{i}. {name[0]}")
-                else:
-                    lines.append(f"{i}. {name}")
-
-            console.print(
-                Panel.fit(
-                    "\n".join(lines),
-                    title=f"[bold cyan]Next Up Problems ({len(next_up)})[/bold cyan]",
-                    border_style="cyan",
-                    title_align="left",
-                )
-            )
-        else:
+        if not next_up:
             console.print("[yellow]Next Up queue is empty.[/yellow]")
+            return
+
+        lines = []
+        for i, (name, url) in enumerate(next_up, start=1):
+            display = format_problem(name, url)
+            lines.append(f"{i}. {display}")
+
+        console.print(
+            Panel.fit(
+                "\n".join(lines),
+                title=f"[bold cyan]Next Up Problems ({len(next_up)})[/bold cyan]",
+                border_style="cyan",
+                title_align="left",
+            )
+        )
     elif args.action == "remove":
         if args.number is not None:
             problems = get_next_up_problems()
             if args.number < 1 or args.number > len(problems):
                 console.print(f"[red]Invalid problem number:[/red] {args.number}")
                 return
-            args.name = problems[args.number - 1]
+            args.name = problems[args.number - 1][0]
         if not args.name:
             console.print(
                 "[bold red]Please provide a problem name to remove from Next Up.[/bold red]"
@@ -134,7 +128,8 @@ def handle(args, console: Console):
         else:
             remove_from_next_up(args.name, console)
     elif args.action == "clear":
-        clear_next_up(console)
+        save_json(NEXT_UP_FILE, {})
+        console.print("[green]Next Up queue cleared.[/green]")
 
 
 def _create_name_lookup(json: dict[str, dict]) -> dict[str, str]:
@@ -178,7 +173,9 @@ def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
     if name_lower in mastered_names_lower:
         if allow_mastered:
             existing = mastered_names_lower[name_lower]
-            console.print(f'[blue]"{existing}" is mastered but will be added due to flag.[/blue]')
+            console.print(
+                f'[blue]"{existing}" is mastered but will be added due to flag.[/blue]'
+            )
         else:
             existing = mastered_names_lower[name_lower]
             console.print(f'[yellow]"{existing}" is already mastered.[/yellow]')
@@ -187,16 +184,24 @@ def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
     if url:
         url_lower = url.lower()
         if url_lower in next_up_urls:
-            console.print('[yellow]A problem with that URL is already in the Next Up queue.[/yellow]')
+            console.print(
+                "[yellow]A problem with that URL is already in the Next Up queue.[/yellow]"
+            )
             return False
         if url_lower in in_progress_urls:
-            console.print('[yellow]A problem with that URL is already in progress.[/yellow]')
+            console.print(
+                "[yellow]A problem with that URL is already in progress.[/yellow]"
+            )
             return False
         if url_lower in mastered_urls:
             if allow_mastered:
-                console.print('[blue]A problem with that URL is mastered but will be added due to flag.[/blue]')
+                console.print(
+                    "[blue]A problem with that URL is mastered but will be added due to flag.[/blue]"
+                )
             else:
-                console.print('[yellow]A problem with that URL is already mastered.[/yellow]')
+                console.print(
+                    "[yellow]A problem with that URL is already mastered.[/yellow]"
+                )
                 return False
 
     next_up[name] = {"added": today().isoformat()}
@@ -207,19 +212,15 @@ def add_to_next_up(name, console, allow_mastered=False, url="") -> bool:
     return True
 
 
-def get_next_up_problems(include_urls=False) -> list[str] | list[tuple[str, str]]:
+def get_next_up_problems() -> list[tuple[str, str]]:
     """
-    returns a list of tuples (name, url) if include_urls is True
-    otherwise returns a list of only problem names
+    returns a list of tuples (name, url)
     """
     data = load_json(NEXT_UP_FILE)
     res = []
 
     for name, info in data.items():
-        if include_urls:
-            res.append((name, info.get("url", "")))
-        else:
-            res.append(name)
+        res.append((name, info.get("url", "")))
 
     return res
 
@@ -234,8 +235,3 @@ def remove_from_next_up(name: str, console: Console):
     del data[name]
     save_json(NEXT_UP_FILE, data)
     console.print(f"[green]Removed[/green] [bold]{name}[/bold] from Next Up Queue")
-
-
-def clear_next_up(console: Console):
-    save_json(NEXT_UP_FILE, {})
-    console.print("[green]Next Up queue cleared.[/green]")

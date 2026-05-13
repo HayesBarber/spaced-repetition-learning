@@ -52,10 +52,10 @@ def handle(args, console: Console):
 
     masters = mastery_candidates()
     lines = []
-    for i, (name, url) in enumerate(problems):
+    for i, (name, url) in enumerate(problems, start=1):
         mark = " [magenta]*[/magenta]" if name in masters else ""
         display = format_problem(name, url)
-        lines.append(f"{i + 1}. {display}{mark}")
+        lines.append(f"{i}. {display}{mark}")
 
     console.print(
         Panel.fit(

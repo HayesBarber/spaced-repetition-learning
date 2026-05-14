@@ -62,6 +62,54 @@ def execute_command(argv, console: Console) -> dict:
     }
 
 
+def root_handler(body: str, console: Console) -> tuple[int, str]:
+    if not body:
+        return 400, "Missing Body"
+
+    try:
+        data = json.loads(body)
+    except json.JSONDecodeError:
+        return 400, "Invalid JSON"
+
+    if "argv" not in data:
+        return 400, "Missing argv"
+
+    argv = data["argv"]
+    if not isinstance(argv, list):
+        return 400, "argv must be a list"
+
+    result = execute_command(argv, console)
+    if result["status"] == "error":
+        return 400, result["error"]
+
+    return 200, json.dumps(result).encode("utf-8")
+
+
+def verify_backup_request(content_type: str, content_length: int) -> tuple[int, str]:
+    if content_type != "application/gzip":
+        return 415, "Expected application/gzip"
+    if content_length <= 0:
+        return 400, "Missing body"
+
+    return 200, ""
+
+
+def backup_handler(data, console: Console) -> tuple[int, str]:
+    filename, archive_path = resolve_backup_path()
+    with open(archive_path, "wb") as f:
+        f.write(data)
+
+    verify_args = SimpleNamespace(file=str(archive_path))
+    if verify_handle(verify_args, console):
+        if archive_path.exists():
+            archive_path.unlink()
+        return 400, "Bad data"
+
+    prune_old_backups()
+
+    return 200, ""
+
+
 class SRLRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         path = urlparse(self.path).path
@@ -83,56 +131,32 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
             else ""
         )
 
-        if not body:
-            self._send_error("Missing body")
-            return
+        code, response = root_handler(body, console)
 
-        try:
-            data = json.loads(body)
-        except json.JSONDecodeError:
-            self._send_error("Invalid JSON")
-            return
+        if code != 200:
+            return self._send_error(response, code)
 
-        if "argv" not in data:
-            self._send_error("Missing argv")
-            return
-        argv = data["argv"]
-        if not isinstance(argv, list):
-            self._send_error("argv must be a list")
-            return
-
-        result = execute_command(argv, console)
-        if result["status"] == "error":
-            self._send_error(result["error"])
-        else:
-            self._send_success(result)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(response)
 
     def handle_backup(self):
         content_type = self.headers.get("Content-Type")
-        if content_type != "application/gzip":
-            self._send_error("Expected application/gzip", code=415)
-            return
-
         length = int(self.headers.get("Content-Length", 0))
-        if length <= 0:
-            self._send_error("Missing body")
-            return
+        code, response = verify_backup_request(content_type, length)
+        if code != 200:
+            return self._send_error(response, code)
 
         data = self.rfile.read(length)
-        filename, archive_path = resolve_backup_path()
-        with open(archive_path, "wb") as f:
-            f.write(data)
+        console = self.server.console
+        code, response = backup_handler(data, console)
 
-        verify_args = SimpleNamespace(file=str(archive_path))
-        if verify_handle(verify_args, self.server.console):
-            self._send_error("Bad data")
-            if archive_path.exists():
-                archive_path.unlink()
-            return
+        if code != 200:
+            return self._send_error(response, code)
 
-        prune_old_backups()
-
-        self._send_success()
+        self.send_response(200)
+        self.end_headers()
 
     def _send_error(self, error_msg: str, code: int = 400):
         self.send_response(code)
@@ -143,16 +167,6 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
                 "utf-8"
             )
         )
-
-    def _send_success(self, result: dict | None = None):
-        if result is not None:
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(json.dumps(result).encode("utf-8"))
-        else:
-            self.send_response(200)
-            self.end_headers()
 
     def log_message(self, format, *args):
         message = format % args

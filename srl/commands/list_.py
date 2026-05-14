@@ -38,7 +38,7 @@ def add_subparser(subparsers):
 
 def handle(args, console: Console):
     if should_audit() and not get_current_audit():
-        problem, problem_url = random_audit(with_url=True)
+        problem, problem_url = random_audit()
         if problem:
             console.print("[bold red]You have been randomly audited![/bold red]")
             display = format_problem(problem, problem_url)

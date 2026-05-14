@@ -48,7 +48,7 @@ def test_show_current_audit(console):
     output = console.export_text()
     assert "Current audit problem" in output
     assert problem in output
-    assert "Run with 'pass' or 'fail'" in output
+    assert "Run 'pass' or 'fail'" in output
 
 
 def test_pass_current_audit(console, mock_data, dump_json, load_json):

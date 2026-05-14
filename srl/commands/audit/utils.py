@@ -18,6 +18,12 @@ def get_current_audit():
     return data.get("current_audit")
 
 
+def get_problem_url(name):
+    mastered = load_json(MASTERED_FILE)
+    url = mastered.get(name, {}).get("url", None)
+    return url
+
+
 def get_last_audit_date():
     """Get the date of the most recent audit from history."""
 
@@ -84,16 +90,14 @@ def audit_fail(curr, console: Console):
     log_audit_attempt(curr, "fail")
 
 
-def random_audit(with_url=False):
+def random_audit():
     """Select and persist a random mastered problem for audit."""
 
     data_mastered = load_json(MASTERED_FILE)
     mastered = list(data_mastered)
 
     if not mastered:
-        if with_url:
-            return None, None
-        return None
+        return None, None
 
     problem: str = random.choice(mastered)
     url = data_mastered[problem].get("url", None)
@@ -102,7 +106,4 @@ def random_audit(with_url=False):
     audit_data["current_audit"] = problem
     save_json(AUDIT_FILE, audit_data)
 
-    if with_url:
-        return problem, url
-
-    return problem
+    return problem, url

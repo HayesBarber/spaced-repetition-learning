@@ -17,8 +17,9 @@ def test_start_audit_with_no_mastered(console):
 
 def test_start_audit_with_mastered(console):
     problem = "Mastered Problem"
+    url = "https://example.com"
     rating = 5
-    args = SimpleNamespace(name=problem, rating=rating)
+    args = SimpleNamespace(name=problem, rating=rating, url=url)
 
     add.handle(args=args, console=console)
     add.handle(args=args, console=console)
@@ -29,6 +30,7 @@ def test_start_audit_with_mastered(console):
     output = console.export_text()
     assert "You are now being audited on" in output
     assert problem in output
+    assert url in output
 
 
 def test_show_current_audit(console):

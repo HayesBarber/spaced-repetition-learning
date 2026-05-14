@@ -8,7 +8,6 @@ def add_subparser(subparsers):
     )
 
     audit_subparsers = parser.add_subparsers(
-        dest="audit_command",
         required=True,
     )
 

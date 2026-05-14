@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.panel import Panel
-from srl.utils import today
+from srl.utils import today, format_problem
 from srl.commands.audit.utils import (
     get_current_audit,
     random_audit,
@@ -89,14 +89,6 @@ def should_audit():
     except (ValueError, TypeError):
         probability = 0.1
     return random.random() < probability
-
-
-def format_problem(problem: str, problem_url: str | None):
-    """Returns "problem (url)" if url is present, otherwise "problem" """
-    if problem_url:
-        return f"{problem} ([blue]{problem_url}[/blue])"
-
-    return problem
 
 
 def get_due_problems(limit: int | None = None) -> list[tuple[str, str]]:

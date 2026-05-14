@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.panel import Panel
-from srl.commands.list_ import format_problem
+from srl.utils import format_problem
 from srl.storage import (
     load_json,
     PROGRESS_FILE,

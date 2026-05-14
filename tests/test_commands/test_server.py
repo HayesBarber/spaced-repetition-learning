@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from http.server import HTTPServer
 from http.client import HTTPConnection
 
+import pytest
 from srl.commands import server
 
 
@@ -66,54 +67,93 @@ def _post_backup(port, body, content_type="application/gzip", content_length=Non
     return status, data.decode("utf-8")
 
 
-def test_server_ledger_command(console):
+@pytest.fixture(scope="module")
+def live_server():
+    """Start the server once for all integration tests in this module."""
+    from rich.console import Console
+
+    console = Console()
     port = _start_server(console)
+    yield port
 
-    conn = HTTPConnection("127.0.0.1", port)
+
+def test_root_handler_missing_body(console):
+    code, response = server.root_handler("", console)
+    assert code == 400
+    assert "Missing Body" in response
+
+
+def test_root_handler_invalid_json(console):
+    code, response = server.root_handler("not json", console)
+    assert code == 400
+    assert "Invalid JSON" in response
+
+
+def test_root_handler_missing_argv(console):
+    code, response = server.root_handler("{}", console)
+    assert code == 400
+    assert "Missing argv" in response
+
+
+def test_root_handler_argv_not_list(console):
+    code, response = server.root_handler('{"argv": "ledger"}', console)
+    assert code == 400
+    assert "argv must be a list" in response
+
+
+def test_root_handler_ledger_command(console):
     body = json.dumps({"argv": ["ledger", "-c"]})
-    conn.request("POST", "/", body=body, headers={"Content-Type": "application/json"})
-    resp = conn.getresponse()
-    data = json.loads(resp.read().decode("utf-8"))
-    conn.close()
-
+    code, response = server.root_handler(body, console)
+    assert code == 200
+    data = json.loads(response)
     assert data["status"] == "success"
     assert "Total attempts: 0" in data["output"]
 
 
-def test_server_backup_not_gzip(console):
-    port = _start_server(console)
-
-    status, data = _post_backup(port, b"some data", content_type="text/plain")
-
-    assert status == 415
-    response = json.loads(data)
-    assert response["status"] == "error"
-    assert response["error"] == "Expected application/gzip"
+def test_verify_backup_request_wrong_content_type():
+    code, msg = server.verify_backup_request("text/plain", 10)
+    assert code == 415
+    assert "Expected application/gzip" in msg
 
 
-def test_server_backup_missing_body(console):
-    port = _start_server(console)
-
-    status, data = _post_backup(port, b"", content_length=0)
-
-    assert status == 400
-    response = json.loads(data)
-    assert response["status"] == "error"
-    assert response["error"] == "Missing body"
+def test_verify_backup_request_missing_body():
+    code, msg = server.verify_backup_request("application/gzip", 0)
+    assert code == 400
+    assert "Missing body" in msg
 
 
-def test_server_backup_bad_data(console, mock_data):
-    port = _start_server(console)
+def test_verify_backup_request_valid():
+    code, msg = server.verify_backup_request("application/gzip", 10)
+    assert code == 200
+    assert msg == ""
 
-    status, data = _post_backup(port, b"not a valid gzip file")
 
-    assert status == 400
-    response = json.loads(data)
-    assert response["status"] == "error"
-    assert response["error"] == "Bad data"
+def test_backup_handler_bad_data(console, mock_data):
+    code, msg = server.backup_handler(b"not a valid gzip file", console)
+    assert code == 400
+    assert "Bad data" in msg
 
     backups = list(mock_data.BACKUP_DIR.glob("backup-*.tar.gz"))
     assert len(backups) == 0, "Backup file should be deleted after bad data"
+
+
+def test_backup_handler_success_and_prunes(console, mock_data, monkeypatch):
+    called_prune = False
+
+    def mock_prune():
+        nonlocal called_prune
+        called_prune = True
+
+    monkeypatch.setattr("srl.commands.server.prune_old_backups", mock_prune)
+
+    valid_backup = _create_valid_backup()
+    code, msg = server.backup_handler(valid_backup, console)
+
+    assert code == 200
+    assert called_prune, "prune_old_backups should be called on successful backup"
+
+    backups = list(mock_data.BACKUP_DIR.glob("backup-*.tar.gz"))
+    assert len(backups) == 1, "Valid backup file should be saved"
 
 
 def _create_valid_backup():
@@ -132,22 +172,21 @@ def _create_valid_backup():
     return buffer.getvalue()
 
 
-def test_server_backup_success_and_prunes(console, mock_data, monkeypatch):
-    port = _start_server(console)
+def test_integration_ledger_command(live_server, console):
+    conn = HTTPConnection("127.0.0.1", live_server)
+    body = json.dumps({"argv": ["ledger", "-c"]})
+    conn.request("POST", "/", body=body, headers={"Content-Type": "application/json"})
+    resp = conn.getresponse()
+    data = json.loads(resp.read().decode("utf-8"))
+    conn.close()
 
-    called_prune = False
+    assert data["status"] == "success"
+    assert "Total attempts: 0" in data["output"]
 
-    def mock_prune():
-        nonlocal called_prune
-        called_prune = True
 
-    monkeypatch.setattr("srl.commands.server.prune_old_backups", mock_prune)
-
-    valid_backup = _create_valid_backup()
-    status, data = _post_backup(port, valid_backup)
-
-    assert status == 200
-    assert called_prune, "prune_old_backups should be called on successful backup"
-
-    backups = list(mock_data.BACKUP_DIR.glob("backup-*.tar.gz"))
-    assert len(backups) == 1, "Valid backup file should be saved"
+def test_integration_backup_not_gzip(live_server):
+    status, data = _post_backup(live_server, b"some data", content_type="text/plain")
+    assert status == 415
+    response = json.loads(data)
+    assert response["status"] == "error"
+    assert response["error"] == "Expected application/gzip"

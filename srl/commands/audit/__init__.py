@@ -1,7 +1,4 @@
-from .run import add_subparser as add_run_subparser
-from .pass_ import add_subparser as add_pass_subparser
-from .fail import add_subparser as add_fail_subparser
-from .history import add_subparser as add_history_subparser
+from . import fail, history, pass_, run
 
 
 def add_subparser(subparsers):
@@ -15,9 +12,9 @@ def add_subparser(subparsers):
         required=True,
     )
 
-    add_run_subparser(audit_subparsers)
-    add_pass_subparser(audit_subparsers)
-    add_fail_subparser(audit_subparsers)
-    add_history_subparser(audit_subparsers)
+    run.add_subparser(audit_subparsers)
+    pass_.add_subparser(audit_subparsers)
+    fail.add_subparser(audit_subparsers)
+    history.add_subparser(audit_subparsers)
 
     return parser

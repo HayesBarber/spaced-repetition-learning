@@ -373,20 +373,20 @@ def test_nextup_add_problem_with_url(mock_data, console, load_json):
     assert problem in output
 
 
-def test_nextup_list_urls_with_flag(console):
+def test_nextup_list_urls(console):
     problem = "Problem A"
     url = "https://example.com"
     args_add = SimpleNamespace(action="add", name=problem, url=url)
     nextup.handle(args=args_add, console=console)
 
     # Note: empty str expected for url flag, not boolean
-    args_list = SimpleNamespace(action="list", url="")
+    args_list = SimpleNamespace(action="list")
     nextup.handle(args=args_list, console=console)
 
     output = console.export_text()
     assert "Next Up Problems (1)" in output
     assert problem in output
-    assert "Open in Browser" in output
+    assert url in output
 
 
 def test_nextup_list_hides_urls_when_flag_disabled(console):
@@ -404,7 +404,7 @@ def test_nextup_list_hides_urls_when_flag_disabled(console):
     assert "Open in Browser" not in output
 
 
-def test_nextup_list_mixed_urls_with_flag(console):
+def test_nextup_list_mixed_urls(console):
     problem_no_url = "Problem A"
     nextup.handle(
         args=SimpleNamespace(action="add", name=problem_no_url), console=console
@@ -417,15 +417,14 @@ def test_nextup_list_mixed_urls_with_flag(console):
         console=console,
     )
 
-    # Note: empty str expected for url flag, not boolean
-    args_list = SimpleNamespace(action="list", url="")
+    args_list = SimpleNamespace(action="list")
     nextup.handle(args=args_list, console=console)
 
     output = console.export_text()
     assert "Next Up Problems (2)" in output
     assert problem_no_url in output
     assert problem_with_url in output
-    assert output.count("Open in Browser") == 1
+    assert output.count(url) == 1
 
 
 def test_add_to_next_up_url_already_in_next_up(
@@ -528,4 +527,3 @@ def test_remove_from_next_up_not_found(mock_data, console, load_json):
 
     output = console.export_text()
     assert '"NonExistent Problem" not found in the Next Up queue' in output
-

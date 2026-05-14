@@ -18,15 +18,13 @@ def handle_run(args, console: Console):
 
     if curr:
         console.print(f"Current audit problem: [cyan]{curr}[/cyan]")
-        console.print("[blue]Run with 'pass' or 'fail' to complete it.[/blue]")
+        console.print("[blue]Run 'pass' or 'fail' to complete it.[/blue]")
         return
 
     problem = random_audit()
 
     if problem:
         console.print(f"You are now being audited on: [cyan]{problem}[/cyan]")
-        console.print(
-            "[blue]Run with 'pass' or 'fail' to complete the audit.[/blue]"
-        )
+        console.print("[blue]Run 'pass' or 'fail' to complete the audit.[/blue]")
     else:
         console.print("[yellow]No mastered problems available for audit.[/yellow]")

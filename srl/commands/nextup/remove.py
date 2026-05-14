@@ -7,6 +7,27 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    remove_parser = subparsers.add_parser(
+        "remove",
+        help="Remove a problem from the queue",
+    )
+    remove_parser.add_argument(
+        "name",
+        nargs="?",
+        help="Problem name to remove",
+    )
+    remove_parser.add_argument(
+        "-n",
+        "--number",
+        type=int,
+        help="Remove by 1-based index from 'srl nextup list'",
+    )
+    remove_parser.set_defaults(handler=handle_remove)
+
+    return remove_parser
+
+
 def handle_remove(args, console: Console):
     name = args.name
     if args.number is not None:

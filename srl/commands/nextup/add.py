@@ -10,6 +10,39 @@ from srl.storage import (
 )
 
 
+def add_subparser(subparsers):
+    add_parser = subparsers.add_parser(
+        "add",
+        help="Add problem(s) to the queue",
+    )
+    add_parser.add_argument(
+        "name",
+        nargs="?",
+        help="Problem name to add",
+    )
+    add_parser.add_argument(
+        "-f",
+        "--file",
+        help="Path to a file with one problem per line: 'name' or 'name,url'",
+    )
+    add_parser.add_argument(
+        "--allow-mastered",
+        action="store_true",
+        help="Allow problems that are already mastered",
+    )
+    add_parser.add_argument(
+        "-u",
+        "--url",
+        nargs="?",
+        const="",
+        default=None,
+        help="URL to the problem",
+    )
+    add_parser.set_defaults(handler=handle_add)
+
+    return add_parser
+
+
 def handle_add(args, console: Console):
     file = getattr(args, "file", None)
     allow_mastered = getattr(args, "allow_mastered", False)

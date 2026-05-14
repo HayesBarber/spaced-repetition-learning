@@ -4,6 +4,16 @@ from srl.commands.list_ import format_problem
 from .util import get_next_up_problems
 
 
+def add_subparser(subparsers):
+    list_parser = subparsers.add_parser(
+        "list",
+        help="List queued problems",
+    )
+    list_parser.set_defaults(handler=handle_list)
+
+    return list_parser
+
+
 def handle_list(args, console: Console):
     next_up = get_next_up_problems()
 

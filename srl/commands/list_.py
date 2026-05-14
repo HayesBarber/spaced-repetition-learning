@@ -1,7 +1,11 @@
 from rich.console import Console
 from rich.panel import Panel
 from srl.utils import today
-from srl.commands.audit import get_current_audit, random_audit, get_last_audit_date
+from srl.commands.audit.utils import (
+    get_current_audit,
+    random_audit,
+    get_last_audit_date,
+)
 from datetime import datetime, timedelta
 import random
 from srl.storage import (

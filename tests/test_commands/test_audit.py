@@ -1,10 +1,15 @@
-from srl.commands import audit, add
+from srl.commands import add
+from srl.commands.audit.run import handle_run
+from srl.commands.audit.pass_ import handle_pass
+from srl.commands.audit.fail import handle_fail
+from srl.commands.audit.history import handle_history
+from srl.commands.audit.utils import get_last_audit_date
 from types import SimpleNamespace
 
 
 def test_start_audit_with_no_mastered(console):
     args = SimpleNamespace()
-    audit.handle_default(args=args, console=console)
+    handle_run(args=args, console=console)
 
     output = console.export_text()
     assert "No mastered problems available for audit" in output
@@ -19,7 +24,7 @@ def test_start_audit_with_mastered(console):
     add.handle(args=args, console=console)
 
     args = SimpleNamespace()
-    audit.handle_default(args=args, console=console)
+    handle_run(args=args, console=console)
 
     output = console.export_text()
     assert "You are now being audited on" in output
@@ -35,9 +40,10 @@ def test_show_current_audit(console):
     add.handle(args=args, console=console)
 
     args = SimpleNamespace()
-    audit.handle_default(args=args, console=console)
+    handle_run(args=args, console=console)
+
     # second call should just show current audit
-    audit.handle_default(args=args, console=console)
+    handle_run(args=args, console=console)
 
     output = console.export_text()
     assert "Current audit problem" in output
@@ -50,7 +56,7 @@ def test_pass_current_audit(console, mock_data, dump_json, load_json):
     dump_json(mock_data.AUDIT_FILE, {"current_audit": problem})
 
     args = SimpleNamespace()
-    audit.handle_pass(args=args, console=console)
+    handle_pass(args=args, console=console)
 
     data = load_json(mock_data.AUDIT_FILE)
     assert "current_audit" not in data
@@ -66,7 +72,7 @@ def test_fail_current_audit(console, mock_data, dump_json, load_json):
     dump_json(mock_data.AUDIT_FILE, {"current_audit": problem})
 
     args = SimpleNamespace()
-    audit.handle_fail(args=args, console=console)
+    handle_fail(args=args, console=console)
 
     mastered = load_json(mock_data.MASTERED_FILE)
     progress = load_json(mock_data.PROGRESS_FILE)
@@ -86,7 +92,7 @@ def test_fail_audit_with_nonexistent_problem(console, mock_data, dump_json):
     dump_json(mock_data.AUDIT_FILE, {"current_audit": problem})
 
     args = SimpleNamespace()
-    audit.handle_fail(args=args, console=console)
+    handle_fail(args=args, console=console)
 
     output = console.export_text()
     assert f"{problem}" in output
@@ -97,7 +103,7 @@ def test_audit_history_empty(console, mock_data, dump_json):
     dump_json(mock_data.AUDIT_FILE, {"history": []})
 
     args = SimpleNamespace()
-    audit.handle_history(args=args, console=console)
+    handle_history(args=args, console=console)
 
     output = console.export_text()
     assert "No audit history found" in output
@@ -107,7 +113,7 @@ def test_audit_history_no_history_field(console, mock_data, dump_json):
     dump_json(mock_data.AUDIT_FILE, {})
 
     args = SimpleNamespace()
-    audit.handle_history(args=args, console=console)
+    handle_history(args=args, console=console)
 
     output = console.export_text()
     assert "No audit history found" in output
@@ -122,7 +128,7 @@ def test_audit_history_with_entries(console, mock_data, dump_json):
     dump_json(mock_data.AUDIT_FILE, {"history": history_data})
 
     args = SimpleNamespace()
-    audit.handle_history(args=args, console=console)
+    handle_history(args=args, console=console)
 
     output = console.export_text()
     assert "Audit History Summary" in output
@@ -143,7 +149,7 @@ def test_audit_history_all_passed(console, mock_data, dump_json):
     dump_json(mock_data.AUDIT_FILE, {"history": history_data})
 
     args = SimpleNamespace()
-    audit.handle_history(args=args, console=console)
+    handle_history(args=args, console=console)
 
     output = console.export_text()
     assert "Total Audits: 2" in output
@@ -159,7 +165,7 @@ def test_audit_history_all_failed(console, mock_data, dump_json):
     dump_json(mock_data.AUDIT_FILE, {"history": history_data})
 
     args = SimpleNamespace()
-    audit.handle_history(args=args, console=console)
+    handle_history(args=args, console=console)
 
     output = console.export_text()
     assert "Total Audits: 2" in output
@@ -177,29 +183,28 @@ def test_get_last_audit_date_with_history(mock_data, dump_json):
     ]
     dump_json(mock_data.AUDIT_FILE, {"history": history_data})
 
-    last_date = audit.get_last_audit_date()
+    last_date = get_last_audit_date()
     assert last_date == date(2025, 1, 15)
 
 
 def test_get_last_audit_date_empty_history(mock_data, dump_json):
     dump_json(mock_data.AUDIT_FILE, {"history": []})
 
-    last_date = audit.get_last_audit_date()
+    last_date = get_last_audit_date()
     assert last_date is None
 
 
 def test_get_last_audit_date_no_history_field(mock_data, dump_json):
     dump_json(mock_data.AUDIT_FILE, {})
 
-    last_date = audit.get_last_audit_date()
+    last_date = get_last_audit_date()
     assert last_date is None
 
 
 def test_get_last_audit_date_no_file(mock_data):
-    # Ensure file doesn't exist
     mock_data.AUDIT_FILE.unlink(missing_ok=True)
 
-    last_date = audit.get_last_audit_date()
+    last_date = get_last_audit_date()
     assert last_date is None
 
 
@@ -210,5 +215,5 @@ def test_get_last_audit_date_entries_without_dates(mock_data, dump_json):
     ]
     dump_json(mock_data.AUDIT_FILE, {"history": history_data})
 
-    last_date = audit.get_last_audit_date()
+    last_date = get_last_audit_date()
     assert last_date is None

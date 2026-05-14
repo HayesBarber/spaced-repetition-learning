@@ -134,30 +134,29 @@ class SRLRequestHandler(BaseHTTPRequestHandler):
         code, response = root_handler(body, console)
 
         if code != 200:
-            self._send_error(response, code)
-        else:
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(response)
+            return self._send_error(response, code)
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(response)
 
     def handle_backup(self):
         content_type = self.headers.get("Content-Type")
         length = int(self.headers.get("Content-Length", 0))
         code, response = verify_backup_request(content_type, length)
         if code != 200:
-            self._send_error(response, code)
-            return
+            return self._send_error(response, code)
 
         data = self.rfile.read(length)
         console = self.server.console
         code, response = backup_handler(data, console)
 
         if code != 200:
-            self._send_error(response, code)
-        else:
-            self.send_response(200)
-            self.end_headers()
+            return self._send_error(response, code)
+
+        self.send_response(200)
+        self.end_headers()
 
     def _send_error(self, error_msg: str, code: int = 400):
         self.send_response(code)

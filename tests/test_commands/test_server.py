@@ -172,7 +172,7 @@ def _create_valid_backup():
     return buffer.getvalue()
 
 
-def test_integration_ledger_command(live_server, console):
+def test_integration_ledger_command(live_server):
     conn = HTTPConnection("127.0.0.1", live_server)
     body = json.dumps({"argv": ["ledger", "-c"]})
     conn.request("POST", "/", body=body, headers={"Content-Type": "application/json"})

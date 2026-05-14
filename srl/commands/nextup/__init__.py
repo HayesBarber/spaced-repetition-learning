@@ -18,6 +18,7 @@ def add_subparser(subparsers):
     return parser
 
 
+# here for backwards compat since a lot of tests call this handler
 def handle(args, console: Console):
     if args.action == "add":
         add.handle_add(args, console)

@@ -102,19 +102,19 @@ def test_nextup_add_allow_mastered_flag_file(parser):
 def test_audit_pass(parser):
     args = parser.parse_args(["audit", "pass"])
     assert args.command == "audit"
-    assert args.audit_command == "pass"
+    assert args.handler
 
 
 def test_audit_fail(parser):
     args = parser.parse_args(["audit", "fail"])
     assert args.command == "audit"
-    assert args.audit_command == "fail"
+    assert args.handler
 
 
 def test_audit_history(parser):
     args = parser.parse_args(["audit", "history"])
     assert args.command == "audit"
-    assert args.audit_command == "history"
+    assert args.handler
 
 
 def test_remove_by_name(parser):

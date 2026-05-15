@@ -2,7 +2,7 @@ import pytest
 
 
 def test_add_by_name(parser):
-    args = parser.parse_args(["add", "Two Sum", "3"])
+    args = parser.parse_args(["add", "-p", "Two Sum", "3"])
     assert args.command == "add"
     assert args.name == "Two Sum"
     assert args.number is None

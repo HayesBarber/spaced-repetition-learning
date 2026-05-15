@@ -10,9 +10,6 @@ from srl.storage import (
 from srl.commands.list_ import get_due_problems
 
 
-import argparse
-
-
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         "ledger",

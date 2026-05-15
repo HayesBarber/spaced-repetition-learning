@@ -69,12 +69,12 @@ def handle(args, console: Console):
 
     rating: int = args.rating
     url: str = getattr(args, "url", "")
-    data = load_json(PROGRESS_FILE)
+    progress_data = load_json(PROGRESS_FILE)
 
-    target_name = _get_canonical_name(data, name)
-    entry: dict = data.get(target_name, {"history": []})
+    target_name = _get_canonical_name(progress_data, name)
+    entry: dict = progress_data.get(target_name, {"history": []})
     if getattr(args, "amend", False):
-        if err := _amend_problem(data, entry, target_name, rating):
+        if err := _amend_problem(progress_data, entry, target_name, rating):
             return console.print(err)
     else:
         _append_problem(entry, rating)
@@ -82,19 +82,10 @@ def handle(args, console: Console):
     if url:
         entry["url"] = url
 
-    display_text = _update_progress_data(data, entry, target_name)
+    display_text = _update_progress_data(progress_data, entry, target_name)
     console.print(display_text)
 
-    # Remove from next up if it exists there
-    # and transfer the url if needed
-    next_up = load_json(NEXT_UP_FILE)
-    if target_name in next_up:
-        if next_up[target_name].get("url") and not data[target_name].get("url"):
-            data[target_name]["url"] = next_up[target_name]["url"]
-            save_json(PROGRESS_FILE, data)
-
-        del next_up[target_name]
-        save_json(NEXT_UP_FILE, next_up)
+    _remove_from_nextup(progress_data, target_name)
 
 
 def _resolve_problem_name(args) -> tuple[str, str]:
@@ -179,3 +170,16 @@ def _check_mastery(progress_data, entry, name) -> str | None:
         del progress_data[name]
 
     return f"[bold green]{name}[/bold green] moved to [cyan]mastered[/cyan]!"
+
+
+def _remove_from_nextup(progress_data, name):
+    next_up = load_json(NEXT_UP_FILE)
+    if name not in next_up:
+        return
+
+    if next_up[name].get("url") and not progress_data[name].get("url"):
+        progress_data[name]["url"] = next_up[name]["url"]
+        save_json(PROGRESS_FILE, progress_data)
+
+    del next_up[name]
+    save_json(NEXT_UP_FILE, next_up)

@@ -44,16 +44,17 @@ def add_subparser(subparsers):
 
     target.add_argument(
         "-n",
-        "--name",
-        type=str,
-        help="Problem name",
+        "--number",
+        type=int,
+        help="Problem number from 'srl list'",
     )
 
     target.add_argument(
-        "-i",
-        "--index",
-        type=int,
-        help="1-based index from 'srl list'",
+        "-p",
+        "--problem",
+        dest="name",
+        type=str,
+        help="Problem name",
     )
 
     parser.set_defaults(handler=handle)
@@ -62,17 +63,12 @@ def add_subparser(subparsers):
 
 
 def handle(args, console: Console):
+    name, err = _resolve_problem_name(args)
+    if err:
+        return console.print(err)
+
     rating: int = args.rating
     url: str = getattr(args, "url", "")
-    if hasattr(args, "index") and args.index is not None:
-        problems = get_due_problems()
-        if args.index > len(problems) or args.index <= 0:
-            console.print(f"[bold red]Invalid problem index: {args.index}[/bold red]")
-            return
-        name = problems[args.index - 1][0]
-    else:
-        name: str = args.name
-
     data = load_json(PROGRESS_FILE)
 
     # Check for existing entry case-insensitively
@@ -138,3 +134,23 @@ def handle(args, console: Console):
 
         del next_up[target_name]
         save_json(NEXT_UP_FILE, next_up)
+
+
+def _resolve_problem_name(args) -> tuple[str, str]:
+    """Returns tuple of (name, err)"""
+    if hasattr(args, "number") and args.number is not None:
+        problems = get_due_problems()
+        if args.number > len(problems) or args.number <= 0:
+            return None, f"[bold red]Invalid problem number: {args.number}[/bold red]"
+        name = problems[args.number - 1][0]
+        return name, None
+
+    if hasattr(args, "name"):
+        return args.name, None
+
+    problems = get_due_problems()
+    if len(problems) > 0:
+        name = problems[0][0]
+        return name, None
+
+    return None, "[bold red]Unable to resolve problem name[/bold red]"

@@ -2,18 +2,18 @@ import pytest
 
 
 def test_add_by_name(parser):
-    args = parser.parse_args(["add", "-n", "Two Sum", "3"])
+    args = parser.parse_args(["add", "-p", "Two Sum", "3"])
     assert args.command == "add"
     assert args.name == "Two Sum"
-    assert args.index is None
+    assert args.number is None
     assert args.rating == 3
 
 
 def test_add_by_number(parser):
-    args = parser.parse_args(["add", "-i", "4", "5"])
+    args = parser.parse_args(["add", "-n", "4", "5"])
     assert args.command == "add"
     assert args.name is None
-    assert args.index == 4
+    assert args.number == 4
     assert args.rating == 5
 
 

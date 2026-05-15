@@ -76,7 +76,7 @@ def add_subparser(subparsers):
         "-y",
         "--yes",
         action="store_true",
-        help="Skip confirmation and create a backup before restoring",
+        help="Skip confirmation (creates a backup before restoring)",
     )
 
     parser.set_defaults(handler=handle)

@@ -82,20 +82,9 @@ def handle(args, console: Console):
     if url:
         entry["url"] = url
 
-    # Mastery check: last two ratings are 5
-    history = entry["history"]
-    if len(history) >= 2 and history[-1]["rating"] == 5 and history[-2]["rating"] == 5:
-        mastered = load_json(MASTERED_FILE)
-        if target_name in mastered:
-            mastered[target_name]["history"].extend(history)
-        else:
-            mastered[target_name] = entry
-        save_json(MASTERED_FILE, mastered)
-        if target_name in data:
-            del data[target_name]
-        console.print(
-            f"[bold green]{target_name}[/bold green] moved to [cyan]mastered[/cyan]!"
-        )
+    mastered_text = _check_mastery(data, entry, target_name)
+    if mastered_text:
+        console.print(mastered_text)
     else:
         data[target_name] = entry
         console.print(
@@ -162,3 +151,27 @@ def _append_problem(entry, rating):
             "date": today().isoformat(),
         }
     )
+
+
+def _check_mastery(progress_data, entry, target_name) -> str | None:
+    """Returns display_text if moved to mastered, None otherwise"""
+    history = entry["history"]
+
+    mastered = (
+        len(history) >= 2 and history[-1]["rating"] == 5 and history[-2]["rating"] == 5
+    )
+
+    if not mastered:
+        return None
+
+    mastered = load_json(MASTERED_FILE)
+    if target_name in mastered:
+        mastered[target_name]["history"].extend(history)
+    else:
+        mastered[target_name] = entry
+    save_json(MASTERED_FILE, mastered)
+
+    if target_name in progress_data:
+        del progress_data[target_name]
+
+    return f"[bold green]{target_name}[/bold green] moved to [cyan]mastered[/cyan]!"

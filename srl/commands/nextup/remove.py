@@ -21,7 +21,7 @@ def add_subparser(subparsers):
         "-n",
         "--number",
         type=int,
-        help="Remove by 1-based index from 'srl nextup list'",
+        help="Problem number from 'srl nextup list'",
     )
     remove_parser.set_defaults(handler=handle_remove)
 

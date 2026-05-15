@@ -19,7 +19,11 @@ def add_subparser(subparsers):
     )
     add.add_argument("rating", type=int, choices=range(1, 6), help="Rating from 1-5")
     add.add_argument("-u", "--url", type=str, help="URL to the problem")
-    add.add_argument("--amend", action="store_true", help="Replace the latest rating instead of adding a new attempt")
+    add.add_argument(
+        "--amend",
+        action="store_true",
+        help="Replace the latest rating instead of adding a new attempt",
+    )
     add.set_defaults(handler=handle)
     return add
 
@@ -50,7 +54,9 @@ def handle(args, console: Console):
     entry = data.get(target_name, {"history": []})
     if getattr(args, "amend", False):
         if target_name not in data:
-            console.print(f"[bold red]Problem '{target_name}' not found in progress[/bold red]")
+            console.print(
+                f"[bold red]Problem '{target_name}' not found in progress[/bold red]"
+            )
             return
         elif entry["history"]:
             entry["history"][-1]["rating"] = rating
@@ -59,11 +65,11 @@ def handle(args, console: Console):
             return
     else:
         entry["history"].append(
-        {
-            "rating": rating,
-            "date": today().isoformat(),
-        }
-    )
+            {
+                "rating": rating,
+                "date": today().isoformat(),
+            }
+        )
     if url:
         entry["url"] = url
 

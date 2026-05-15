@@ -8,7 +8,7 @@ def test_take_print_problem(console):
     nextup.handle(SimpleNamespace(action="add", name=problem1), console=console)
     nextup.handle(SimpleNamespace(action="add", name=problem2), console=console)
 
-    args = SimpleNamespace(index=1, action=None, rating=None)
+    args = SimpleNamespace(number=1, action=None, rating=None)
     take.handle(args=args, console=console)
     output = console.export_text()
     assert problem1 in output
@@ -21,7 +21,7 @@ def test_take_index_out_of_bounds_high(console):
 
     save_json(NEXT_UP_FILE, {"Problem A": {"added": today().isoformat()}})
 
-    args = SimpleNamespace(index=2)  # Index 2 for 1 problem is out of bounds
+    args = SimpleNamespace(number=2)  # Index 2 for 1 problem is out of bounds
     take.handle(args=args, console=console)
     output = console.export_text()
     assert output == ""
@@ -34,7 +34,7 @@ def test_take_index_zero_is_invalid(console):
 
     save_json(NEXT_UP_FILE, {"Problem B": {"added": today().isoformat()}})
 
-    args = SimpleNamespace(index=0)  # Index 0 should be invalid
+    args = SimpleNamespace(number=0)  # Index 0 should be invalid
     take.handle(args=args, console=console)
     output = console.export_text()
     assert output == ""
@@ -50,7 +50,7 @@ def test_take_print_url_from_due_problem(console, backdate_problem):
     # backdate problem so it's due
     backdate_problem(problem, 5)
 
-    take_args = SimpleNamespace(index=1, action=None, rating=None, url=True)
+    take_args = SimpleNamespace(number=1, action=None, rating=None, url=True)
     take.handle(args=take_args, console=console)
 
     output = console.export_text()
@@ -68,7 +68,7 @@ def test_take_print_problem_from_due_problem_without_url(console, backdate_probl
     # backdate problem so it's due
     backdate_problem(problem, 5)
 
-    take_args = SimpleNamespace(index=1, action=None, rating=None)
+    take_args = SimpleNamespace(number=1, action=None, rating=None)
     take.handle(args=take_args, console=console)
     output = console.export_text()
     assert problem in output
@@ -84,7 +84,7 @@ def test_take_prints_none_with_url_flag_but_no_url(console, backdate_problem):
     # backdate problem so it's due
     backdate_problem(problem, 5)
 
-    take_args = SimpleNamespace(index=1, action=None, rating=None, url=True)
+    take_args = SimpleNamespace(number=1, action=None, rating=None, url=True)
     take.handle(args=take_args, console=console)
     output = console.export_text()
     assert not output
@@ -101,7 +101,7 @@ def test_take_print_url_from_nextup_problem(console):
 
     console.clear()
 
-    args = SimpleNamespace(index=2, action=None, rating=None, url=True)
+    args = SimpleNamespace(number=2, action=None, rating=None, url=True)
     take.handle(args=args, console=console)
     output = console.export_text()
     assert problem2 not in output

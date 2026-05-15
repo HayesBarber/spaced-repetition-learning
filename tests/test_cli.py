@@ -156,7 +156,7 @@ def test_config_get(parser):
 def test_take_command_basic(parser):
     args = parser.parse_args(["take", "1"])
     assert args.command == "take"
-    assert args.index == 1
+    assert args.number == 1
 
 
 def test_take_command_invalid_index(parser):

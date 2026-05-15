@@ -13,10 +13,10 @@ def positive_int(value: str) -> int:
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         "take",
-        help="Output a problem by index",
+        help="Output a problem by problem number",
     )
     parser.add_argument(
-        "index",
+        "number",
         type=positive_int,
         help="Problem number from `srl list`",
     )
@@ -32,7 +32,7 @@ def add_subparser(subparsers):
 
 def handle(args, console: Console):
     url_requested: bool = getattr(args, "url", False)
-    index: int = args.index
+    index: int = args.number
     if index <= 0:
         return
     problem = None

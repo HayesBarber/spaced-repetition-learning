@@ -27,30 +27,15 @@ def add_subparser(subparsers):
 
 
 def handle(args, console: Console):
-    progress_data = load_json(PROGRESS_FILE)
-    mastered_data = load_json(MASTERED_FILE)
-    audit_data = load_json(AUDIT_FILE)
-
     name, err = _resolve_name(args)
     if err:
         return console.print(err)
 
-    all_attempts = _get_inprogress_and_mastered_attempts(name)
-
-    for attempt in audit_data.get("history", []):
-        result = attempt["result"]
-        if result == "fail":
-            continue
-        if name and name.lower() not in attempt["problem"].lower():
-            continue
-        all_attempts.append(
-            {
-                "date": attempt["date"],
-                "problem": attempt["problem"],
-                "rating": 5,
-                "status": "audit",
-            }
-        )
+    all_attempts = _get_inprogress_and_mastered_attempts(
+        name,
+    ) + _get_audit_attemps(
+        name,
+    )
 
     all_attempts.sort(key=lambda x: x["date"])
 
@@ -104,7 +89,10 @@ def _resolve_name(args):
             return None, f"[red]Invalid problem number:[/red] {number}"
         name = due[number - 1][0]
 
-    return name, None
+    if name:
+        return name.lower(), None
+
+    return None, None
 
 
 def _get_inprogress_and_mastered_attempts(name):
@@ -117,17 +105,41 @@ def _get_inprogress_and_mastered_attempts(name):
         (progress_data, "progress"),
         (mastered_data, "mastered"),
     ):
-        for problem_url, problem_data in data.items():
-            if name and problem_url != name:
+        for problem, problem_data in data.items():
+            if name and name != problem.lower():
                 continue
             for attempt in problem_data.get("history", []):
                 attempts.append(
                     {
                         "date": attempt["date"],
-                        "problem": problem_url,
+                        "problem": problem,
                         "rating": attempt["rating"],
                         "status": status,
                     }
                 )
+
+    return attempts
+
+
+def _get_audit_attemps(name):
+    audit_data = load_json(AUDIT_FILE)
+
+    attempts = []
+
+    for attempt in audit_data.get("history", []):
+        result = attempt["result"]
+        if result == "fail":
+            continue
+        problem = attempt["problem"]
+        if name and name != problem.lower():
+            continue
+        attempts.append(
+            {
+                "date": attempt["date"],
+                "problem": problem,
+                "rating": 5,
+                "status": "audit",
+            }
+        )
 
     return attempts

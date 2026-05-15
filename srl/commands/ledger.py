@@ -9,6 +9,7 @@ from srl.storage import (
 )
 from srl.commands.list_ import get_due_problems
 
+
 def add_subparser(subparsers):
     parser = subparsers.add_parser("ledger", help="Print a summary of all attempts")
     parser.add_argument(
@@ -25,11 +26,6 @@ def add_subparser(subparsers):
     return parser
 
 
-def format_rating(rating):
-    color = "green" if rating >= 4 else "red"
-    return f"[{color}]{rating}[/{color}]"
-
-
 def handle(args, console: Console):
     progress_data = load_json(PROGRESS_FILE)
     mastered_data = load_json(MASTERED_FILE)
@@ -37,18 +33,10 @@ def handle(args, console: Console):
 
     all_attempts = []
 
-    name = getattr(args, "name", None)
-    number = getattr(args, "number", None)
+    (name, number), err = _resolve_name_and_number(args)
+    if err:
+        return console.print(err)
 
-    # Resolve --number to an exact problem name (matches srl list output)
-    if number is not None:
-        due = get_due_problems()
-        if number < 1 or number > len(due):
-            console.print(f"[red]Invalid problem number:[/red] {number}")
-            return
-        name = due[number - 1][0]
-
-    # Process progress and mastered problems
     for data, status in (
         (progress_data, "progress"),
         (mastered_data, "mastered"),
@@ -68,7 +56,6 @@ def handle(args, console: Console):
                     }
                 )
 
-    # Process audit attempts
     for attempt in audit_data.get("history", []):
         result = attempt["result"]
         if result == "fail":
@@ -116,8 +103,24 @@ def handle(args, console: Console):
         for attempt in all_attempts:
             rating_text = format_rating(attempt["rating"])
 
-            timeline_table.add_row(
-                attempt["date"], attempt["problem"], rating_text
-            )
+            timeline_table.add_row(attempt["date"], attempt["problem"], rating_text)
 
         console.print(timeline_table)
+
+
+def format_rating(rating):
+    color = "green" if rating >= 4 else "red"
+    return f"[{color}]{rating}[/{color}]"
+
+
+def _resolve_name_and_number(args):
+    name = getattr(args, "name", None)
+    number = getattr(args, "number", None)
+
+    if number is not None:
+        due = get_due_problems()
+        if number < 1 or number > len(due):
+            return (None, None), f"[red]Invalid problem number:[/red] {number}"
+        name = due[number - 1][0]
+
+    return (name, number), None

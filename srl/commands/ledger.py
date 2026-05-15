@@ -48,10 +48,14 @@ def handle(args, console: Console):
     if err:
         return console.print(err)
 
+    lower = name
+    if name:
+        lower = name.lower()
+
     all_attempts = _get_inprogress_and_mastered_attempts(
-        name,
+        lower,
     ) + _get_audit_attemps(
-        name,
+        lower,
     )
 
     all_attempts.sort(key=lambda x: x["date"])
@@ -107,7 +111,7 @@ def _resolve_name(args):
         name = due[index - 1][0]
 
     if name:
-        return name.lower(), None
+        return name, None
 
     return None, None
 

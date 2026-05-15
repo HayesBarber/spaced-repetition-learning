@@ -11,32 +11,65 @@ from srl.commands.list_ import get_due_problems
 
 
 def add_subparser(subparsers):
-    add = subparsers.add_parser("add", help="Add or update a problem attempt")
-    group = add.add_mutually_exclusive_group(required=True)
-    group.add_argument("name", nargs="?", type=str, help="Name of the problem")
-    group.add_argument(
-        "-n", "--number", type=int, help="Problem number from `srl list`"
+    parser = subparsers.add_parser(
+        "add",
+        help="Add or update a problem attempt",
+        description=(
+            "Add or update a problem attempt. "
+            "If no problem is specified, defaults to problem #1 from 'srl list'."
+        ),
     )
-    add.add_argument("rating", type=int, choices=range(1, 6), help="Rating from 1-5")
-    add.add_argument("-u", "--url", type=str, help="URL to the problem")
-    add.add_argument(
+
+    parser.add_argument(
+        "rating",
+        type=int,
+        choices=range(1, 6),
+        help="Rating from 1-5",
+    )
+
+    parser.add_argument(
+        "-u",
+        "--url",
+        type=str,
+        help="Problem URL",
+    )
+
+    parser.add_argument(
         "--amend",
         action="store_true",
         help="Replace the latest rating instead of adding a new attempt",
     )
-    add.set_defaults(handler=handle)
-    return add
+
+    target = parser.add_mutually_exclusive_group()
+
+    target.add_argument(
+        "-n",
+        "--name",
+        type=str,
+        help="Problem name",
+    )
+
+    target.add_argument(
+        "-i",
+        "--index",
+        type=int,
+        help="1-based index from 'srl list'",
+    )
+
+    parser.set_defaults(handler=handle)
+
+    return parser
 
 
 def handle(args, console: Console):
     rating: int = args.rating
     url: str = getattr(args, "url", "")
-    if hasattr(args, "number") and args.number is not None:
+    if hasattr(args, "index") and args.index is not None:
         problems = get_due_problems()
-        if args.number > len(problems) or args.number <= 0:
-            console.print(f"[bold red]Invalid problem number: {args.number}[/bold red]")
+        if args.index > len(problems) or args.index <= 0:
+            console.print(f"[bold red]Invalid problem index: {args.index}[/bold red]")
             return
-        name = problems[args.number - 1][0]
+        name = problems[args.index - 1][0]
     else:
         name: str = args.name
 

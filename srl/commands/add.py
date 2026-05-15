@@ -82,16 +82,8 @@ def handle(args, console: Console):
     if url:
         entry["url"] = url
 
-    mastered_text = _check_mastery(data, entry, target_name)
-    if mastered_text:
-        console.print(mastered_text)
-    else:
-        data[target_name] = entry
-        console.print(
-            f"Added rating [yellow]{rating}[/yellow] for '[cyan]{target_name}[/cyan]'"
-        )
-
-    save_json(PROGRESS_FILE, data)
+    display_text = _update_progress_data(data, entry, target_name)
+    console.print(display_text)
 
     # Remove from next up if it exists there
     # and transfer the url if needed
@@ -153,7 +145,19 @@ def _append_problem(entry, rating):
     )
 
 
-def _check_mastery(progress_data, entry, target_name) -> str | None:
+def _update_progress_data(progress_data, entry, name) -> str:
+    """Returns display_text"""
+    display_text = _check_mastery(progress_data, entry, name)
+    if not display_text:
+        progress_data[name] = entry
+        display_text = f"Added rating [yellow]{entry["history"][-1]["rating"]}[/yellow] for '[cyan]{name}[/cyan]'"
+
+    save_json(PROGRESS_FILE, progress_data)
+
+    return display_text
+
+
+def _check_mastery(progress_data, entry, name) -> str | None:
     """Returns display_text if moved to mastered, None otherwise"""
     history = entry["history"]
 
@@ -165,13 +169,13 @@ def _check_mastery(progress_data, entry, target_name) -> str | None:
         return None
 
     mastered = load_json(MASTERED_FILE)
-    if target_name in mastered:
-        mastered[target_name]["history"].extend(history)
+    if name in mastered:
+        mastered[name]["history"].extend(history)
     else:
-        mastered[target_name] = entry
+        mastered[name] = entry
     save_json(MASTERED_FILE, mastered)
 
-    if target_name in progress_data:
-        del progress_data[target_name]
+    if name in progress_data:
+        del progress_data[name]
 
-    return f"[bold green]{target_name}[/bold green] moved to [cyan]mastered[/cyan]!"
+    return f"[bold green]{name}[/bold green] moved to [cyan]mastered[/cyan]!"

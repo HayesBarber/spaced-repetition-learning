@@ -71,15 +71,7 @@ def handle(args, console: Console):
     url: str = getattr(args, "url", "")
     data = load_json(PROGRESS_FILE)
 
-    # Check for existing entry case-insensitively
-    existing_name = None
-    for key in data:
-        if key.lower() == name.lower():
-            existing_name = key
-            break
-
-    # Use existing name if found, otherwise use the provided name
-    target_name = existing_name if existing_name else name
+    target_name = _get_canonical_name(data, name)
     entry = data.get(target_name, {"history": []})
     if getattr(args, "amend", False):
         if target_name not in data:
@@ -154,3 +146,12 @@ def _resolve_problem_name(args) -> tuple[str, str]:
         return name, None
 
     return None, "[bold red]Unable to resolve problem name[/bold red]"
+
+
+def _get_canonical_name(progress_data, name):
+    """Returns existing problem name from progress_data case insensitive. If not found, returns name"""
+    for key in progress_data:
+        if key.lower() == name.lower():
+            return key
+
+    return name

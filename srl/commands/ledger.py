@@ -10,18 +10,38 @@ from srl.storage import (
 from srl.commands.list_ import get_due_problems
 
 
+import argparse
+
+
 def add_subparser(subparsers):
-    parser = subparsers.add_parser("ledger", help="Print a summary of all attempts")
+    parser = subparsers.add_parser(
+        "ledger",
+        help="Show attempt history for problems",
+    )
+
     parser.add_argument(
-        "-c", "--count", action="store_true", help="Show only the count of problems"
+        "-c",
+        "--count",
+        action="store_true",
+        help="Show only total attempt count",
     )
-    group = parser.add_mutually_exclusive_group(required=False)
+
+    group = parser.add_mutually_exclusive_group()
+
     group.add_argument(
-        "name", nargs="?", type=str, help="Name of the problem to filter by"
+        "-n",
+        "--name",
+        type=str,
+        help="Filter by problem name",
     )
+
     group.add_argument(
-        "-n", "--number", type=int, help="Problem number from `srl list`"
+        "-i",
+        "--index",
+        type=int,
+        help="Filter by 1-based index from 'srl list'",
     )
+
     parser.set_defaults(handler=handle)
     return parser
 
@@ -81,13 +101,13 @@ def _format_rating(rating):
 
 def _resolve_name(args):
     name = getattr(args, "name", None)
-    number = getattr(args, "number", None)
+    index = getattr(args, "index", None)
 
-    if number is not None:
+    if index is not None:
         due = get_due_problems()
-        if number < 1 or number > len(due):
-            return None, f"[red]Invalid problem number:[/red] {number}"
-        name = due[number - 1][0]
+        if index < 1 or index > len(due):
+            return None, f"[red]Invalid problem number:[/red] {index}"
+        name = due[index - 1][0]
 
     if name:
         return name.lower(), None

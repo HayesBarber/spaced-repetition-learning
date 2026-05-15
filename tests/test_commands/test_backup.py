@@ -21,15 +21,15 @@ def test_dirs(mock_data):
 def _patch(monkeypatch, data_dir, backup_dir):
     monkeypatch.setattr("srl.storage.BACKUP_DIR", backup_dir)
     monkeypatch.setattr("srl.storage.DATA_DIR", data_dir)
-    monkeypatch.setattr("srl.commands.backup.BACKUP_DIR", backup_dir)
-    monkeypatch.setattr("srl.commands.backup.DATA_DIR", data_dir)
+    monkeypatch.setattr("srl.commands.backup.utils.BACKUP_DIR", backup_dir)
+    monkeypatch.setattr("srl.commands.backup.utils.DATA_DIR", data_dir)
 
 
 def test_backup_creates_archive(test_dirs, console, monkeypatch):
     tmp_path, data_dir, backup_dir = test_dirs
     _patch(monkeypatch, data_dir, backup_dir)
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     archives = list(backup_dir.glob("backup-*.tar.gz"))
     assert len(archives) == 1
@@ -48,7 +48,7 @@ def test_backup_includes_all_storage_files(test_dirs, console, monkeypatch, tmp_
 
     _patch(monkeypatch, data_dir, backup_dir)
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     archives = list(backup_dir.glob("backup-*.tar.gz"))
     with tarfile.open(archives[0], "r:gz") as tar:
@@ -73,7 +73,7 @@ def test_backup_manifest_valid(test_dirs, console, monkeypatch, tmp_path):
 
     _patch(monkeypatch, data_dir, backup_dir)
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     archives = list(backup_dir.glob("backup-*.tar.gz"))
     with tarfile.open(archives[0], "r:gz") as tar:
@@ -98,9 +98,9 @@ def test_backup_multiple_runs_unique_names(test_dirs, console, monkeypatch):
 
     _patch(monkeypatch, data_dir, backup_dir)
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
     time.sleep(0.01)
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     archives = list(backup_dir.glob("backup-*.tar.gz"))
     assert len(archives) == 2
@@ -125,7 +125,7 @@ def test_backup_handles_empty_storage(test_dirs, console, monkeypatch):
         if fpath.exists():
             fpath.unlink()
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     archives = list(backup_dir.glob("backup-*.tar.gz"))
     assert len(archives) == 1
@@ -146,11 +146,11 @@ def test_prune_respects_max_backups(test_dirs, console, monkeypatch):
         (backup_dir / f"backup-2026-01-{i+1:02d}T000000.tar.gz").touch()
 
     monkeypatch.setattr(
-        "srl.commands.backup.Config.load",
+        "srl.commands.backup.utils.Config.load",
         lambda: type("Config", (), {"backup": {"max_backups": 2}})(),
     )
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     remaining = list(backup_dir.glob("backup-*.tar.gz"))
     assert len(remaining) == 2
@@ -164,11 +164,11 @@ def test_prune_keeps_newest_backup(test_dirs, console, monkeypatch):
         (backup_dir / f"backup-2026-01-{i+1:02d}T000000.tar.gz").touch()
 
     monkeypatch.setattr(
-        "srl.commands.backup.Config.load",
+        "srl.commands.backup.utils.Config.load",
         lambda: type("Config", (), {"backup": {"max_backups": 1}})(),
     )
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     remaining = list(backup_dir.glob("backup-*.tar.gz"))
     assert len(remaining) == 1
@@ -182,11 +182,11 @@ def test_prune_no_op_under_limit(test_dirs, console, monkeypatch):
         (backup_dir / f"backup-2026-01-{i+1:02d}T000000.tar.gz").touch()
 
     monkeypatch.setattr(
-        "srl.commands.backup.Config.load",
+        "srl.commands.backup.utils.Config.load",
         lambda: type("Config", (), {"backup": {"max_backups": 10}})(),
     )
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     remaining = list(backup_dir.glob("backup-*.tar.gz"))
     assert len(remaining) == 4
@@ -199,11 +199,11 @@ def test_prune_handles_zero_max_backups(test_dirs, console, monkeypatch):
     (backup_dir / "backup-2026-01-01T000000.tar.gz").touch()
 
     monkeypatch.setattr(
-        "srl.commands.backup.Config.load",
+        "srl.commands.backup.utils.Config.load",
         lambda: type("Config", (), {"backup": {"max_backups": 0}})(),
     )
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     remaining = list(backup_dir.glob("backup-*.tar.gz"))
     assert len(remaining) == 2
@@ -217,10 +217,11 @@ def test_prune_uses_default_when_not_configured(test_dirs, console, monkeypatch)
         (backup_dir / f"backup-2026-01-{i+1:02d}T000000.tar.gz").touch()
 
     monkeypatch.setattr(
-        "srl.commands.backup.Config.load", lambda: type("Config", (), {"backup": {}})()
+        "srl.commands.backup.utils.Config.load",
+        lambda: type("Config", (), {"backup": {}})(),
     )
 
-    backup.handle(SimpleNamespace(), console)
+    backup.create.handle(SimpleNamespace(), console)
 
     remaining = list(backup_dir.glob("backup-*.tar.gz"))
     assert len(remaining) == 10
@@ -256,7 +257,7 @@ class TestList:
         tmp_path, data_dir, backup_dir = test_dirs
         _patch(monkeypatch, data_dir, backup_dir)
 
-        backup.list_handle(SimpleNamespace(), console)
+        backup.list_.handle(SimpleNamespace(), console)
 
         assert "No backups found" in _get_output(console)
 
@@ -278,7 +279,7 @@ class TestList:
             [(data_dir / "problems_mastered.json", "problems_mastered.json")],
         )
 
-        backup.list_handle(SimpleNamespace(), console)
+        backup.list_.handle(SimpleNamespace(), console)
 
         output = _get_output(console)
         assert "backup-2026-01-01T000000.tar.gz" in output
@@ -295,7 +296,7 @@ class TestList:
             [(data_dir / "test.json", "test.json")],
         )
 
-        backup.list_handle(SimpleNamespace(), console)
+        backup.list_.handle(SimpleNamespace(), console)
 
         output = _get_output(console)
         assert "backup-2026-01-01T000000-1.tar.gz" in output
@@ -314,7 +315,7 @@ class TestVerify:
         )
 
         args = SimpleNamespace(file=str(archive))
-        backup.verify_handle(args, console)
+        backup.verify.handle(args, console)
 
         assert "verified successfully" in _get_output(console)
 
@@ -330,7 +331,7 @@ class TestVerify:
         )
 
         args = SimpleNamespace(file="backup-2026-01-01T000000.tar.gz")
-        backup.verify_handle(args, console)
+        backup.verify.handle(args, console)
 
         assert "verified successfully" in _get_output(console)
 
@@ -342,7 +343,7 @@ class TestVerify:
         corrupt.write_bytes(b"not a tar file")
 
         args = SimpleNamespace(file=str(corrupt))
-        backup.verify_handle(args, console)
+        backup.verify.handle(args, console)
 
         output = _get_output(console)
         assert "Error" in output
@@ -359,7 +360,7 @@ class TestVerify:
             tar.addfile(info, io.BytesIO(b""))
 
         args = SimpleNamespace(file=str(path))
-        backup.verify_handle(args, console)
+        backup.verify.handle(args, console)
 
         output = _get_output(console)
         assert "manifest.json not found" in output
@@ -376,7 +377,7 @@ class TestVerify:
             tar.addfile(info, io.BytesIO(data))
 
         args = SimpleNamespace(file=str(path))
-        backup.verify_handle(args, console)
+        backup.verify.handle(args, console)
 
         output = _get_output(console)
         assert "Error" in output and "Expecting" in output
@@ -394,7 +395,7 @@ class TestVerify:
             tar.addfile(info, io.BytesIO(data))
 
         args = SimpleNamespace(file=str(path))
-        backup.verify_handle(args, console)
+        backup.verify.handle(args, console)
 
         output = _get_output(console)
         assert "schema_version" in output
@@ -416,7 +417,7 @@ class TestVerify:
             tar.addfile(info, io.BytesIO(data))
 
         args = SimpleNamespace(file=str(path))
-        backup.verify_handle(args, console)
+        backup.verify.handle(args, console)
 
         output = _get_output(console)
         assert "Referenced file not in archive" in output
@@ -426,7 +427,7 @@ class TestVerify:
         _patch(monkeypatch, data_dir, backup_dir)
 
         args = SimpleNamespace(file="nonexistent.tar.gz")
-        backup.verify_handle(args, console)
+        backup.verify.handle(args, console)
 
         output = _get_output(console)
         assert "not found" in output
@@ -451,7 +452,7 @@ class TestRestore:
         monkeypatch.setattr("builtins.input", lambda: "n")
 
         args = SimpleNamespace(file=str(archive))
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "Restore cancelled" in output
@@ -472,7 +473,7 @@ class TestRestore:
         )
 
         args = SimpleNamespace(file=str(archive), yes=True)
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "Restore complete" in output
@@ -494,7 +495,7 @@ class TestRestore:
         monkeypatch.setattr("builtins.input", lambda: next(responses))
 
         args = SimpleNamespace(file=str(archive))
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "Restore cancelled" not in output
@@ -516,7 +517,7 @@ class TestRestore:
         )
 
         args = SimpleNamespace(file=str(archive), yes=True)
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         backups = sorted(backup_dir.glob("backup-*.tar.gz"))
         assert len(backups) == 2
@@ -530,7 +531,7 @@ class TestRestore:
         corrupt.write_bytes(b"not a tar file")
 
         args = SimpleNamespace(file=str(corrupt), yes=True)
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "Error" in output
@@ -551,7 +552,7 @@ class TestRestore:
             tar.addfile(info, io.BytesIO(b""))
 
         args = SimpleNamespace(file=str(path), yes=True)
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "manifest.json not found" in output
@@ -572,7 +573,7 @@ class TestRestore:
             tar.addfile(info, io.BytesIO(data))
 
         args = SimpleNamespace(file=str(path), yes=True)
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "Error" in output and "Expecting" in output
@@ -594,7 +595,7 @@ class TestRestore:
             tar.addfile(info, io.BytesIO(data))
 
         args = SimpleNamespace(file=str(path), yes=True)
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "schema_version" in output
@@ -620,7 +621,7 @@ class TestRestore:
             tar.addfile(info, io.BytesIO(data))
 
         args = SimpleNamespace(file=str(path), yes=True)
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "Referenced file not in archive" in output
@@ -633,7 +634,7 @@ class TestRestore:
         _patch(monkeypatch, data_dir, backup_dir)
 
         args = SimpleNamespace(file="nonexistent.tar.gz")
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "not found" in output
@@ -652,7 +653,7 @@ class TestRestore:
         monkeypatch.setattr("builtins.input", raise_interrupt)
 
         args = SimpleNamespace(file=str(archive))
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         assert "Restore cancelled" in _get_output(console)
 
@@ -675,7 +676,7 @@ class TestRestore:
         monkeypatch.setattr("builtins.input", input_side_effect)
 
         args = SimpleNamespace(file=str(archive))
-        backup.restore_handle(args, console)
+        backup.restore.handle(args, console)
 
         output = _get_output(console)
         assert "Restore cancelled" in output
@@ -692,16 +693,18 @@ class TestReplicateBackup:
             {"backup": {"replication_enabled": False}},
         )()
 
-        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+        monkeypatch.setattr(
+            "srl.commands.backup.utils.Config.load", lambda: mock_config
+        )
 
         mock_urlopen = MagicMock()
         monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
 
-        backup.replicate_backup("backup-test.tar.gz", console)
+        backup.create.handle("backup-test.tar.gz", console)
 
         mock_urlopen.assert_not_called()
         output = _get_output(console)
-        assert output == ""
+        assert "Backup replicated to remote" not in output
 
     def test_replication_enabled_no_host_shows_warning(
         self, test_dirs, console, monkeypatch
@@ -715,9 +718,11 @@ class TestReplicateBackup:
             {"backup": {"replication_enabled": True, "replication_remote_host": ""}},
         )()
 
-        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+        monkeypatch.setattr(
+            "srl.commands.backup.utils.Config.load", lambda: mock_config
+        )
 
-        backup.replicate_backup("backup-test.tar.gz", console)
+        backup.create.handle("backup-test.tar.gz", console)
 
         output = _get_output(console)
         assert "Remote host not configured" in output
@@ -738,9 +743,11 @@ class TestReplicateBackup:
             },
         )()
 
-        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+        monkeypatch.setattr(
+            "srl.commands.backup.utils.Config.load", lambda: mock_config
+        )
 
-        backup.replicate_backup("nonexistent-backup.tar.gz", console)
+        backup.utils.replicate_backup("nonexistent-backup.tar.gz", console)
 
         output = _get_output(console)
         assert "Backup file not found" in output
@@ -761,7 +768,9 @@ class TestReplicateBackup:
             },
         )()
 
-        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+        monkeypatch.setattr(
+            "srl.commands.backup.utils.Config.load", lambda: mock_config
+        )
 
         test_archive = backup_dir / "backup-test.tar.gz"
         test_archive.write_bytes(b"fake tar data")
@@ -778,7 +787,7 @@ class TestReplicateBackup:
         mock_urlopen = MagicMock(return_value=MockResponse())
         monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
 
-        backup.replicate_backup("backup-test.tar.gz", console)
+        backup.create.handle("backup-test.tar.gz", console)
 
         mock_urlopen.assert_called_once()
         call_args = mock_urlopen.call_args
@@ -808,7 +817,9 @@ class TestReplicateBackup:
             },
         )()
 
-        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+        monkeypatch.setattr(
+            "srl.commands.backup.utils.Config.load", lambda: mock_config
+        )
 
         test_archive = backup_dir / "backup-test.tar.gz"
         test_archive.write_bytes(b"fake tar data")
@@ -825,7 +836,7 @@ class TestReplicateBackup:
         mock_urlopen = MagicMock(return_value=MockResponse())
         monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
 
-        backup.replicate_backup("backup-test.tar.gz", console)
+        backup.create.handle("backup-test.tar.gz", console)
 
         output = _get_output(console)
         assert "Remote replication failed" in output
@@ -849,7 +860,9 @@ class TestReplicateBackup:
             },
         )()
 
-        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+        monkeypatch.setattr(
+            "srl.commands.backup.utils.Config.load", lambda: mock_config
+        )
 
         test_archive = backup_dir / "backup-test.tar.gz"
         test_archive.write_bytes(b"fake tar data")
@@ -859,7 +872,7 @@ class TestReplicateBackup:
         )
         monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
 
-        backup.replicate_backup("backup-test.tar.gz", console)
+        backup.create.handle("backup-test.tar.gz", console)
 
         output = _get_output(console)
         assert "Failed to connect to remote server" in output
@@ -881,7 +894,9 @@ class TestReplicateBackup:
             },
         )()
 
-        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+        monkeypatch.setattr(
+            "srl.commands.backup.utils.Config.load", lambda: mock_config
+        )
 
         test_archive = backup_dir / "backup-test.tar.gz"
         test_archive.write_bytes(b"fake tar data")
@@ -889,7 +904,7 @@ class TestReplicateBackup:
         mock_urlopen = MagicMock(side_effect=Exception("Unexpected error"))
         monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
 
-        backup.replicate_backup("backup-test.tar.gz", console)
+        backup.create.handle("backup-test.tar.gz", console)
 
         output = _get_output(console)
         assert "Error during replication" in output
@@ -922,12 +937,16 @@ class TestReplicateBackup:
             },
         )()
 
-        monkeypatch.setattr("srl.commands.backup.Config.load", lambda: mock_config)
+        monkeypatch.setattr(
+            "srl.commands.backup.utils.Config.load", lambda: mock_config
+        )
 
         mock_replicate = MagicMock()
-        monkeypatch.setattr("srl.commands.backup.replicate_backup", mock_replicate)
+        monkeypatch.setattr(
+            "srl.commands.backup.utils.replicate_backup", mock_replicate
+        )
 
-        backup.handle(SimpleNamespace(), console)
+        backup.create.handle(SimpleNamespace(), console)
 
         mock_replicate.assert_called_once()
         call_args = mock_replicate.call_args

@@ -3,7 +3,11 @@ from io import StringIO
 from rich.console import Console
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
-from srl.commands.backup import resolve_backup_path, verify_handle, prune_old_backups
+from srl.commands.backup.utils import (
+    resolve_backup_path,
+    prune_old_backups,
+)
+from srl.commands.backup.verify import handle as verify_handle
 from types import SimpleNamespace
 
 

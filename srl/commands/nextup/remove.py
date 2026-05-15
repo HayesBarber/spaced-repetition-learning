@@ -1,5 +1,5 @@
 from rich.console import Console
-from .util import get_next_up_problems
+from .utils import get_next_up_problems
 from srl.storage import (
     load_json,
     save_json,

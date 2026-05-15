@@ -1,6 +1,6 @@
 from rich.console import Console
 
-from .utils import get_current_audit, random_audit, get_problem_url
+from .utils import get_current_audit, random_audit, get_problem_url_from_mastered
 from srl.utils import format_problem
 
 
@@ -18,7 +18,7 @@ def handle_run(args, console: Console):
     curr = get_current_audit()
 
     if curr:
-        url = get_problem_url(curr)
+        url = get_problem_url_from_mastered(curr)
         display = format_problem(curr, url)
         console.print(f"Current audit problem: [cyan]{display}[/cyan]")
         console.print("[blue]Run 'pass' or 'fail' to complete it.[/blue]")

@@ -18,7 +18,7 @@ def get_current_audit():
     return data.get("current_audit")
 
 
-def get_problem_url(name):
+def get_problem_url_from_mastered(name):
     mastered = load_json(MASTERED_FILE)
     url = mastered.get(name, {}).get("url", None)
     return url
@@ -91,7 +91,11 @@ def audit_fail(curr, console: Console):
 
 
 def random_audit():
-    """Select and persist a random mastered problem for audit."""
+    """
+    Select and persist a random mastered problem for audit.
+
+    Returns (name, url) tuple.
+    """
 
     data_mastered = load_json(MASTERED_FILE)
     mastered = list(data_mastered)

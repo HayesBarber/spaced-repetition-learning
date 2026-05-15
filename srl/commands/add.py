@@ -72,25 +72,13 @@ def handle(args, console: Console):
     data = load_json(PROGRESS_FILE)
 
     target_name = _get_canonical_name(data, name)
-    entry = data.get(target_name, {"history": []})
+    entry: dict = data.get(target_name, {"history": []})
     if getattr(args, "amend", False):
-        if target_name not in data:
-            console.print(
-                f"[bold red]Problem '{target_name}' not found in progress[/bold red]"
-            )
-            return
-        elif entry["history"]:
-            entry["history"][-1]["rating"] = rating
-        else:
-            console.print(f"[bold red]No attempts found for '{target_name}'[/bold red]")
-            return
+        if err := _amend_problem(data, entry, target_name, rating):
+            return console.print(err)
     else:
-        entry["history"].append(
-            {
-                "rating": rating,
-                "date": today().isoformat(),
-            }
-        )
+        _append_problem(entry, rating)
+
     if url:
         entry["url"] = url
 
@@ -155,3 +143,22 @@ def _get_canonical_name(progress_data, name):
             return key
 
     return name
+
+
+def _amend_problem(progress_data, entry, name, rating) -> str | None:
+    """Returns err as str or None if successful"""
+    if name not in progress_data:
+        return f"[bold red]Problem '{name}' not found in progress[/bold red]"
+    elif entry["history"]:
+        entry["history"][-1]["rating"] = rating
+    else:
+        return f"[bold red]No attempts found for '{name}'[/bold red]"
+
+
+def _append_problem(entry, rating):
+    entry["history"].append(
+        {
+            "rating": rating,
+            "date": today().isoformat(),
+        }
+    )

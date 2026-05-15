@@ -27,16 +27,18 @@ def add_subparser(subparsers):
 
     group.add_argument(
         "-n",
-        "--name",
-        type=str,
-        help="Filter by problem name",
+        "--number",
+        dest="index",
+        type=int,
+        help="Problem number from 'srl list'",
     )
 
     group.add_argument(
-        "-i",
-        "--index",
-        type=int,
-        help="Filter by 1-based index from 'srl list'",
+        "-p",
+        "--problem",
+        type=str,
+        dest="name",
+        help="Filter by problem name",
     )
 
     parser.set_defaults(handler=handle)

@@ -31,30 +31,11 @@ def handle(args, console: Console):
     mastered_data = load_json(MASTERED_FILE)
     audit_data = load_json(AUDIT_FILE)
 
-    all_attempts = []
-
-    (name, number), err = _resolve_name_and_number(args)
+    name, err = _resolve_name(args)
     if err:
         return console.print(err)
 
-    for data, status in (
-        (progress_data, "progress"),
-        (mastered_data, "mastered"),
-    ):
-        for problem_url, problem_data in data.items():
-            if number is not None and problem_url != name:
-                continue
-            if name and number is None and name.lower() not in problem_url.lower():
-                continue
-            for attempt in problem_data.get("history", []):
-                all_attempts.append(
-                    {
-                        "date": attempt["date"],
-                        "problem": problem_url,
-                        "rating": attempt["rating"],
-                        "status": status,
-                    }
-                )
+    all_attempts = _get_inprogress_and_mastered_attempts(name)
 
     for attempt in audit_data.get("history", []):
         result = attempt["result"]
@@ -113,14 +94,40 @@ def _format_rating(rating):
     return f"[{color}]{rating}[/{color}]"
 
 
-def _resolve_name_and_number(args):
+def _resolve_name(args):
     name = getattr(args, "name", None)
     number = getattr(args, "number", None)
 
     if number is not None:
         due = get_due_problems()
         if number < 1 or number > len(due):
-            return (None, None), f"[red]Invalid problem number:[/red] {number}"
+            return None, f"[red]Invalid problem number:[/red] {number}"
         name = due[number - 1][0]
 
-    return (name, number), None
+    return name, None
+
+
+def _get_inprogress_and_mastered_attempts(name):
+    progress_data = load_json(PROGRESS_FILE)
+    mastered_data = load_json(MASTERED_FILE)
+
+    attempts = []
+
+    for data, status in (
+        (progress_data, "progress"),
+        (mastered_data, "mastered"),
+    ):
+        for problem_url, problem_data in data.items():
+            if name and problem_url != name:
+                continue
+            for attempt in problem_data.get("history", []):
+                attempts.append(
+                    {
+                        "date": attempt["date"],
+                        "problem": problem_url,
+                        "rating": attempt["rating"],
+                        "status": status,
+                    }
+                )
+
+    return attempts

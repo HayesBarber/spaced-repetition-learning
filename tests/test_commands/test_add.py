@@ -93,6 +93,28 @@ def test_append_to_mastered_already_present(mock_data, console, load_json, dump_
     assert "moved to" in output
 
 
+def test_add_uses_problem_1_when_no_args_provided(
+    console, load_json, backdate_problem, mock_data
+):
+    # Add problem and make due
+    problem = "Problem 1"
+    add.handle(SimpleNamespace(name=problem, rating=3, number=None), console)
+    backdate_problem(problem, 5)
+
+    console.clear()
+
+    rating = 1
+    args = SimpleNamespace(rating=rating)
+    add.handle(args, console)
+
+    progress_data = load_json(mock_data.PROGRESS_FILE)
+    assert problem in progress_data
+    assert progress_data[problem]["history"][-1]["rating"] == rating
+
+    output = console.export_text()
+    assert f"Added rating {rating} for '{problem}'" in output
+
+
 def test_add_by_number_valid(console, load_json, backdate_problem, mock_data):
     problem1 = "Problem 1"
     problem2 = "Problem 2"
@@ -226,7 +248,7 @@ def test_add_by_number_case_insensitive(
     original_get_due_problems = get_due_problems
 
     def mock_get_due_problems():
-            return [(problem_upper, "")]
+        return [(problem_upper, "")]
 
     add.get_due_problems = mock_get_due_problems
 
@@ -290,10 +312,7 @@ def test_add_preserves_url_from_nextup(mock_data, console, load_json):
     url = "https://example.com"
 
     # Add problem to nextup with URL
-    nextup.handle(
-        SimpleNamespace(action="add", name=problem, url=url),
-        console
-    )
+    nextup.handle(SimpleNamespace(action="add", name=problem, url=url), console)
 
     # Add rating (moves from nextup to progress)
     args = SimpleNamespace(name=problem, rating=3)
@@ -322,6 +341,7 @@ def test_move_problem_with_url_to_mastered(mock_data, console, load_json):
     assert problem in mastered
     assert mastered[problem]["url"] == url
 
+
 def test_amend_replaces_last_rating(mock_data, console, load_json):
     problem = "Replaces last entry"
 
@@ -335,20 +355,23 @@ def test_amend_replaces_last_rating(mock_data, console, load_json):
     assert len(progress[problem]["history"]) == 1
     assert progress[problem]["history"][-1]["rating"] == 5
 
+
 def test_amend_preserves_original_date(mock_data, console, load_json, dump_json):
     problem = "Preserves date"
     original_date = "2025-11-14"
 
     # Pre-populate with a known date
-    dump_json(mock_data.PROGRESS_FILE, {
-        problem: {"history": [{"rating": 1, "date": original_date}]}
-    })
+    dump_json(
+        mock_data.PROGRESS_FILE,
+        {problem: {"history": [{"rating": 1, "date": original_date}]}},
+    )
 
     args = SimpleNamespace(name=problem, rating=5, number=None, amend=True)
     add.handle(args=args, console=console)
 
     progress = load_json(mock_data.PROGRESS_FILE)
     assert progress[problem]["history"][-1]["date"] == original_date
+
 
 def test_amend_on_nonexistent_problem_shows_error(mock_data, console, load_json):
     problem = "Nonexistent problem"
@@ -357,7 +380,10 @@ def test_amend_on_nonexistent_problem_shows_error(mock_data, console, load_json)
 
     assert "not found in progress" in console.export_text()
 
-def test_amend_on_problem_with_no_history_shows_error(mock_data, console, load_json, dump_json):
+
+def test_amend_on_problem_with_no_history_shows_error(
+    mock_data, console, load_json, dump_json
+):
     problem = "No history"
 
     # Problem exists in progress but has no attempts
@@ -367,6 +393,7 @@ def test_amend_on_problem_with_no_history_shows_error(mock_data, console, load_j
     add.handle(args=args, console=console)
 
     assert "No attempts found" in console.export_text()
+
 
 def test_amend_with_number_flag(mock_data, console, load_json, backdate_problem):
     problem = "Amend with number"
@@ -383,4 +410,3 @@ def test_amend_with_number_flag(mock_data, console, load_json, backdate_problem)
     progress = load_json(mock_data.PROGRESS_FILE)
     assert len(progress[problem]["history"]) == 1
     assert progress[problem]["history"][-1]["rating"] == 5
-

@@ -1,5 +1,4 @@
 import pytest
-import srl.commands
 from srl.utils import today
 from rich.console import Console
 from dataclasses import dataclass

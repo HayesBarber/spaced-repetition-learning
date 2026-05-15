@@ -1,5 +1,4 @@
 from rich.console import Console
-from srl.utils import format_problem
 from srl.utils import today
 from srl.storage import (
     load_json,

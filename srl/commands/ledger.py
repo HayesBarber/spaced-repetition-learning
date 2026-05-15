@@ -89,7 +89,7 @@ def handle(args, console: Console):
         focused_table.add_column("Rating", justify="center")
 
         for attempt in all_attempts:
-            rating_text = format_rating(attempt["rating"])
+            rating_text = _format_rating(attempt["rating"])
 
             focused_table.add_row(attempt["date"], rating_text)
 
@@ -101,14 +101,14 @@ def handle(args, console: Console):
         timeline_table.add_column("Rating", justify="center")
 
         for attempt in all_attempts:
-            rating_text = format_rating(attempt["rating"])
+            rating_text = _format_rating(attempt["rating"])
 
             timeline_table.add_row(attempt["date"], attempt["problem"], rating_text)
 
         console.print(timeline_table)
 
 
-def format_rating(rating):
+def _format_rating(rating):
     color = "green" if rating >= 4 else "red"
     return f"[{color}]{rating}[/{color}]"
 

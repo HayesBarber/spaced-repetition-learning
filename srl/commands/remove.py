@@ -21,28 +21,35 @@ def add_subparser(subparsers):
 
 def handle(args, console: Console):
     data = load_json(PROGRESS_FILE)
+    name, err = _resolve_name(data, args)
+    if err:
+        return console.print(err)
+
+    del data[name]
+    save_json(PROGRESS_FILE, data)
+    console.print(
+        f"[green]Removed[/green] '[cyan]{name}[/cyan]' [green]from in-progress.[/green]"
+    )
+
+
+def _resolve_name(progress_data, args):
+    """Returns tuple of (name, err)"""
     name = getattr(args, "name", None)
+    number = getattr(args, "number", None)
 
-    if getattr(args, "number", None) is not None:
-        names = list(data.keys())
-
-        if args.number < 1 or args.number > len(names):
-            console.print(f"[red]Invalid problem number:[/red] {args.number}")
-            return
+    if number is not None:
+        names = list(progress_data.keys())
+        if number < 1 or number > len(names):
+            return None, f"[red]Invalid problem number:[/red] {number}"
 
         name = names[args.number - 1]
 
-    if not name:
-        console.print("[red]Invalid args[/red]")
-        return
+    if name:
+        if name not in progress_data:
+            return (
+                None,
+                f"[red]Problem[/red] '[cyan]{name}[/cyan]' [red]not found in in-progress.[/red]",
+            )
+        return name, None
 
-    if name in data:
-        del data[name]
-        save_json(PROGRESS_FILE, data)
-        console.print(
-            f"[green]Removed[/green] '[cyan]{name}[/cyan]' [green]from in-progress.[/green]"
-        )
-    else:
-        console.print(
-            f"[red]Problem[/red] '[cyan]{name}[/cyan]' [red]not found in in-progress.[/red]"
-        )
+    return None, "[red]Invalid args[/red]"

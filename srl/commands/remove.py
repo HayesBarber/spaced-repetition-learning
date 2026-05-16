@@ -34,16 +34,17 @@ def handle(args, console: Console):
 
 def _resolve_name(progress_data, args):
     """Returns tuple of (name, err)"""
-    name = getattr(args, "name", None)
-    number = getattr(args, "number", None)
 
+    number = getattr(args, "number", None)
     if number is not None:
         names = list(progress_data.keys())
         if number < 1 or number > len(names):
             return None, f"[red]Invalid problem number:[/red] {number}"
 
         name = names[args.number - 1]
+        return name, None
 
+    name = getattr(args, "name", None)
     if name:
         key = _resolve_in_progress_key(progress_data, name.lower())
         if not key:

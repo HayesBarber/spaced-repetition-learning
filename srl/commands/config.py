@@ -178,12 +178,6 @@ def _handle_updates(cfg: Config, console: Console, args):
                 else f"max days without audit to [cyan]{v}[/cyan]"
             ),
         ),
-        (
-            args.max_backups,
-            lambda v: v > 0,
-            lambda v: cfg.backup.__setitem__("max_backups", v),
-            lambda v: f"max backups to [cyan]{v}[/cyan]",
-        ),
     ]
 
     for value, validator, setter, message in updates:
@@ -193,7 +187,7 @@ def _handle_updates(cfg: Config, console: Console, args):
         setter(value)
         updated.append(message(value))
 
-    _handle_replication_updates(cfg, args, updated)
+    _handle_backup_updates(cfg, args, updated)
 
     if not updated:
         return console.print("[yellow]No valid configuration option provided.[/yellow]")
@@ -202,8 +196,9 @@ def _handle_updates(cfg: Config, console: Console, args):
     console.print(f"Updated: {', '.join(updated)}")
 
 
-def _handle_replication_updates(cfg, args, updated):
+def _handle_backup_updates(cfg, args, updated):
     replication_updates = {
+        "max_backups": args.max_backups,
         "replication_remote_host": args.replication_remote_host,
         "replication_remote_port": args.replication_remote_port,
         "replication_enabled": args.replication_enabled,

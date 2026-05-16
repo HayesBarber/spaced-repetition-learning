@@ -20,29 +20,48 @@ def add_subparser(subparsers):
 
 
 def handle(args, console: Console):
-    data = load_json(PROGRESS_FILE)
-    name = getattr(args, "name", None)
+    progress_data = load_json(PROGRESS_FILE)
+    name, err = _resolve_name(progress_data, args)
+    if err:
+        return console.print(err)
 
-    if getattr(args, "number", None) is not None:
-        names = list(data.keys())
+    del progress_data[name]
+    save_json(PROGRESS_FILE, progress_data)
+    console.print(
+        f"[green]Removed[/green] '[cyan]{name}[/cyan]' [green]from in-progress.[/green]"
+    )
 
-        if args.number < 1 or args.number > len(names):
-            console.print(f"[red]Invalid problem number:[/red] {args.number}")
-            return
+
+def _resolve_name(progress_data, args):
+    """Returns tuple of (name, err)"""
+
+    number = getattr(args, "number", None)
+    if number is not None:
+        names = list(progress_data.keys())
+        if number < 1 or number > len(names):
+            return None, f"[red]Invalid problem number:[/red] {number}"
 
         name = names[args.number - 1]
+        return name, None
 
-    if not name:
-        console.print("[red]Invalid args[/red]")
-        return
+    name = getattr(args, "name", None)
+    if name:
+        key = _resolve_in_progress_key(progress_data, name.lower())
+        if not key:
+            return (
+                None,
+                f"[red]Problem[/red] '[cyan]{name}[/cyan]' [red]not found in in-progress.[/red]",
+            )
+        return key, None
 
-    if name in data:
-        del data[name]
-        save_json(PROGRESS_FILE, data)
-        console.print(
-            f"[green]Removed[/green] '[cyan]{name}[/cyan]' [green]from in-progress.[/green]"
-        )
-    else:
-        console.print(
-            f"[red]Problem[/red] '[cyan]{name}[/cyan]' [red]not found in in-progress.[/red]"
-        )
+    return None, "[red]Invalid args[/red]"
+
+
+def _resolve_in_progress_key(progress_data: dict, name):
+    """Returns progress_data key if name is in progress_data, None otherwise. Case insensitive. Expects name to be passed in as lowercase"""
+
+    for key in progress_data:
+        if key.lower() == name:
+            return key
+
+    return None

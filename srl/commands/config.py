@@ -115,71 +115,89 @@ def handle(args, console: Console):
     cfg = Config.load()
 
     if getattr(args, "get", False):
-        console.print_json(data=cfg.__dict__)
-    elif getattr(args, "reset_colors", False):
-        cfg.reset_colors()
-        cfg.save()
-        console.print("Colors reset")
-    elif getattr(args, "set_color", []):
-        updated_levels = []
+        return _handle_get(cfg, console)
 
-        for entry in args.set_color:
-            try:
-                level_str, hex_value = entry.split("=")
-                level = int(level_str)
-                cfg.calendar_colors[level] = hex_value
-                updated_levels.append(level)
-            except ValueError:
-                console.print(f"[red]Invalid format: {entry}[/red]")
-                continue
+    if getattr(args, "reset_colors", False):
+        return _handle_reset_colors(cfg, console)
 
-        cfg.save()
+    if getattr(args, "set_color", []):
+        return _handle_set_colors(cfg, console, args)
 
-        if updated_levels:
-            lvls = ", ".join(str(level) for level in updated_levels)
-            console.print(f"[green]Updated colors for level(s): {lvls}.[/green]")
-        else:
-            console.print("[yellow]No valid color updates provided.[/yellow]")
+    return _handle_updates(cfg, console, args)
+
+
+def _handle_get(cfg: Config, console: Console):
+    console.print_json(data=cfg.__dict__)
+
+
+def _handle_reset_colors(cfg: Config, console: Console):
+    cfg.reset_colors()
+    cfg.save()
+    console.print("Colors reset")
+
+
+def _handle_set_colors(cfg: Config, console: Console, args):
+    updated_levels = []
+
+    for entry in args.set_color:
+        try:
+            level_str, hex_value = entry.split("=")
+            level = int(level_str)
+            cfg.calendar_colors[level] = hex_value
+            updated_levels.append(level)
+        except ValueError:
+            console.print(f"[red]Invalid format: {entry}[/red]")
+            continue
+
+    cfg.save()
+
+    if updated_levels:
+        lvls = ", ".join(str(level) for level in updated_levels)
+        console.print(f"[green]Updated colors for level(s): {lvls}.[/green]")
     else:
-        probability: float | None = getattr(args, "audit_probability", None)
-        max_days: int | None = getattr(args, "max_days_without_audit", None)
-        max_backups: int | None = getattr(args, "max_backups", None)
-        host: str | None = getattr(args, "replication_remote_host", None)
-        port: int | None = getattr(args, "replication_remote_port", None)
-        enabled: bool | None = getattr(args, "replication_enabled", None)
+        console.print("[yellow]No valid color updates provided.[/yellow]")
 
-        updated = []
 
-        if probability is not None and probability >= 0:
-            cfg.set("audit_probability", probability)
-            updated.append(f"audit probability to [cyan]{probability}[/cyan]")
+def _handle_updates(cfg: Config, console: Console, args):
+    probability: float | None = getattr(args, "audit_probability", None)
+    max_days: int | None = getattr(args, "max_days_without_audit", None)
+    max_backups: int | None = getattr(args, "max_backups", None)
+    host: str | None = getattr(args, "replication_remote_host", None)
+    port: int | None = getattr(args, "replication_remote_port", None)
+    enabled: bool | None = getattr(args, "replication_enabled", None)
 
-        if max_days is not None and max_days >= 0:
-            cfg.set("max_days_without_audit", max_days)
-            if max_days == 0:
-                updated.append("max days without audit to [cyan]disabled[/cyan]")
-            else:
-                updated.append(f"max days without audit to [cyan]{max_days}[/cyan]")
+    updated = []
 
-        if max_backups is not None and max_backups > 0:
-            cfg.backup["max_backups"] = max_backups
-            updated.append(f"max backups to [cyan]{max_backups}[/cyan]")
+    if probability is not None and probability >= 0:
+        cfg.set("audit_probability", probability)
+        updated.append(f"audit probability to [cyan]{probability}[/cyan]")
 
-        if host is not None:
-            cfg.backup["replication_remote_host"] = host
-            updated.append(f"replication remote host to [cyan]{host}[/cyan]")
-
-        if port is not None:
-            cfg.backup["replication_remote_port"] = port
-            updated.append(f"replication remote port to [cyan]{port}[/cyan]")
-
-        if enabled is not None:
-            cfg.backup["replication_enabled"] = enabled
-            state = "enabled" if enabled else "disabled"
-            updated.append(f"replication [cyan]{state}[/cyan]")
-
-        if updated:
-            cfg.save()
-            console.print(f"Updated: {', '.join(updated)}")
+    if max_days is not None and max_days >= 0:
+        cfg.set("max_days_without_audit", max_days)
+        if max_days == 0:
+            updated.append("max days without audit to [cyan]disabled[/cyan]")
         else:
-            console.print("[yellow]No valid configuration option provided.[/yellow]")
+            updated.append(f"max days without audit to [cyan]{max_days}[/cyan]")
+
+    if max_backups is not None and max_backups > 0:
+        cfg.backup["max_backups"] = max_backups
+        updated.append(f"max backups to [cyan]{max_backups}[/cyan]")
+
+    if host is not None:
+        cfg.backup["replication_remote_host"] = host
+        updated.append(f"replication remote host to [cyan]{host}[/cyan]")
+
+    if port is not None:
+        cfg.backup["replication_remote_port"] = port
+        updated.append(f"replication remote port to [cyan]{port}[/cyan]")
+
+    if enabled is not None:
+        cfg.backup["replication_enabled"] = enabled
+        state = "enabled" if enabled else "disabled"
+        updated.append(f"replication [cyan]{state}[/cyan]")
+
+    if updated:
+        cfg.save()
+        console.print(f"Updated: {', '.join(updated)}")
+    else:
+        console.print("[yellow]No valid configuration option provided.[/yellow]")

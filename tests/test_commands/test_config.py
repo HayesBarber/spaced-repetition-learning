@@ -4,8 +4,25 @@ from srl.commands.config import Config
 import json
 
 
+def _make_args(**overrides):
+    defaults = dict(
+        get=False,
+        reset_colors=False,
+        set_color=[],
+        audit_probability=None,
+        max_days_without_audit=None,
+        max_backups=None,
+        replication_remote_host=None,
+        replication_remote_port=None,
+        replication_enabled=None,
+    )
+
+    defaults.update(overrides)
+    return SimpleNamespace(**defaults)
+
+
 def test_set_valid_audit_probability(mock_data, console, load_json):
-    args = SimpleNamespace(audit_probability=0.75, get=False)
+    args = _make_args(audit_probability=0.75)
     config.handle(args, console)
 
     data = load_json(mock_data.CONFIG_FILE)
@@ -17,7 +34,7 @@ def test_set_valid_audit_probability(mock_data, console, load_json):
 
 
 def test_set_invalid_negative_probability(mock_data, console, load_json):
-    args = SimpleNamespace(audit_probability=-0.5, get=False)
+    args = _make_args(audit_probability=-0.5)
     config.handle(args, console)
 
     data = load_json(mock_data.CONFIG_FILE)
@@ -28,7 +45,7 @@ def test_set_invalid_negative_probability(mock_data, console, load_json):
 
 
 def test_set_none_probability(mock_data, console, load_json):
-    args = SimpleNamespace(audit_probability=None, get=False)
+    args = _make_args(audit_probability=None)
     config.handle(args, console)
 
     data = load_json(mock_data.CONFIG_FILE)
@@ -39,7 +56,7 @@ def test_set_none_probability(mock_data, console, load_json):
 
 
 def test_config_get(console):
-    args = SimpleNamespace(audit_probability=None, get=True)
+    args = _make_args(get=True)
     config.handle(args, console)
 
     output = console.export_text().strip()
@@ -55,7 +72,7 @@ def test_config_get(console):
 
 
 def test_reset_colors(mock_data, console, load_json):
-    args_set = SimpleNamespace(
+    args_set = _make_args(
         audit_probability=None,
         get=False,
         set_color=["1=#ffffff"],
@@ -72,7 +89,7 @@ def test_reset_colors(mock_data, console, load_json):
         "3": "#00ff00",
     }
 
-    args_reset = SimpleNamespace(
+    args_reset = _make_args(
         audit_probability=None,
         get=False,
         set_color=None,
@@ -94,7 +111,7 @@ def test_reset_colors(mock_data, console, load_json):
 
 
 def test_set_color_valid(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         get=False,
         reset_colors=False,
@@ -112,7 +129,7 @@ def test_set_color_valid(mock_data, console, load_json):
 
 
 def test_set_color_invalid_format(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         get=False,
         reset_colors=False,
@@ -156,7 +173,7 @@ def test_config_load_converts_color_keys_to_ints(mock_data, dump_json):
 
 
 def test_set_valid_max_days_without_audit(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=5,
         get=False,
@@ -174,7 +191,7 @@ def test_set_valid_max_days_without_audit(mock_data, console, load_json):
 
 
 def test_set_max_days_without_audit_to_zero(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=0,
         get=False,
@@ -191,7 +208,7 @@ def test_set_max_days_without_audit_to_zero(mock_data, console, load_json):
 
 
 def test_set_invalid_negative_max_days(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=-1,
         get=False,
@@ -208,7 +225,7 @@ def test_set_invalid_negative_max_days(mock_data, console, load_json):
 
 
 def test_config_get_includes_max_days(console):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=None,
         get=True,
@@ -225,7 +242,7 @@ def test_config_get_includes_max_days(console):
 
 
 def test_set_both_audit_probability_and_max_days(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=0.5,
         max_days_without_audit=3,
         get=False,
@@ -244,7 +261,7 @@ def test_set_both_audit_probability_and_max_days(mock_data, console, load_json):
 
 
 def test_set_max_backups(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=None,
         max_backups=5,
@@ -263,7 +280,7 @@ def test_set_max_backups(mock_data, console, load_json):
 
 
 def test_config_get_includes_backup(console):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=None,
         max_backups=None,
@@ -306,7 +323,7 @@ def test_config_backup_defaults(mock_data, dump_json):
 
 
 def test_set_replication_remote_host(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=None,
         max_backups=None,
@@ -328,7 +345,7 @@ def test_set_replication_remote_host(mock_data, console, load_json):
 
 
 def test_set_replication_remote_port(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=None,
         max_backups=None,
@@ -350,7 +367,7 @@ def test_set_replication_remote_port(mock_data, console, load_json):
 
 
 def test_enable_replication(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=None,
         max_backups=None,
@@ -372,7 +389,7 @@ def test_enable_replication(mock_data, console, load_json):
 
 
 def test_disable_replication(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=None,
         max_backups=None,
@@ -394,7 +411,7 @@ def test_disable_replication(mock_data, console, load_json):
 
 
 def test_set_multiple_replication_settings(mock_data, console, load_json):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=None,
         max_backups=None,
@@ -419,7 +436,7 @@ def test_set_multiple_replication_settings(mock_data, console, load_json):
 
 
 def test_config_get_includes_replication_settings(console):
-    args = SimpleNamespace(
+    args = _make_args(
         audit_probability=None,
         max_days_without_audit=None,
         max_backups=None,

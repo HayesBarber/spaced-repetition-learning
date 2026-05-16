@@ -114,13 +114,13 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     cfg = Config.load()
 
-    if getattr(args, "get", False):
+    if args.get:
         return _handle_get(cfg, console)
 
-    if getattr(args, "reset_colors", False):
+    if args.reset_colors:
         return _handle_reset_colors(cfg, console)
 
-    if getattr(args, "set_color", []):
+    if args.set_color:
         return _handle_set_colors(cfg, console, args)
 
     return _handle_updates(cfg, console, args)

@@ -20,13 +20,13 @@ def add_subparser(subparsers):
 
 
 def handle(args, console: Console):
-    data = load_json(PROGRESS_FILE)
-    name, err = _resolve_name(data, args)
+    progress_data = load_json(PROGRESS_FILE)
+    name, err = _resolve_name(progress_data, args)
     if err:
         return console.print(err)
 
-    del data[name]
-    save_json(PROGRESS_FILE, data)
+    del progress_data[name]
+    save_json(PROGRESS_FILE, progress_data)
     console.print(
         f"[green]Removed[/green] '[cyan]{name}[/cyan]' [green]from in-progress.[/green]"
     )

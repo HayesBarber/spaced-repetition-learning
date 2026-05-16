@@ -100,7 +100,7 @@ def add_subparser(subparsers):
     parser.add_argument(
         "--set-color",
         action="append",
-        help="Set a calendar color (format: level=#hex). Can be repeated",
+        help="Set a color for the calendar heatmap (format: level=#hex). Higher level = more activity. Can be repeated",
     )
     parser.add_argument(
         "--reset-colors",
@@ -114,72 +114,105 @@ def add_subparser(subparsers):
 def handle(args, console: Console):
     cfg = Config.load()
 
-    if getattr(args, "get", False):
-        console.print_json(data=cfg.__dict__)
-    elif getattr(args, "reset_colors", False):
-        cfg.reset_colors()
-        cfg.save()
-        console.print("Colors reset")
-    elif getattr(args, "set_color", []):
-        updated_levels = []
+    if args.get:
+        return _handle_get(cfg, console)
 
-        for entry in args.set_color:
-            try:
-                level_str, hex_value = entry.split("=")
-                level = int(level_str)
-                cfg.calendar_colors[level] = hex_value
-                updated_levels.append(level)
-            except ValueError:
-                console.print(f"[red]Invalid format: {entry}[/red]")
-                continue
+    if args.reset_colors:
+        return _handle_reset_colors(cfg, console)
 
-        cfg.save()
+    if args.set_color:
+        return _handle_set_colors(cfg, console, args)
 
-        if updated_levels:
-            lvls = ", ".join(str(level) for level in updated_levels)
-            console.print(f"[green]Updated colors for level(s): {lvls}.[/green]")
-        else:
-            console.print("[yellow]No valid color updates provided.[/yellow]")
+    return _handle_updates(cfg, console, args)
+
+
+def _handle_get(cfg: Config, console: Console):
+    console.print_json(data=cfg.__dict__)
+
+
+def _handle_reset_colors(cfg: Config, console: Console):
+    cfg.reset_colors()
+    cfg.save()
+    console.print("Colors reset")
+
+
+def _handle_set_colors(cfg: Config, console: Console, args):
+    updated_levels = []
+
+    for entry in args.set_color:
+        try:
+            level_str, hex_value = entry.split("=")
+            level = int(level_str)
+            cfg.calendar_colors[level] = hex_value
+            updated_levels.append(level)
+        except ValueError:
+            console.print(f"[red]Invalid format: {entry}[/red]")
+            continue
+
+    cfg.save()
+
+    if updated_levels:
+        lvls = ", ".join(str(level) for level in updated_levels)
+        console.print(f"[green]Updated colors for level(s): {lvls}.[/green]")
     else:
-        probability: float | None = getattr(args, "audit_probability", None)
-        max_days: int | None = getattr(args, "max_days_without_audit", None)
-        max_backups: int | None = getattr(args, "max_backups", None)
-        host: str | None = getattr(args, "replication_remote_host", None)
-        port: int | None = getattr(args, "replication_remote_port", None)
-        enabled: bool | None = getattr(args, "replication_enabled", None)
+        console.print("[yellow]No valid color updates provided.[/yellow]")
 
-        updated = []
 
-        if probability is not None and probability >= 0:
-            cfg.set("audit_probability", probability)
-            updated.append(f"audit probability to [cyan]{probability}[/cyan]")
+def _handle_updates(cfg: Config, console: Console, args):
+    updated = []
 
-        if max_days is not None and max_days >= 0:
-            cfg.set("max_days_without_audit", max_days)
-            if max_days == 0:
-                updated.append("max days without audit to [cyan]disabled[/cyan]")
-            else:
-                updated.append(f"max days without audit to [cyan]{max_days}[/cyan]")
+    updates = [
+        (
+            args.audit_probability,
+            lambda v: v >= 0,
+            lambda v: cfg.set("audit_probability", v),
+            lambda v: f"audit probability to [cyan]{v}[/cyan]",
+        ),
+        (
+            args.max_days_without_audit,
+            lambda v: v >= 0,
+            lambda v: cfg.set("max_days_without_audit", v),
+            lambda v: (
+                "max days without audit to [cyan]disabled[/cyan]"
+                if v == 0
+                else f"max days without audit to [cyan]{v}[/cyan]"
+            ),
+        ),
+    ]
 
-        if max_backups is not None and max_backups > 0:
-            cfg.backup["max_backups"] = max_backups
-            updated.append(f"max backups to [cyan]{max_backups}[/cyan]")
+    for value, validator, setter, message in updates:
+        if value is None or not validator(value):
+            continue
 
-        if host is not None:
-            cfg.backup["replication_remote_host"] = host
-            updated.append(f"replication remote host to [cyan]{host}[/cyan]")
+        setter(value)
+        updated.append(message(value))
 
-        if port is not None:
-            cfg.backup["replication_remote_port"] = port
-            updated.append(f"replication remote port to [cyan]{port}[/cyan]")
+    _handle_backup_updates(cfg, args, updated)
 
-        if enabled is not None:
-            cfg.backup["replication_enabled"] = enabled
-            state = "enabled" if enabled else "disabled"
+    if not updated:
+        return console.print("[yellow]No valid configuration option provided.[/yellow]")
+
+    cfg.save()
+    console.print(f"Updated: {', '.join(updated)}")
+
+
+def _handle_backup_updates(cfg, args, updated):
+    replication_updates = {
+        "max_backups": args.max_backups,
+        "replication_remote_host": args.replication_remote_host,
+        "replication_remote_port": args.replication_remote_port,
+        "replication_enabled": args.replication_enabled,
+    }
+
+    for key, value in replication_updates.items():
+        if value is None:
+            continue
+
+        cfg.backup[key] = value
+
+        if key == "replication_enabled":
+            state = "enabled" if value else "disabled"
             updated.append(f"replication [cyan]{state}[/cyan]")
-
-        if updated:
-            cfg.save()
-            console.print(f"Updated: {', '.join(updated)}")
         else:
-            console.print("[yellow]No valid configuration option provided.[/yellow]")
+            label = key.replace("_", " ")
+            updated.append(f"{label} to [cyan]{value}[/cyan]")

@@ -45,11 +45,22 @@ def _resolve_name(progress_data, args):
         name = names[args.number - 1]
 
     if name:
-        if name not in progress_data:
+        key = _resolve_in_progress_key(progress_data, name.lower())
+        if not key:
             return (
                 None,
                 f"[red]Problem[/red] '[cyan]{name}[/cyan]' [red]not found in in-progress.[/red]",
             )
-        return name, None
+        return key, None
 
     return None, "[red]Invalid args[/red]"
+
+
+def _resolve_in_progress_key(progress_data: dict, name):
+    """Returns progress_data key if name is in progress_data, None otherwise. Case insensitive. Expects name to be passed in as lowercase"""
+
+    for key in progress_data:
+        if key.lower() == name:
+            return key
+
+    return None

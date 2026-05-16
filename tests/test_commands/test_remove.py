@@ -20,6 +20,23 @@ def test_remove_existing_problem(mock_data, load_json, console):
     assert problem in output
 
 
+def test_remove_problem_case_insensitive(mock_data, load_json, console):
+    problem = "Test Problem"
+    rating = 3
+    args = SimpleNamespace(name=problem, rating=rating)
+    add.handle(args, console)
+
+    args = SimpleNamespace(name=problem.upper())
+    remove.handle(args=args, console=console)
+
+    data = load_json(mock_data.PROGRESS_FILE)
+    assert problem not in data
+
+    output = console.export_text()
+    assert "Removed" in output
+    assert problem in output
+
+
 def test_remove_nonexistent_problem(mock_data, load_json, console):
     problem = "Nonexistent Problem"
     args = SimpleNamespace(name=problem)

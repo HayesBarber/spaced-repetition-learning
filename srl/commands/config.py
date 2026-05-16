@@ -100,7 +100,7 @@ def add_subparser(subparsers):
     parser.add_argument(
         "--set-color",
         action="append",
-        help="Set a calendar color (format: level=#hex). Can be repeated",
+        help="Set a color for the calendar heatmap (format: level=#hex). Higher level = more activity. Can be repeated",
     )
     parser.add_argument(
         "--reset-colors",

@@ -97,7 +97,7 @@ def _resolve_problem_name(args) -> tuple[str, str]:
         name = problems[args.number - 1][0]
         return name, None
 
-    if hasattr(args, "name"):
+    if getattr(args, "name", None):
         return args.name, None
 
     problems = get_due_problems()

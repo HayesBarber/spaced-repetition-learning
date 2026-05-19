@@ -69,7 +69,7 @@ Create a venv or use `--system` for system wide installation
    srl add <rating>
    ```
 
-   > by default this adds a rating for the first problem from `srl list`
+   > by default this adds a rating to the first problem from `srl list`
 4. Rinse and repeat daily
 
 ## Usage

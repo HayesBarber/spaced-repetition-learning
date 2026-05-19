@@ -115,10 +115,9 @@ srl remove "Two Sum"
 ```
 
 ```bash
+# problem number from 'srl inprogress'
 srl remove -n 3
 ```
-
-- Removes a problem from your in-progress list.
 
 ---
 

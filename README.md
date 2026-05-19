@@ -84,13 +84,13 @@ Create a venv or use `--system` for system wide installation
 srl add 3
 ```
 
-You can specify a problem name / url. This is generally used for one-off, net-new problems.
+You can specify a problem name / url.
 
 ```bash
 srl add 3 -p "Two Sum" -u "https://leetcode.com/problems/two-sum/"
 ```
 
-You can also add an attempt by its number in the `srl list` output if you attempted a problem out of order.
+You can also add an attempt by its number in the `srl list` output.
 
 ```bash
 # Assuming "Two Sum" is number 2 in `srl list`

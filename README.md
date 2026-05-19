@@ -63,48 +63,45 @@ Create a venv or use `--system` for system wide installation
    ```bash
    srl list
    ```
-3. Work on problems and log the attempts with a rating
+3. Work on problems in order and log the attempts with a rating
 
    ```bash
-   srl add <problem> <rating>
+   srl add <rating>
    ```
+
+   > by default this rates the first problem from `srl list`
 4. Rinse and repeat daily
 
 ## Usage
 
 ### Add or Update a Problem Attempt
 
-```bash
-srl add "Two Sum" 3
-```
-
 - Adds a new attempt or updates an existing one.
 - Rating must be between `1` and `5`.
-
-To include a URL to the problem (only needed on the first add):
+- Uses the first problem from `srl list` by default
 
 ```bash
-srl add "Two Sum" 3 -u "https://leetcode.com/problems/two-sum/"
+srl add 3
 ```
 
-You can also add an attempt by its number in the `srl list` output. This is useful to avoid retyping long problem names.
+You can specify a problem name / url. This is generally used for one-off, net-new problems.
 
 ```bash
-# Assuming "Two Sum" is number 1 in `srl list`
-srl add -n 1 3
+srl add 3 -p "Two Sum" -u "https://leetcode.com/problems/two-sum/"
+```
+
+You can also add an attempt by its number in the `srl list` output if you attempted a problem out of order.
+
+```bash
+# Assuming "Two Sum" is number 2 in `srl list`
+srl add 3 -n 2
 ```
 
 If you make a typo in the rating, use `--amend` to replace the last attempt instead of adding a new one. The original date is preserved.
 
 ```bash
-srl add "Two Sum" 1        # Oops, meant 5
-srl add "Two Sum" 5 --amend  # Replaces the previous rating, keeps the date
-```
-
-`--amend` also works with `-n`:
-
-```bash
-srl add -n 1 5 --amend
+srl add 1                       # Oops, meant 5
+srl add 5 -p "Two Sum" --amend  # Replaces the previous rating, keeps the date
 ```
 
 ---

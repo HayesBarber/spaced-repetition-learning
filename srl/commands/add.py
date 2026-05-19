@@ -74,6 +74,7 @@ def handle(args, console: Console):
     target_name = _get_canonical_name(progress_data, name)
     entry: dict = progress_data.get(target_name, {"history": []})
     if getattr(args, "amend", False):
+        console.print(f"[yellow]Amending {name}[/yellow]")
         if err := _amend_problem(progress_data, entry, target_name, rating):
             return console.print(err)
     else:

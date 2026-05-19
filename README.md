@@ -97,7 +97,7 @@ You can also add an attempt by its number in the `srl list` output.
 srl add 3 -n 2
 ```
 
-If you make a typo in the rating, use `--amend` to replace the last attempt instead of adding a new one. The original date is preserved.
+If you make a typo in the rating, use `--amend` to replace the last attempt instead of adding a new one.
 
 ```bash
 srl add 1                       # Oops, meant 5

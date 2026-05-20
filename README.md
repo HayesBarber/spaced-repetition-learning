@@ -178,14 +178,17 @@ srl ledger
 
 Displays a table of all your attempts across in-progress, mastered, and audit categories, sorted by date.
 
-You can filter to a specific problem by name or by number from `srl list`:
+You can filter to a specific problem by name:
 
 ```bash
-srl ledger "Two Sum"
-srl ledger -n 1
+srl ledger -p "Two Sum"
 ```
 
-This renders a focused view showing all attempts for that problem, sorted most recent first, with the title `Two Sum (3)` indicating the total attempt count.
+Or by number from `srl list`:
+
+```bash
+srl ledger -n 1
+```
 
 You can show the count of attempts by passing in the `-c` or `--count` flag.
 
@@ -240,21 +243,13 @@ List problems in the queue:
 srl nextup list
 ```
 
-To include URLs as clickable links when listing, use the `-u` flag:
-
-```bash
-srl nextup list -u
-```
-
-This will display problems with their stored URLs as "[Open in Browser]" links when available.
-
 Remove a problem from the queue:
 
 ```bash
 srl nextup remove "Sliding Window Maximum"
 ```
 
-Remove a problem by number:
+Remove a problem by number from `srl nextup list`:
 
 ```bash
 srl nextup remove -n 1

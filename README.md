@@ -140,15 +140,7 @@ You can limit the number of problems shown:
 srl list -n 3
 ```
 
-To include URLs as clickable links, use the `-u` flag:
-
-```bash
-srl list -u
-```
-
-This will display problems with their stored URLs as "[Open in Browser]" links when available.
-
-If no problems are due today, it will fall back to showing problems from the Next Up queue with URLs if they exist.
+If no problems are due today, it will fall back to showing problems from the Next Up queue.
 
 ---
 
@@ -159,14 +151,6 @@ srl inprogress
 ```
 
 Shows all problems that are currently in progress (not yet mastered) as a numbered list.
-
-To include URLs as clickable links, use the `-u` flag:
-
-```bash
-srl inprogress -u
-```
-
-This will display problems with their stored URLs as "[Open in Browser]" links when available.
 
 ---
 

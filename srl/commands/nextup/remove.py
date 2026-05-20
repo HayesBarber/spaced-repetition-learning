@@ -12,12 +12,13 @@ def add_subparser(subparsers):
         "remove",
         help="Remove a problem from the queue",
     )
-    remove_parser.add_argument(
+    group = remove_parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
         "name",
         nargs="?",
         help="Problem name to remove",
     )
-    remove_parser.add_argument(
+    group.add_argument(
         "-n",
         "--number",
         type=int,

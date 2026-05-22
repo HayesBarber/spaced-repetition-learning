@@ -63,48 +63,45 @@ Create a venv or use `--system` for system wide installation
    ```bash
    srl list
    ```
-3. Work on problems and log the attempts with a rating
+3. Work on problems in order and log the attempts with a rating
 
    ```bash
-   srl add <problem> <rating>
+   srl add <rating>
    ```
+
+   > by default this adds a rating to the first problem from `srl list`
 4. Rinse and repeat daily
 
 ## Usage
 
 ### Add or Update a Problem Attempt
 
-```bash
-srl add "Two Sum" 3
-```
-
 - Adds a new attempt or updates an existing one.
 - Rating must be between `1` and `5`.
-
-To include a URL to the problem (only needed on the first add):
+- Uses the first problem from `srl list` by default
 
 ```bash
-srl add "Two Sum" 3 -u "https://leetcode.com/problems/two-sum/"
+srl add 3
 ```
 
-You can also add an attempt by its number in the `srl list` output. This is useful to avoid retyping long problem names.
+You can specify a problem name / url.
 
 ```bash
-# Assuming "Two Sum" is number 1 in `srl list`
-srl add -n 1 3
+srl add 3 -p "Two Sum" -u "https://leetcode.com/problems/two-sum/"
 ```
 
-If you make a typo in the rating, use `--amend` to replace the last attempt instead of adding a new one. The original date is preserved.
+You can also add an attempt by its number in the `srl list` output.
 
 ```bash
-srl add "Two Sum" 1        # Oops, meant 5
-srl add "Two Sum" 5 --amend  # Replaces the previous rating, keeps the date
+# Assuming "Two Sum" is number 2 in `srl list`
+srl add 3 -n 2
 ```
 
-`--amend` also works with `-n`:
+If you make a typo in the rating, use `--amend` to replace the last attempt instead of adding a new one.
 
 ```bash
-srl add -n 1 5 --amend
+srl add 1                       # Oops, meant 5
+srl add 5 -p "Two Sum" --amend  # Replaces the previous rating, keeps the date
 ```
 
 ---
@@ -118,10 +115,9 @@ srl remove "Two Sum"
 ```
 
 ```bash
+# problem number from 'srl inprogress'
 srl remove -n 3
 ```
-
-- Removes a problem from your in-progress list.
 
 ---
 
@@ -144,15 +140,7 @@ You can limit the number of problems shown:
 srl list -n 3
 ```
 
-To include URLs as clickable links, use the `-u` flag:
-
-```bash
-srl list -u
-```
-
-This will display problems with their stored URLs as "[Open in Browser]" links when available.
-
-If no problems are due today, it will fall back to showing problems from the Next Up queue with URLs if they exist.
+If no problems are due today, it will fall back to showing problems from the Next Up queue.
 
 ---
 
@@ -163,14 +151,6 @@ srl inprogress
 ```
 
 Shows all problems that are currently in progress (not yet mastered) as a numbered list.
-
-To include URLs as clickable links, use the `-u` flag:
-
-```bash
-srl inprogress -u
-```
-
-This will display problems with their stored URLs as "[Open in Browser]" links when available.
 
 ---
 
@@ -198,14 +178,17 @@ srl ledger
 
 Displays a table of all your attempts across in-progress, mastered, and audit categories, sorted by date.
 
-You can filter to a specific problem by name or by number from `srl list`:
+You can filter to a specific problem by name:
 
 ```bash
-srl ledger "Two Sum"
-srl ledger -n 1
+srl ledger -p "Two Sum"
 ```
 
-This renders a focused view showing all attempts for that problem, sorted most recent first, with the title `Two Sum (3)` indicating the total attempt count.
+Or by number from `srl list`:
+
+```bash
+srl ledger -n 1
+```
 
 You can show the count of attempts by passing in the `-c` or `--count` flag.
 
@@ -260,21 +243,13 @@ List problems in the queue:
 srl nextup list
 ```
 
-To include URLs as clickable links when listing, use the `-u` flag:
-
-```bash
-srl nextup list -u
-```
-
-This will display problems with their stored URLs as "[Open in Browser]" links when available.
-
 Remove a problem from the queue:
 
 ```bash
 srl nextup remove "Sliding Window Maximum"
 ```
 
-Remove a problem by number:
+Remove a problem by number from `srl nextup list`:
 
 ```bash
 srl nextup remove -n 1
@@ -295,7 +270,7 @@ When running `srl list` there is a 10% chance you will be "audited" with a probl
 You can also manually trigger an audit:
 
 ```bash
-srl audit
+srl audit run
 ```
 
 If you passed the audit:
@@ -342,7 +317,7 @@ Set to 0 to disable the max days check and rely solely on probability:
 srl config --max-days-without-audit 0
 ```
 
-Configure the maximum number of backups to retain for `srl backup` (default is 10):
+Configure the maximum number of backups to retain for `srl backup create` (default is 10):
 
 ```bash
 srl config --max-backups 5
@@ -376,21 +351,11 @@ srl take <index>
 
 This prints the problem at the given index (as shown in `srl list`), making it easy to copy or pipe elsewhere.
 
-- Print the URL at a specific index:
+Print the URL at a specific index:
 
 ```bash
 srl take <index> -u
 ```
-
-This prints the URL stored for the problem at that index, or `None` if no URL exists.
-
-- Add a problem at a given index with a rating:
-
-```bash
-srl take <index> add <rating>
-```
-
-This adds the problem at that index with your given rating (1-5), just like `srl add`. It's a shortcut to avoid retyping problem names.
 
 ---
 
@@ -425,11 +390,13 @@ srl calendar --from-first
 You can customize the colors used by `srl calendar`. Colors are configured by intensity level, where level 0 is the lowest activity and higher numbers represent stronger activity.
 
 Set one or more levels with:
+
 ```bash
 srl config --set-color 0=#1a1a1a --set-color 1=#99e699
 ```
 
 To reset the heatmap colors back to the defaults:
+
 ```bash
 srl config --reset-colors
 ```
@@ -549,7 +516,7 @@ When a backup is replicated from another SRL instance, it is saved to the local 
 Create a backup archive of all your SRL storage data:
 
 ```bash
-srl backup
+srl backup create
 ```
 
 This creates a `tar.gz` archive in `~/.srl/backups/` with:
@@ -610,7 +577,7 @@ srl config --replication-enabled
 srl config --replication-disabled
 ```
 
-When replication is enabled, running `srl backup` will automatically send the backup to the configured remote server's `/backup` endpoint. The remote server must be running `srl server` to accept replicated backups.
+When replication is enabled, running `srl backup create` will automatically send the backup to the configured remote server's `/backup` endpoint. The remote server must be running `srl server` to accept replicated backups.
 
 ---
 

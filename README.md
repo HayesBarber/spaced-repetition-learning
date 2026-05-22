@@ -270,7 +270,7 @@ When running `srl list` there is a 10% chance you will be "audited" with a probl
 You can also manually trigger an audit:
 
 ```bash
-srl audit
+srl audit run
 ```
 
 If you passed the audit:
@@ -317,7 +317,7 @@ Set to 0 to disable the max days check and rely solely on probability:
 srl config --max-days-without-audit 0
 ```
 
-Configure the maximum number of backups to retain for `srl backup` (default is 10):
+Configure the maximum number of backups to retain for `srl backup create` (default is 10):
 
 ```bash
 srl config --max-backups 5
@@ -351,21 +351,11 @@ srl take <index>
 
 This prints the problem at the given index (as shown in `srl list`), making it easy to copy or pipe elsewhere.
 
-- Print the URL at a specific index:
+Print the URL at a specific index:
 
 ```bash
 srl take <index> -u
 ```
-
-This prints the URL stored for the problem at that index, or `None` if no URL exists.
-
-- Add a problem at a given index with a rating:
-
-```bash
-srl take <index> add <rating>
-```
-
-This adds the problem at that index with your given rating (1-5), just like `srl add`. It's a shortcut to avoid retyping problem names.
 
 ---
 
@@ -400,11 +390,13 @@ srl calendar --from-first
 You can customize the colors used by `srl calendar`. Colors are configured by intensity level, where level 0 is the lowest activity and higher numbers represent stronger activity.
 
 Set one or more levels with:
+
 ```bash
 srl config --set-color 0=#1a1a1a --set-color 1=#99e699
 ```
 
 To reset the heatmap colors back to the defaults:
+
 ```bash
 srl config --reset-colors
 ```
@@ -524,7 +516,7 @@ When a backup is replicated from another SRL instance, it is saved to the local 
 Create a backup archive of all your SRL storage data:
 
 ```bash
-srl backup
+srl backup create
 ```
 
 This creates a `tar.gz` archive in `~/.srl/backups/` with:
@@ -585,7 +577,7 @@ srl config --replication-enabled
 srl config --replication-disabled
 ```
 
-When replication is enabled, running `srl backup` will automatically send the backup to the configured remote server's `/backup` endpoint. The remote server must be running `srl server` to accept replicated backups.
+When replication is enabled, running `srl backup create` will automatically send the backup to the configured remote server's `/backup` endpoint. The remote server must be running `srl server` to accept replicated backups.
 
 ---
 

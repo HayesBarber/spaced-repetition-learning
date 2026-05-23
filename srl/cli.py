@@ -18,11 +18,11 @@ from srl.commands import (
 
 
 def get_version() -> str:
-    try:
-        from srl._version import version
+    from importlib.metadata import PackageNotFoundError, version
 
-        return version
-    except Exception:
+    try:
+        return version("srl")
+    except PackageNotFoundError:
         return "unknown"
 
 

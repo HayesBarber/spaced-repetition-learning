@@ -36,6 +36,7 @@ def handle(args, console: Console):
         if not mastered_problems:
             console.print("[yellow]No mastered problems yet.[/yellow]")
         else:
+            mastered_problems.sort(key=lambda x: x[2])
             table = Table(
                 title=f"Mastered Problems ({mastered_count})", title_justify="left"
             )

@@ -8,6 +8,7 @@ from srl.storage import (
     AUDIT_FILE,
 )
 from srl.commands.list_ import get_due_problems
+from srl.utils import fuzzy_find
 
 
 def add_subparser(subparsers):
@@ -68,7 +69,11 @@ def handle(args, console: Console):
         lower,
     )
 
-    all_attempts.sort(key=lambda x: x["date"])
+    query = getattr(args, "query", None)
+    if query:
+        all_attempts = [match for score, match in fuzzy_find(query, all_attempts)]
+    else:
+        all_attempts.sort(key=lambda x: x["date"])
 
     if name and not all_attempts:
         console.print(f"[red]No problem found matching '{name}'.[/red]")

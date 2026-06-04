@@ -37,14 +37,18 @@ def _score(query: str, candidate: str) -> int | None:
     return score
 
 
-def fuzzy_find(target: str, problems: list[str]) -> list[tuple[int, str]]:
-    matches: list[tuple[int, str]] = []
-    target = target.lower()
+def fuzzy_find(query: str, problems: list[dict]) -> list[tuple[int, dict]]:
+    matches: list[tuple[int, dict]] = []
+    target = query.lower()
 
-    for problem in problems:
+    for d in problems:
+        problem = d.get("problem")
+        if not problem:
+            continue
+
         score = _score(target, problem.lower())
         if score is not None:
-            matches.append((score, problem))
+            matches.append((score, d))
 
-    matches.sort(key=lambda x: (-x[0], x[1]))
+    matches.sort(key=lambda x: (-x[0], x[1]["problem"]))
     return matches

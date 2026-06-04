@@ -72,8 +72,8 @@ def handle(args, console: Console):
     query = getattr(args, "query", None)
     if query:
         all_attempts = fuzzy_find(query, all_attempts, lambda x: x["problem"])
-    else:
-        all_attempts.sort(key=lambda x: x["date"])
+
+    all_attempts.sort(key=lambda x: x["date"])
 
     if name and not all_attempts:
         console.print(f"[red]No problem found matching '{name}'.[/red]")

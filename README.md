@@ -162,7 +162,13 @@ srl mastered
 
 Shows all problems you’ve marked as mastered (achieved `5` twice in a row).
 
-You can show the count of mastered problems by passing in the `-c` or `--count` flag.
+Filter by fuzzy search:
+
+```bash
+srl mastered -f "two sum"
+```
+
+Show the count of mastered problems by passing in the `-c` or `--count` flag:
 
 ```bash
 srl mastered -c
@@ -178,10 +184,11 @@ srl ledger
 
 Displays a table of all your attempts across in-progress, mastered, and audit categories, sorted by date.
 
-You can filter to a specific problem by name:
+Filter by exact name (case-insensitive) or fuzzy search:
 
 ```bash
 srl ledger -p "Two Sum"
+srl ledger -f "two sum"
 ```
 
 Or by number from `srl list`:

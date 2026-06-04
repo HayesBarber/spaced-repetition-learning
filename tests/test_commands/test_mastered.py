@@ -54,6 +54,27 @@ def test_mastered_list_empty(console):
     assert "No mastered problems yet" in output
 
 
+def test_mastered_fuzzy_filter(console):
+    problem_a = "Problem A"
+    problem_b = "Other B"
+
+    args = SimpleNamespace(name=problem_a, rating=5)
+    add.handle(args, console)
+    add.handle(args, console)
+
+    args = SimpleNamespace(name=problem_b, rating=5)
+    add.handle(args, console)
+    add.handle(args, console)
+
+    console.clear()
+    args = SimpleNamespace(query="Prob")
+    mastered.handle(args=args, console=console)
+
+    output = console.export_text()
+    assert "Problem A" in output
+    assert "Other B" not in output
+
+
 def test_get_mastered_problems_filters_empty_history(console, today_string):
     problem_a = "Problem A"
 

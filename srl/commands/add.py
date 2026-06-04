@@ -142,7 +142,7 @@ def _update_progress_data(progress_data, entry, name) -> str:
     display_text = _check_mastery(progress_data, entry, name)
     if not display_text:
         progress_data[name] = entry
-        display_text = f"Added rating [yellow]{entry["history"][-1]["rating"]}[/yellow] for '[cyan]{name}[/cyan]'"
+        display_text = f"Added rating [yellow]{entry['history'][-1]['rating']}[/yellow] for '[cyan]{name}[/cyan]'"
 
     save_json(PROGRESS_FILE, progress_data)
 

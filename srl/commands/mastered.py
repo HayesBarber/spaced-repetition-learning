@@ -52,19 +52,7 @@ def handle(args, console: Console):
 def _resolve_query(query, mastered_problems):
     if not query:
         return (mastered_problems, len(mastered_problems))
-
-    problems = [
-        {
-            "problem": name,
-            "attempts": attempts,
-            "mastered_date": mastered_date,
-        }
-        for name, attempts, mastered_date in mastered_problems
-    ]
-    results = fuzzy_find(query, problems)
-    mastered_problems = [
-        (d["problem"], d["attempts"], d["mastered_date"]) for _, d in results
-    ]
+    mastered_problems = fuzzy_find(query, mastered_problems, lambda x: x[0])
     return (mastered_problems, len(mastered_problems))
 
 

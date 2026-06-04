@@ -71,7 +71,7 @@ def handle(args, console: Console):
 
     query = getattr(args, "query", None)
     if query:
-        all_attempts = [match for score, match in fuzzy_find(query, all_attempts)]
+        all_attempts = fuzzy_find(query, all_attempts, lambda x: x["problem"])
     else:
         all_attempts.sort(key=lambda x: x["date"])
 

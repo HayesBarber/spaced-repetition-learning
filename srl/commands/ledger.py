@@ -39,7 +39,7 @@ def add_subparser(subparsers):
         "--problem",
         type=str,
         dest="name",
-        help="Filter by problem name (case insensitive)",
+        help="Filter results by exact problem name (case-insensitive)",
     )
 
     group.add_argument(

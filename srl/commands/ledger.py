@@ -38,7 +38,15 @@ def add_subparser(subparsers):
         "--problem",
         type=str,
         dest="name",
-        help="Filter by problem name",
+        help="Filter by problem name (case insensitive)",
+    )
+
+    group.add_argument(
+        "-f",
+        "--fuzzy",
+        type=str,
+        dest="query",
+        help="Fuzzy find by query",
     )
 
     parser.set_defaults(handler=handle)

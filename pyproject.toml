@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "srl"
-version = "18.0.1"
+version = "18.1.0"
 description = "Spaced repetition learning CLI tool"
 authors = [{ name = "Hayes Barber" }]
 requires-python = ">=3.10"

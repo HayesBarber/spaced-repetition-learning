@@ -17,7 +17,7 @@ def add_subparser(subparsers):
         "--fuzzy",
         type=str,
         dest="query",
-        help="Fuzzy find by query",
+        help="Filter results using a fuzzy search query",
     )
     parser.set_defaults(handler=handle)
     return parser

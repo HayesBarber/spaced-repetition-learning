@@ -1,7 +1,10 @@
 from pathlib import Path
 import json
+import os
 
-DATA_DIR = Path.home() / ".srl"
+env_dir = os.environ.get("SRL_DATA_DIR")
+DATA_DIR = Path(env_dir).expanduser() if env_dir else Path.home() / ".srl"
+
 PROGRESS_FILE = DATA_DIR / "problems_in_progress.json"
 MASTERED_FILE = DATA_DIR / "problems_mastered.json"
 NEXT_UP_FILE = DATA_DIR / "next_up.json"

@@ -20,7 +20,14 @@ If you rate a problem `5` two times in a row, it’s considered mastered and mov
 
 ## Data Storage
 
-Data is stored in the `~/.srl` directory, which is created automatically.
+By default, data is stored in the `~/.srl` directory, which is created automatically.
+Set the `SRL_DATA_DIR` environment variable to use a different storage directory:
+
+```bash
+SRL_DATA_DIR="$HOME/.srl-aoc" srl add 4 -p "Day 1"
+```
+
+Each data directory is independent. `SRL_DATA_DIR` defaults to `~/.srl`.
 
 ## Installation
 
@@ -526,7 +533,7 @@ Create a backup archive of all your SRL storage data:
 srl backup create
 ```
 
-This creates a `tar.gz` archive in `~/.srl/backups/` with:
+This creates a `tar.gz` archive in `<data-dir>/backups/` (`~/.srl/backups/` by default) containing:
 - All storage files (`problems_in_progress.json`, `problems_mastered.json`, `next_up.json`, `audit.json`, `config.json`)
 - A `manifest.json` containing schema version, creation timestamp, and list of included files
 
